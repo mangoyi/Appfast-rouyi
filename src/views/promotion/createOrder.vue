@@ -2,9 +2,9 @@
 <template>
   <div>
     <el-form ref="elForm" :model="formData" :rules="rules" size="medium" label-width="300px">
-      <el-form-item label-width="100px" label="单选框组" prop="field101">
-        <el-radio-group v-model="formData.field101" size="medium">
-          <el-radio-button v-for="(item, index) in field101Options" :key="index" :label="item.value"
+      <el-form-item label-width="100px" label="订单类型" prop="orderType">
+        <el-radio-group v-model="formData.orderType" size="medium">
+          <el-radio-button v-for="(item, index) in orderTypeOptions" :key="index" :label="item.value"
             :disabled="item.disabled" border>{{item.label}}</el-radio-button>
         </el-radio-group>
       </el-form-item>
@@ -13,41 +13,242 @@
     <el-row :gutter="15">
       <el-form ref="elForm" :model="formData" :rules="rules" size="medium" label-width="100px">
         <el-col :span="20">
-          <el-form-item label="应用商店" prop="appType">
-            <el-radio-group v-model="formData.appType" size="medium">
-              <el-radio-button v-for="(item, index) in appTypeOptions" :key="index" :label="item.value"
+          <el-form-item label="应用商店" prop="storeType">
+            <el-radio-group v-model="formData.storeType" size="medium">
+              <el-radio-button v-for="(item, index) in storeTypeOptions" :key="index" :label="item.value"
                 :disabled="item.disabled">{{item.label}}</el-radio-button>
             </el-radio-group>
           </el-form-item>
         </el-col>
         <el-col :span="24">
-          <el-form-item label="应用" prop="appName">
-            <el-select v-model="formData.appName" filterable :style="{width: '30%'}"></el-select>
-          </el-form-item>
-          <el-form-item label="用户名" prop="userId">
-            <el-select v-model="formData.userId" placeholder="请输入或选择用户" 
-                  filterable 
-                  remote 
-                  :remote-method="handleUserSearch"
-                  :loading="userListLoading"
-                  clearable
-                  :style="{width: '30%'}">
-            <el-option v-for="item in userListOptions" :key="item.value" :label="item.label"
-                    :value="item.value"></el-option>
+          <el-form-item label="应用" prop="appId">
+            <el-select v-model="formData.appId" filterable placeholder="请选择应用" :style="{width: '30%'}" :loading="appListLoading">
+              <el-option v-for="app in appListOptions" :key="app.value" :label="app.label" :value="app.value"></el-option>
             </el-select>
-        </el-form-item>
-        </el-col>
-        <el-col :span="14">
-          <el-form-item label="国家/地区" prop="country">
-            <el-select v-model="formData.country" placeholder="请选择国家/地区" multiple filterable clearable
-              :style="{width: '30%'}"></el-select>
           </el-form-item>
         </el-col>
         <el-col :span="24">
           <el-form-item label="订单时间" prop="orderDate">
+            <template v-if="formData.orderType == 1">
+              <el-date-picker type="date" v-model="formData.orderDate" format="yyyy-MM-dd"
+                value-format="yyyy-MM-dd" :style="{width: '30%'}" placeholder="请选择日期" clearable></el-date-picker>
+            </template>
+            <template v-else>
             <el-date-picker type="daterange" v-model="formData.orderDate" format="yyyy-MM-dd"
               value-format="yyyy-MM-dd" :style="{width: '50%'}" start-placeholder="开始日期"
               end-placeholder="结束日期" range-separator="至" clearable></el-date-picker>
+            </template>
+          </el-form-item>
+        </el-col>
+        <el-col :span="24">
+          <el-divider></el-divider>
+        </el-col>
+        <el-col :span="24" v-if="formData.orderType == 1 || formData.orderType == 2 || formData.orderType == 3 || formData.orderType == 4">
+          <el-form-item label="执行小时" prop="executeHour">
+            <el-select v-model="formData.executeHour" placeholder="请选择执行小时" filterable clearable
+              :style="{width: '30%'}" :loading="executeHourLoading">
+              <el-option v-for="hour in executeHourOptions" :key="hour.value" :label="hour.label" :value="hour.value"></el-option>
+            </el-select>
+          </el-form-item>
+        </el-col>
+        <el-col :span="24">
+          <!-- 关键词安装 -->
+          <el-form-item label="地区关键字配置" prop="orderAreaKeywords" v-if="formData.orderType == 1">
+            <div v-for="(areaConfig, areaIndex) in formData.orderAreaKeywords" :key="areaIndex" style="margin-bottom: 20px; border: 1px solid #dcdfe6; padding: 15px; border-radius: 4px;">
+              <el-row :gutter="15">
+                <el-col :span="6">
+                  <el-form-item :label="`国家/地区`">
+                    <el-select v-model="areaConfig.area" placeholder="请选择国家/地区" filterable clearable style="width: 100px">
+                      <el-option v-for="country in countryOptions" :key="country.value" :label="country.label" :value="country.value"></el-option>
+                    </el-select>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="2">
+                  <el-form-item label="操作">
+                    <el-button type="danger" size="small" @click="removeAreaConfig(areaIndex)">删除地区</el-button>
+                  </el-form-item>
+                </el-col>
+              </el-row>
+              
+              <el-table :data="areaConfig.keywordList" border style="width: 100%; margin-top: 10px;">
+                <el-table-column prop="keyword" label="关键词" width="200">
+                  <template slot-scope="scope">
+                    <el-input v-if="scope.$index === 0" v-model="scope.row.keyword" placeholder="请输入关键词" @keyup.enter.native="handleKeywordEnter(scope.row, areaIndex)"></el-input>
+                    <span v-else>{{ scope.row.keyword }}</span>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="count" label="每日数量" width="150">
+                  <template slot-scope="scope">
+                    <el-input v-model="scope.row.count" placeholder="请输入每日数量"></el-input>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="ranking" label="排名" width="120">
+                  <template slot-scope="scope">
+                    <span>{{ scope.row.ranking || '-' }}</span>
+                  </template>
+                </el-table-column>
+                <el-table-column label="操作" width="120">
+                  <template slot-scope="scope">
+                    <el-button v-if="scope.$index > 0" type="text" @click="removeKeywordRow(scope.$index, areaIndex)">删除</el-button>
+                  </template>
+                </el-table-column>
+              </el-table>
+            </div>
+            
+            <div style="margin-top: 10px;">
+              <el-button type="primary" size="small" @click="addAreaConfig">添加地区配置</el-button>
+            </div>
+          </el-form-item>
+           <!-- 下载量 -->
+           <el-form-item label="地区下载量配置" prop="orderAreaKeywords" v-if="formData.orderType == 2">
+             <div v-for="(areaConfig, areaIndex) in formData.orderAreaKeywords" :key="areaIndex" style="margin-bottom: 20px; border: 1px solid #dcdfe6; padding: 15px; border-radius: 4px;">
+               <el-row :gutter="15">
+                 <el-col :span="6">
+                   <el-form-item :label="`国家/地区`">
+                     <el-select v-model="areaConfig.area" placeholder="国家/地区" filterable clearable style="width: 100px">
+                       <el-option v-for="country in countryOptions" :key="country.value" :label="country.label" :value="country.value"></el-option>
+                     </el-select>
+                   </el-form-item>
+                 </el-col>
+                 <el-col :span="6">
+                   <el-form-item label="安装量">
+                     <el-input v-model="areaConfig.downloadCount" placeholder="安装量" style="width: 100px"></el-input>
+                   </el-form-item>
+                 </el-col>
+                 <el-col :span="2">
+                   <el-form-item label="操作">
+                     <el-button type="danger" size="small" @click="removeAreaConfig(areaIndex)">删除地区</el-button>
+                   </el-form-item>
+                 </el-col>
+               </el-row>
+             </div>
+             
+             <div style="margin-top: 10px;">
+               <el-button type="primary" size="small" @click="addAreaConfig">添加地区配置</el-button>
+             </div>
+           </el-form-item>
+          <!-- 评分 --> <!-- 评论 -->
+          <el-form-item label="地区评分配置" prop="orderAreaKeywords" v-if="formData.orderType == 3 || formData.orderType == 4">
+            <div v-for="(areaConfig, areaIndex) in formData.orderAreaKeywords" :key="areaIndex" style="margin-bottom: 20px; border: 1px solid #dcdfe6; padding: 15px; border-radius: 4px;">
+              <el-row :gutter="24">
+                <el-col :span="6">
+                  <el-form-item :label="`国家/地区`">
+                    <el-select v-model="areaConfig.area" placeholder="国家/地区" filterable clearable style="width: 100px">
+                      <el-option v-for="country in countryOptions" :key="country.value" :label="country.label" :value="country.value"></el-option>
+                    </el-select>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="2">
+                  <el-form-item label="操作">
+                    <el-button type="danger" size="small" @click="removeAreaConfig(areaIndex)">删除地区</el-button>
+                  </el-form-item>
+                </el-col>
+              </el-row>
+              <el-row :gutter="24">
+                <el-col :span="6">
+                  <el-form-item label="5星评分">
+                    <el-input v-model="areaConfig.ratingCount" placeholder="评分数" style="width: 150px"></el-input>
+                    <el-input v-model="areaConfig.ratingCount" placeholder="总分" style="width: 100px" disabled></el-input>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="6">
+                  <el-form-item label="4星评分">
+                    <el-input v-model="areaConfig.ratingCount" placeholder="评分数" style="width: 150px"></el-input>
+                    <el-input v-model="areaConfig.ratingCount" placeholder="总分" style="width: 100px" disabled></el-input>
+                  </el-form-item>
+                </el-col>
+              </el-row>
+            </div>
+            
+            <div style="margin-top: 10px;">
+              <el-button type="primary" size="small" @click="addAreaConfig">添加地区配置</el-button>
+            </div>
+          </el-form-item>
+           <!-- 关键词保排名 -->
+           <el-form-item label="关键词保排名配置" prop="orderAreaKeywords" v-if="formData.orderType == 5">
+             <div v-for="(areaConfig, areaIndex) in formData.orderAreaKeywords" :key="areaIndex" style="margin-bottom: 20px; border: 1px solid #dcdfe6; padding: 15px; border-radius: 4px;">
+               <el-row :gutter="24">
+                 <el-col :span="6">
+                   <el-form-item :label="`国家/地区`">
+                     <el-select v-model="areaConfig.area" placeholder="国家/地区" filterable clearable style="width: 100px">
+                       <el-option v-for="country in countryOptions" :key="country.value" :label="country.label" :value="country.value"></el-option>
+                     </el-select>
+                   </el-form-item>
+                 </el-col>
+                 <el-col :span="2">
+                   <el-form-item label="操作">
+                     <el-button type="danger" size="small" @click="removeAreaConfig(areaIndex)">删除地区</el-button>
+                   </el-form-item>
+                 </el-col>
+               </el-row>
+               
+               <el-table :data="areaConfig.keepRankList" border style="width: 100%; margin-top: 10px;">
+                 <el-table-column prop="keyword" label="关键词" width="200">
+                   <template slot-scope="scope">
+                     <el-input v-if="scope.$index === 0" v-model="scope.row.keyword" placeholder="请输入关键词" @keyup.enter.native="handleKeepRankEnter(scope.row, areaIndex)"></el-input>
+                     <span v-else>{{ scope.row.keyword }}</span>
+                   </template>
+                 </el-table-column>
+                 <el-table-column prop="targetRank" label="目标排名" width="180">
+                   <template slot-scope="scope">
+                     <el-select v-model="scope.row.targetRank" placeholder="目标排名" style="width: 120px">
+                       <el-option v-for="opt in targetRankOptions" :key="opt.value" :label="opt.label" :value="opt.value"></el-option>
+                     </el-select>
+                   </template>
+                 </el-table-column>
+                 <el-table-column label="操作" width="120">
+                   <template slot-scope="scope">
+                     <el-button v-if="scope.$index > 0" type="text" @click="removeKeepRankRow(scope.$index, areaIndex)">删除</el-button>
+                   </template>
+                 </el-table-column>
+               </el-table>
+             </div>
+             
+             <div style="margin-top: 10px;">
+               <el-button type="primary" size="small" @click="addAreaConfig">添加地区配置</el-button>
+             </div>
+          </el-form-item>
+           <!-- 关键词覆盖服务 -->
+           <el-form-item label="关键词覆盖服务配置" prop="orderAreaKeywords" v-if="formData.orderType == 6">
+             <div v-for="(areaConfig, areaIndex) in formData.orderAreaKeywords" :key="areaIndex" style="margin-bottom: 20px; border: 1px solid #dcdfe6; padding: 15px; border-radius: 4px;">
+               <el-row :gutter="24">
+                 <el-col :span="6">
+                   <el-form-item :label="`国家/地区`">
+                     <el-select v-model="areaConfig.area" placeholder="国家/地区" filterable clearable style="width: 100px">
+                       <el-option v-for="country in countryOptions" :key="country.value" :label="country.label" :value="country.value"></el-option>
+                     </el-select>
+                   </el-form-item>
+                 </el-col>
+                 <el-col :span="2">
+                   <el-form-item label="操作">
+                     <el-button type="danger" size="small" @click="removeAreaConfig(areaIndex)">删除地区</el-button>
+                   </el-form-item>
+                 </el-col>
+               </el-row>
+               
+               <el-table :data="areaConfig.coverList" border style="width: 100%; margin-top: 10px;">
+                 <el-table-column prop="keyword" label="关键词" width="200">
+                   <template slot-scope="scope">
+                     <el-input v-if="scope.$index === 0" v-model="scope.row.keyword" placeholder="请输入关键词" @keyup.enter.native="handleCoverEnter(scope.row, areaIndex)"></el-input>
+                     <span v-else>{{ scope.row.keyword }}</span>
+                   </template>
+                 </el-table-column>
+                 <el-table-column prop="currentRank" label="当前排名" width="180">
+                   <template slot-scope="scope">
+                     <span>{{ scope.row.currentRank || '-' }}</span>
+                   </template>
+                 </el-table-column>
+                 <el-table-column label="操作" width="120">
+                   <template slot-scope="scope">
+                     <el-button v-if="scope.$index > 0" type="text" @click="removeCoverRow(scope.$index, areaIndex)">删除</el-button>
+                   </template>
+                 </el-table-column>
+               </el-table>
+             </div>
+             
+             <div style="margin-top: 10px;">
+               <el-button type="primary" size="small" @click="addAreaConfig">添加地区配置</el-button>
+             </div>
           </el-form-item>
         </el-col>
         <el-col :span="24">
@@ -64,6 +265,12 @@
 
 // 1. 导入获取用户列表的API
 import { queryUserList } from "@/api/system/user"
+// 2. 导入获取执行小时选项的API
+import { getExecuteHourOptions } from "@/api/promotion/executeHour"
+// 3. 导入应用列表API
+import { listApp } from "@/api/appkeyword/app"
+// 4. 导入订单API
+import { createPromotionOrder } from "@/api/promotion/order"
 
 export default {
   components: {},
@@ -74,6 +281,12 @@ export default {
       userListOptions: [],
       userListLoading: false,
       searchTimer: null,
+      // 执行小时数据加载状态
+      executeHourOptions: [],
+      executeHourLoading: false,
+      // 应用列表数据加载状态
+      appListOptions: [],
+      appListLoading: false,
         // 用户下拉查询参数
       userQueryParams: {
         pageNum: 1,
@@ -81,27 +294,27 @@ export default {
         idOrName: null,
       },
       formData: {
-        appType: 1,
-        appName: undefined,
-        country: [],
+        // API字段映射
+        appId: undefined,           // 应用ID
+        beginDate: null,           // 订单开始日期
+        endDate: null,             // 订单结束日期
+        orderAreaKeywords: [],     // 地区和关键词安装列表
+        orderType: 1,              // 关键词安装类型
+        storeType: 1,              // 应用商店
+        executionHour: undefined,  // 可执行小时
+        
+        // 内部使用字段（用于日期范围选择器）
         orderDate: null,
-        field101: 1,
       },
       rules: {
-        appType: [{
+        appId: [{
+          required: true,
+          message: '应用不能为空',
+          trigger: 'change'
+        }],
+        storeType: [{
           required: true,
           message: '应用商店不能为空',
-          trigger: 'change'
-        }],
-        appName: [{
-          required: true,
-          message: '',
-          trigger: 'change'
-        }],
-        country: [{
-          required: true,
-          type: 'array',
-          message: '请至少选择一个country',
           trigger: 'change'
         }],
         orderDate: [{
@@ -109,13 +322,24 @@ export default {
           message: '订单时间不能为空',
           trigger: 'change'
         }],
-        field101: [{
+        executionHour: [{
           required: true,
-          message: '单选框组不能为空',
+          message: '执行小时不能为空',
+          trigger: 'change'
+        }],
+        orderType: [{
+          required: true,
+          message: '订单类型不能为空',
+          trigger: 'change'
+        }],
+        orderAreaKeywords: [{
+          required: true,
+          type: 'array',
+          message: '请至少添加一个地区关键字配置',
           trigger: 'change'
         }],
       },
-      field101Options: [{
+      orderTypeOptions: [{
         "label": "关键词安装",
         "value": 1
       }, {
@@ -134,31 +358,211 @@ export default {
         "label": "关键词覆盖服务",
         "value": 6
       }],
-      appTypeOptions: [{
+      storeTypeOptions: [{
         "label": "AppStore",
         "value": 1
       }, {
         "label": "Google Play",
         "value": 2
       }],
+      countryOptions: [
+        { label: "美国", value: "us" },
+        { label: "中国", value: "cn" },
+        { label: "日本", value: "jp" },
+        { label: "韩国", value: "kr" },
+        { label: "英国", value: "gb" },
+        { label: "德国", value: "de" },
+        { label: "法国", value: "fr" },
+        { label: "加拿大", value: "ca" },
+        { label: "澳大利亚", value: "au" },
+        { label: "印度", value: "in" }
+      ],
+      // 关键词保排名的目标排名选项
+      targetRankOptions: [
+        { label: 'top1', value: 'top1' },
+        { label: 'top2', value: 'top2' },
+        { label: 'top3', value: 'top3' },
+        { label: 'top4', value: 'top4' }
+      ],
     }
   },
   computed: {},
-  watch: {},
+  watch: {
+    // 监听订单类型变化，重新初始化地区配置
+    'formData.orderType'(newType, oldType) {
+      if (newType !== oldType) {
+        // 清空现有配置
+        this.formData.orderAreaKeywords = []
+        // 重新初始化
+        this.initFirstAreaConfig()
+      }
+    }
+  },
   created() {
     // 组件创建时加载用户列表数据
     this.loadUserListOptions()
+    // 加载执行小时选项数据
+    this.loadExecuteHourOptions()
+    // 加载应用列表数据
+    this.loadAppListOptions()
+    // 初始化第一个地区配置
+    this.initFirstAreaConfig()
   },
   mounted() {},
   methods: {
     submitForm() {
       this.$refs['elForm'].validate(valid => {
         if (!valid) return
-        // TODO 提交表单
+        
+        // 处理表单数据，转换为API需要的格式
+        const submitData = this.processFormData()
+        console.log('提交数据:', submitData)
+        
+        // 调用创建订单API
+        this.createOrder(submitData)
+      })
+    },
+    // 处理表单数据，转换为API格式
+    processFormData() {
+      // 处理日期（orderType==1: 单日；其他: 日期范围）
+      let beginDate = null
+      let endDate = null
+      if (this.formData.orderType == 1) {
+        if (this.formData.orderDate) {
+          beginDate = this.formData.orderDate
+          endDate = this.formData.orderDate
+        }
+      } else {
+        if (this.formData.orderDate && this.formData.orderDate.length === 2) {
+          beginDate = this.formData.orderDate[0]
+          endDate = this.formData.orderDate[1]
+        }
+      }
+      
+      // 处理地区关键词配置
+      const orderAreaKeywords = this.formData.orderAreaKeywords.map(areaConfig => {
+        // 过滤掉空的地区配置
+        if (!areaConfig.area) return null
+        
+        if (this.formData.orderType === 1) {
+          // 关键词安装类型
+          const keywordList = areaConfig.keywordList
+            .filter(keyword => keyword.keyword && keyword.keyword.trim())
+            .map(keyword => ({
+              keyword: keyword.keyword.trim(),
+              count: parseInt(keyword.count) || 0
+            }))
+          
+          return {
+            area: areaConfig.area,
+            keywordList: keywordList
+          }
+        } else if (this.formData.orderType === 2) {
+          // 下载量类型
+          return {
+            area: areaConfig.area,
+            downloadCount: parseInt(areaConfig.downloadCount) || 0
+          }
+        } else if (this.formData.orderType === 3) {
+          // 评分类型
+          return {
+            area: areaConfig.area,
+            ratingCount: parseInt(areaConfig.ratingCount) || 0,
+            starLevel: parseInt(areaConfig.starLevel) || 5
+          }
+        } else if (this.formData.orderType === 4) {
+          // 评论类型
+          return {
+            area: areaConfig.area,
+            commentTitle: (areaConfig.commentTitle || '').trim(),
+            commentContent: (areaConfig.commentContent || '').trim(),
+            starLevel: parseInt(areaConfig.starLevel) || 5
+          }
+        } else if (this.formData.orderType === 5) {
+          // 关键词保排名
+          const keepRankList = (areaConfig.keepRankList || [])
+            .filter(item => item.keyword && item.keyword.trim())
+            .map(item => ({
+              keyword: item.keyword.trim(),
+              targetRank: item.targetRank || 'top1'
+            }))
+          return {
+            area: areaConfig.area,
+            keepRankList
+          }
+        }
+        
+        return null
+      }).filter(item => {
+        if (item === null) return false
+        if (this.formData.orderType === 1) {
+          return item.keywordList && item.keywordList.length > 0
+        } else if (this.formData.orderType === 2) {
+          return item.downloadCount > 0
+        } else if (this.formData.orderType === 3) {
+          return item.ratingCount > 0 && [3,4,5].includes(item.starLevel)
+        } else if (this.formData.orderType === 4) {
+          return !!item.commentTitle && !!item.commentContent && [3,4,5].includes(item.starLevel)
+        } else if (this.formData.orderType === 5) {
+          return item.keepRankList && item.keepRankList.length > 0
+        } else if (this.formData.orderType === 6) {
+          return item.coverList && item.coverList.length > 0
+        }
+        return false
+      })
+      
+      // 构建API数据格式
+      const apiData = {
+        appId: this.formData.appId,
+        beginDate: beginDate,
+        endDate: endDate,
+        orderAreaKeywords: orderAreaKeywords,
+        orderType: this.formData.orderType,
+        storeType: this.formData.storeType,
+        executionHour: this.formData.executionHour
+      }
+      
+      return apiData
+    },
+    // 创建订单
+    createOrder(data) {
+      this.$confirm('确认提交订单吗？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        // 显示加载状态
+        const loading = this.$loading({
+          lock: true,
+          text: '正在提交订单...',
+          spinner: 'el-icon-loading',
+          background: 'rgba(0, 0, 0, 0.7)'
+        })
+        
+        createPromotionOrder(data).then(response => {
+          loading.close()
+          this.$message.success('订单创建成功！')
+          console.log('订单创建响应:', response)
+          
+          // 可以在这里跳转到订单列表页面或执行其他操作
+          // this.$router.push('/promotion/orderList')
+          
+          // 重置表单
+          this.resetForm()
+        }).catch(error => {
+          loading.close()
+          console.error('订单创建失败:', error)
+          this.$message.error('订单创建失败，请重试')
+        })
+      }).catch(() => {
+        // 用户取消操作
       })
     },
     resetForm() {
       this.$refs['elForm'].resetFields()
+      // 重新初始化第一个地区配置
+      this.formData.orderAreaKeywords = []
+      this.initFirstAreaConfig()
     },
         handleUserSearch(query) {
       // console.log('用户搜索...',query);
@@ -201,6 +605,194 @@ export default {
         this.userListOptions = [];
       }).finally(() => {
         this.userListLoading = false;
+      });
+    },
+    // 添加地区配置
+    addAreaConfig() {
+      if (this.formData.orderType === 1) {
+        // 关键词安装类型
+        this.formData.orderAreaKeywords.push({
+          area: '',
+          keywordList: [{
+            keyword: '',
+            count: '',
+            totalQuantity: 0,
+            ranking: '-'
+          }]
+        });
+      } else if (this.formData.orderType === 2) {
+        // 下载量类型
+        this.formData.orderAreaKeywords.push({
+          area: '',
+          downloadCount: ''
+        });
+      } else if (this.formData.orderType === 3) {
+        // 评分类型
+        this.formData.orderAreaKeywords.push({
+          area: '',
+          ratingCount: '',
+          starLevel: 5
+        });
+      } else if (this.formData.orderType === 4) {
+        // 评论类型
+        this.formData.orderAreaKeywords.push({
+          area: '',
+          commentTitle: '',
+          commentContent: '',
+          starLevel: 5
+        });
+      } else if (this.formData.orderType === 5) {
+        // 关键词保排名
+        this.formData.orderAreaKeywords.push({
+          area: '',
+          keepRankList: [{
+            keyword: '',
+            targetRank: 'top1'
+          }]
+        });
+      } else if (this.formData.orderType === 6) {
+        // 关键词覆盖服务
+        this.formData.orderAreaKeywords.push({
+          area: '',
+          coverList: [{
+            keyword: '',
+            currentRank: '-'
+          }]
+        });
+      }
+    },
+    // 删除地区配置
+    removeAreaConfig(areaIndex) {
+      this.formData.orderAreaKeywords.splice(areaIndex, 1);
+    },
+    // 删除关键词行
+    removeKeywordRow(keywordIndex, areaIndex) {
+      // 防止删除第一行
+      if (keywordIndex > 0) {
+        this.formData.orderAreaKeywords[areaIndex].keywordList.splice(keywordIndex, 1);
+      }
+    },
+    // 初始化第一个地区配置
+    initFirstAreaConfig() {
+      if (this.formData.orderAreaKeywords.length === 0) {
+        if (this.formData.orderType === 1) {
+          // 关键词安装类型
+          this.formData.orderAreaKeywords.push({
+            area: '',
+            keywordList: [{
+              keyword: '',
+              count: '',
+              totalQuantity: 0,
+              ranking: '-'
+            }]
+          });
+        } else if (this.formData.orderType === 2) {
+          // 下载量类型
+          this.formData.orderAreaKeywords.push({
+            area: '',
+            downloadCount: ''
+          });
+        } else if (this.formData.orderType === 3) {
+          // 评分类型
+          this.formData.orderAreaKeywords.push({
+            area: '',
+            ratingCount: '',
+            starLevel: 5
+          });
+        } else if (this.formData.orderType === 4) {
+          // 评论类型
+          this.formData.orderAreaKeywords.push({
+            area: '',
+            commentTitle: '',
+            commentContent: '',
+            starLevel: 5
+          });
+        } else if (this.formData.orderType === 5) {
+          // 关键词保排名
+          this.formData.orderAreaKeywords.push({
+            area: '',
+            keepRankList: [{
+              keyword: '',
+              targetRank: 'top1'
+            }]
+          });
+        } else if (this.formData.orderType === 6) {
+          // 关键词覆盖服务
+          this.formData.orderAreaKeywords.push({
+            area: '',
+            coverList: [{
+              keyword: '',
+              currentRank: '-'
+            }]
+          });
+        }
+      }
+    },
+    // 处理关键词输入框回车事件
+    handleKeywordEnter(row, areaIndex) {
+      console.log('handleKeywordEnter', row, areaIndex);
+      if (row.keyword.trim()) {
+        // 将第一行的内容添加到新行
+        this.formData.orderAreaKeywords[areaIndex].keywordList.push({
+          keyword: row.keyword,
+          count: row.count,
+          totalQuantity: row.totalQuantity,
+          ranking: row.ranking
+        });
+        
+        // 清空第一行的输入内容，保持第一行作为输入项
+        row.keyword = '';
+        row.count = '';
+        row.totalQuantity = 0;
+        row.ranking = '-';
+      }
+    },
+    // 加载执行小时选项
+    loadExecuteHourOptions() {
+      this.executeHourLoading = true;
+      
+      getExecuteHourOptions().then(response => {
+        console.log('执行小时选项响应:', response);
+        // 假设服务端返回的数据格式为 { data: [{ value: '09:00', label: '09:00' }, ...] }
+        const hours = response.data || response.rows || [];
+        this.executeHourOptions = hours.map(hour => ({
+          label: hour.label || hour.name || hour.value,
+          value: hour.value || hour.id
+        }));
+      }).catch(error => {
+        console.error('获取执行小时选项失败:', error);
+        this.executeHourOptions = [];
+        // 如果API调用失败，提供默认选项
+        this.executeHourOptions = [
+          { label: '09:00', value: '09:00' },
+          { label: '10:00', value: '10:00' },
+          { label: '11:00', value: '11:00' },
+          { label: '14:00', value: '14:00' },
+          { label: '15:00', value: '15:00' },
+          { label: '16:00', value: '16:00' },
+          { label: '17:00', value: '17:00' },
+          { label: '18:00', value: '18:00' }
+        ];
+      }).finally(() => {
+        this.executeHourLoading = false;
+      });
+    },
+    // 加载应用列表选项
+    loadAppListOptions() {
+      this.appListLoading = true;
+      
+      listApp().then(response => {
+        console.log('应用列表响应:', response);
+        const apps = response.rows || response.data || [];
+        this.appListOptions = apps.map(app => ({
+          label: app.appName || app.name || app.appId,
+          value: app.appId || app.id
+        }));
+      }).catch(error => {
+        console.error('获取应用列表失败:', error);
+        this.appListOptions = [];
+      }).finally(() => {
+        this.appListLoading = false;
       });
     },
   }
