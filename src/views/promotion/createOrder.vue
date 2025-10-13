@@ -21,8 +21,8 @@
           </el-form-item>
         </el-col>
         <el-col :span="24">
-          <el-form-item label="应用" prop="appId">
-            <el-select v-model="formData.appId" filterable placeholder="请选择应用" :style="{width: '30%'}" :loading="appListLoading">
+          <el-form-item label="应用" prop="customerAppId">
+            <el-select v-model="formData.customerAppId" filterable placeholder="请选择应用" :style="{width: '30%'}" :loading="appListLoading">
               <el-option v-for="app in appListOptions" :key="app.value" :label="app.label" :value="app.value"></el-option>
             </el-select>
           </el-form-item>
@@ -43,9 +43,9 @@
         <el-col :span="24">
           <el-divider></el-divider>
         </el-col>
-        <el-col :span="24" v-if="formData.orderType == 1 || formData.orderType == 2 || formData.orderType == 3 || formData.orderType == 4">
-          <el-form-item label="执行小时" prop="executeHour">
-            <el-select v-model="formData.executeHour" placeholder="请选择执行小时" filterable clearable
+        <el-col :span="24" v-if="formData.orderType == 1 || formData.orderType == 3 || formData.orderType == 4">
+          <el-form-item label="执行小时" prop="execution_hours">
+            <el-select v-model="formData.execution_hours" placeholder="请选择执行小时" filterable clearable
               :style="{width: '30%'}" :loading="executeHourLoading">
               <el-option v-for="hour in executeHourOptions" :key="hour.value" :label="hour.label" :value="hour.value"></el-option>
             </el-select>
@@ -127,8 +127,8 @@
                <el-button type="primary" size="small" @click="addAreaConfig">添加地区配置</el-button>
              </div>
            </el-form-item>
-          <!-- 评分 --> <!-- 评论 -->
-          <el-form-item label="地区评分配置" prop="orderAreaKeywords" v-if="formData.orderType == 3 || formData.orderType == 4">
+          <!-- 评分 --> 
+          <el-form-item label="地区评分配置" prop="orderAreaKeywords" v-if="formData.orderType == 3">
             <div v-for="(areaConfig, areaIndex) in formData.orderAreaKeywords" :key="areaIndex" style="margin-bottom: 20px; border: 1px solid #dcdfe6; padding: 15px; border-radius: 4px;">
               <el-row :gutter="24">
                 <el-col :span="6">
@@ -145,16 +145,53 @@
                 </el-col>
               </el-row>
               <el-row :gutter="24">
-                <el-col :span="6">
+                <el-col :span="8">
                   <el-form-item label="5星评分">
-                    <el-input v-model="areaConfig.ratingCount" placeholder="评分数" style="width: 150px"></el-input>
-                    <el-input v-model="areaConfig.ratingCount" placeholder="总分" style="width: 100px" disabled></el-input>
+                    <el-input v-model="areaConfig.scoreAmount" placeholder="评分数" style="width: 150px"></el-input>
+                    <el-input v-model="areaConfig.totalScoreAmount" placeholder="总分" style="width: 100px" disabled></el-input>
                   </el-form-item>
                 </el-col>
-                <el-col :span="6">
+                <el-col :span="8">
                   <el-form-item label="4星评分">
-                    <el-input v-model="areaConfig.ratingCount" placeholder="评分数" style="width: 150px"></el-input>
-                    <el-input v-model="areaConfig.ratingCount" placeholder="总分" style="width: 100px" disabled></el-input>
+                    <el-input v-model="areaConfig.scoreAmount" placeholder="评分数" style="width: 150px"></el-input>
+                    <el-input v-model="areaConfig.totalScoreAmount" placeholder="总分" style="width: 100px" disabled></el-input>
+                  </el-form-item>
+                </el-col>
+              </el-row>
+            </div>
+            
+            <div style="margin-top: 10px;">
+              <el-button type="primary" size="small" @click="addAreaConfig">添加地区配置</el-button>
+            </div>
+          </el-form-item>
+          <!-- 评论 -->
+          <el-form-item label="地区评分配置" prop="orderAreaKeywords" v-if="formData.orderType == 4">
+            <div v-for="(areaConfig, areaIndex) in formData.orderAreaKeywords" :key="areaIndex" style="margin-bottom: 20px; border: 1px solid #dcdfe6; padding: 15px; border-radius: 4px;">
+              <el-row :gutter="24">
+                <el-col :span="6">
+                  <el-form-item :label="`国家/地区`">
+                    <el-select v-model="areaConfig.area" placeholder="国家/地区" filterable clearable style="width: 100px">
+                      <el-option v-for="country in countryOptions" :key="country.value" :label="country.label" :value="country.value"></el-option>
+                    </el-select>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="2">
+                  <el-form-item label="操作">
+                    <el-button type="danger" size="small" @click="removeAreaConfig(areaIndex)">删除地区</el-button>
+                  </el-form-item>
+                </el-col>
+              </el-row>
+              <el-row :gutter="24">
+                <el-col :span="8">
+                  <el-form-item label="5星评分">
+                    <el-input v-model="areaConfig.scoreAmount" placeholder="评分数" style="width: 150px"></el-input>
+                    <el-input v-model="areaConfig.totalScoreAmount" placeholder="总分" style="width: 100px" disabled></el-input>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="8">
+                  <el-form-item label="4星评分">
+                    <el-input v-model="areaConfig.scoreAmount" placeholder="评分数" style="width: 150px"></el-input>
+                    <el-input v-model="areaConfig.totalScoreAmount" placeholder="总分" style="width: 100px" disabled></el-input>
                   </el-form-item>
                 </el-col>
               </el-row>
@@ -165,8 +202,8 @@
             </div>
           </el-form-item>
            <!-- 关键词保排名 -->
-           <el-form-item label="关键词保排名配置" prop="orderAreaKeywords" v-if="formData.orderType == 5">
-             <div v-for="(areaConfig, areaIndex) in formData.orderAreaKeywords" :key="areaIndex" style="margin-bottom: 20px; border: 1px solid #dcdfe6; padding: 15px; border-radius: 4px;">
+           <el-form-item label="关键词保排名配置" prop="orderKeywordRanks" v-if="formData.orderType == 5">
+             <div v-for="(areaConfig, areaIndex) in formData.orderKeywordRanks" :key="areaIndex" style="margin-bottom: 20px; border: 1px solid #dcdfe6; padding: 15px; border-radius: 4px;">
                <el-row :gutter="24">
                  <el-col :span="6">
                    <el-form-item :label="`国家/地区`">
@@ -268,7 +305,7 @@ import { queryUserList } from "@/api/system/user"
 // 2. 导入获取执行小时选项的API
 import { getExecuteHourOptions } from "@/api/promotion/executeHour"
 // 3. 导入应用列表API
-import { listApp } from "@/api/appkeyword/app"
+import { listApp, getSimpleAppList  } from "@/api/appkeyword/app"
 // 4. 导入订单API
 import { createPromotionOrder } from "@/api/promotion/order"
 
@@ -295,10 +332,11 @@ export default {
       },
       formData: {
         // API字段映射
-        appId: undefined,           // 应用ID
+        customerAppId: undefined,           // 应用ID
         beginDate: null,           // 订单开始日期
         endDate: null,             // 订单结束日期
         orderAreaKeywords: [],     // 地区和关键词安装列表
+        orderKeywordRanks: [],     // 关键词保排名列表
         orderType: 1,              // 关键词安装类型
         storeType: 1,              // 应用商店
         executionHour: undefined,  // 可执行小时
@@ -307,7 +345,7 @@ export default {
         orderDate: null,
       },
       rules: {
-        appId: [{
+        customerAppId: [{
           required: true,
           message: '应用不能为空',
           trigger: 'change'
@@ -338,6 +376,12 @@ export default {
           message: '请至少添加一个地区关键字配置',
           trigger: 'change'
         }],
+        orderKeywordRanks: [{
+          required: true,
+          type: 'array',
+          message: '请至少添加一个地区关键字配置',
+          trigger: 'change'
+        }]
       },
       orderTypeOptions: [{
         "label": "关键词安装",
@@ -439,13 +483,13 @@ export default {
         }
       }
       
-      // 处理地区关键词配置
-      const orderAreaKeywords = this.formData.orderAreaKeywords.map(areaConfig => {
+      // 处理地区配置数据，根据订单类型构建不同的数据结构
+      const areaData = this.formData.orderAreaKeywords.map(areaConfig => {
         // 过滤掉空的地区配置
         if (!areaConfig.area) return null
         
         if (this.formData.orderType === 1) {
-          // 关键词安装类型
+          // 关键词安装类型 - orderAreaKeywords
           const keywordList = areaConfig.keywordList
             .filter(keyword => keyword.keyword && keyword.keyword.trim())
             .map(keyword => ({
@@ -458,37 +502,60 @@ export default {
             keywordList: keywordList
           }
         } else if (this.formData.orderType === 2) {
-          // 下载量类型
+          // 下载量类型 - orderAreaDownloads
           return {
             area: areaConfig.area,
-            downloadCount: parseInt(areaConfig.downloadCount) || 0
+            downloadAmount: parseInt(areaConfig.downloadCount) || 0
           }
         } else if (this.formData.orderType === 3) {
-          // 评分类型
+          // 评分类型 - orderAreaScores
           return {
             area: areaConfig.area,
-            ratingCount: parseInt(areaConfig.ratingCount) || 0,
+            scoreAmount: parseInt(areaConfig.scoreAmount) || 0,
             starLevel: parseInt(areaConfig.starLevel) || 5
           }
         } else if (this.formData.orderType === 4) {
-          // 评论类型
+          // 评论类型 - orderAreaComments
+          const commentDetailList = []
+          
+          // 检查是否有评论标题和内容
+          if (areaConfig.commentTitle && areaConfig.commentTitle.trim() && 
+              areaConfig.commentContent && areaConfig.commentContent.trim()) {
+            commentDetailList.push({
+              commentTitle: areaConfig.commentTitle.trim(),
+              commentContent: areaConfig.commentContent.trim()
+            })
+          }
+          
           return {
             area: areaConfig.area,
-            commentTitle: (areaConfig.commentTitle || '').trim(),
-            commentContent: (areaConfig.commentContent || '').trim(),
+            commentDetailList: commentDetailList,
             starLevel: parseInt(areaConfig.starLevel) || 5
           }
         } else if (this.formData.orderType === 5) {
-          // 关键词保排名
-          const keepRankList = (areaConfig.keepRankList || [])
+          // 关键词保排名 - orderKeywordRanks
+          const keywordRankList = (areaConfig.keepRankList || [])
             .filter(item => item.keyword && item.keyword.trim())
             .map(item => ({
               keyword: item.keyword.trim(),
-              targetRank: item.targetRank || 'top1'
+              targetRank: parseInt(item.targetRank) || 1
             }))
+          
           return {
             area: areaConfig.area,
-            keepRankList
+            keywordRankList: keywordRankList
+          }
+        } else if (this.formData.orderType === 6) {
+          // 关键词覆盖服务 - orderKeywordRanks
+          const keywordRankList = (areaConfig.coverList || [])
+            .filter(item => item.keyword && item.keyword.trim())
+            .map(item => ({
+              keyword: item.keyword.trim()
+            }))
+          
+          return {
+            area: areaConfig.area,
+            keywordRankList: keywordRankList
           }
         }
         
@@ -498,28 +565,40 @@ export default {
         if (this.formData.orderType === 1) {
           return item.keywordList && item.keywordList.length > 0
         } else if (this.formData.orderType === 2) {
-          return item.downloadCount > 0
+          return item.downloadAmount > 0
         } else if (this.formData.orderType === 3) {
-          return item.ratingCount > 0 && [3,4,5].includes(item.starLevel)
+          return item.scoreAmount > 0 && [3,4,5].includes(item.starLevel)
         } else if (this.formData.orderType === 4) {
-          return !!item.commentTitle && !!item.commentContent && [3,4,5].includes(item.starLevel)
+          return item.commentDetailList && item.commentDetailList.length > 0 && [3,4,5].includes(item.starLevel)
         } else if (this.formData.orderType === 5) {
-          return item.keepRankList && item.keepRankList.length > 0
+          return item.keywordRankList && item.keywordRankList.length > 0
         } else if (this.formData.orderType === 6) {
-          return item.coverList && item.coverList.length > 0
+          return item.keywordRankList && item.keywordRankList.length > 0
         }
         return false
       })
       
       // 构建API数据格式
       const apiData = {
-        appId: this.formData.appId,
+        customerAppId: this.formData.customerAppId,
         beginDate: beginDate,
         endDate: endDate,
-        orderAreaKeywords: orderAreaKeywords,
         orderType: this.formData.orderType,
         storeType: this.formData.storeType,
         executionHour: this.formData.executionHour
+      }
+      
+      // 根据订单类型添加对应的数据字段
+      if (this.formData.orderType === 1) {
+        apiData.orderAreaKeywords = areaData
+      } else if (this.formData.orderType === 2) {
+        apiData.orderAreaDownloads = areaData
+      } else if (this.formData.orderType === 3) {
+        apiData.orderAreaScores = areaData
+      } else if (this.formData.orderType === 4) {
+        apiData.orderAreaComments = areaData
+      } else if (this.formData.orderType === 5 || this.formData.orderType === 6) {
+        apiData.orderKeywordRanks = areaData
       }
       
       return apiData
@@ -630,7 +709,7 @@ export default {
         // 评分类型
         this.formData.orderAreaKeywords.push({
           area: '',
-          ratingCount: '',
+          scoreAmount: '',
           starLevel: 5
         });
       } else if (this.formData.orderType === 4) {
@@ -696,7 +775,7 @@ export default {
           // 评分类型
           this.formData.orderAreaKeywords.push({
             area: '',
-            ratingCount: '',
+            scoreAmount: '',
             starLevel: 5
           });
         } else if (this.formData.orderType === 4) {
@@ -781,12 +860,12 @@ export default {
     loadAppListOptions() {
       this.appListLoading = true;
       
-      listApp().then(response => {
+      getSimpleAppList({ storeType: 1 }).then(response => {
         console.log('应用列表响应:', response);
         const apps = response.rows || response.data || [];
         this.appListOptions = apps.map(app => ({
-          label: app.appName || app.name || app.appId,
-          value: app.appId || app.id
+          label: app.appName || app.name || app.customerAppId,
+          value: app.customerAppId
         }));
       }).catch(error => {
         console.error('获取应用列表失败:', error);

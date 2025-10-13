@@ -9,6 +9,15 @@ export function listApp(query) {
   })
 }
 
+// 查询APP列表 { storeType: 1 }
+export function getSimpleAppList(query) {
+  return request({
+    url: '/customer/app/simpleList',
+    method: 'get',
+    params: query
+  })
+}
+
 // 查询客户APP记录详细
 export function getApp(id) {
   return request({

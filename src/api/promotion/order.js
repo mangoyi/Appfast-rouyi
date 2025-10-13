@@ -3,7 +3,7 @@ import request from '@/utils/request'
 // 创建推广订单
 export function createPromotionOrder(data) {
   return request({
-    url: '/promotion/order/create',
+    url: '/normal/order',
     method: 'post',
     data: data
   })
