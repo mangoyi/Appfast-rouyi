@@ -51,10 +51,10 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      
-      <el-form-item label="备注" prop="comment">
+
+      <el-form-item label="备注" prop="remark">
         <el-input
-          v-model="queryParams.comment"
+          v-model="queryParams.remark"
           placeholder="请输入备注"
           clearable
           @keyup.enter.native="handleQuery"
@@ -115,30 +115,31 @@
     <el-table v-loading="loading" :data="incomeList" @selection-change="handleSelectionChange">
       <!-- <el-table-column type="selection" width="55" align="center" /> -->
       <el-table-column label="用户id" align="center" prop="userId" />
-      <el-table-column label="时间" align="center" prop="createTime">
-        <template slot-scope="scope">
-          <span>{{ parseTime(scope.row.createTime) }}</span>
-        </template>
-      </el-table-column>
        <!-- 数字转化为字符串  1充值 2支付 3退款 -->
       <el-table-column label="类型" align="center" prop="incomeType">
         <template slot-scope="scope">
           <dict-tag :options="dict.type.income_type" :value="scope.row.incomeType"/>
         </template>
       </el-table-column>
-      <!-- <el-table-column label="用户id" align="center" prop="userId" /> -->
+
       <el-table-column label="金额" align="center" prop="amount" />
       <el-table-column label="余额" align="center" prop="balance" />
-      <el-table-column label="备注" align="center" prop="comment" />
+      <el-table-column label="时间" align="center" prop="createTime">
+        <template slot-scope="scope">
+          <span>{{ parseTime(scope.row.createTime) }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="编号 " align="center" prop="incomeNo" />
+      <el-table-column label="备注" align="center" prop="remark" />
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
-          <el-button
-            size="mini"
-            type="text"
-            icon="el-icon-edit"
-            @click="handleUpdate(scope.row)"
-            v-hasPermi="['income:edit']"
-          >修改</el-button>
+          <!--<el-button-->
+            <!--size="mini"-->
+            <!--type="text"-->
+            <!--icon="el-icon-edit"-->
+            <!--@click="handleUpdate(scope.row)"-->
+            <!--v-hasPermi="['income:edit']"-->
+          <!--&gt;修改</el-button>-->
           <el-button
             size="mini"
             type="text"
@@ -149,7 +150,7 @@
         </template>
       </el-table-column>
     </el-table>
-    
+
     <pagination
       v-show="total>0"
       :total="total"
@@ -173,11 +174,8 @@
         <el-form-item label="类型" prop="incomeType">
           <el-input v-model="form.incomeType" placeholder="请选择类型" />
         </el-form-item>
-        <el-form-item label="备注" prop="comment">
-          <el-input v-model="form.comment" placeholder="请输入备注" />
-        </el-form-item>
-        <el-form-item label="删除标志" prop="delFlag">
-          <el-input v-model="form.delFlag" placeholder="请输入删除标志" />
+        <el-form-item label="备注" prop="remark">
+          <el-input v-model="form.remark" placeholder="请输入备注" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -224,7 +222,7 @@ export default {
         amount: null,
         balance: null,
         incomeType: null,
-        comment: null,
+        remark: null,
       },
       // 表单参数
       form: {},
@@ -274,7 +272,7 @@ export default {
         amount: null,
         balance: null,
         incomeType: null,
-        comment: null,
+        remark: null,
         delFlag: null,
         createBy: null,
         createTime: null,

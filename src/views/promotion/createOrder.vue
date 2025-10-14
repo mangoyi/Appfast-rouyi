@@ -43,13 +43,24 @@
         <el-col :span="24">
           <el-divider></el-divider>
         </el-col>
-        <el-col :span="24" v-if="formData.orderType == 1 || formData.orderType == 3 || formData.orderType == 4">
-          <el-form-item label="执行小时" prop="execution_hours">
+        <el-col :span="24" v-if="formData.orderType == 1">
+          <!-- <el-form-item label="执行小时" prop="execution_hours">
             <el-select v-model="formData.execution_hours" placeholder="请选择执行小时" filterable clearable
               :style="{width: '30%'}" :loading="executeHourLoading">
               <el-option v-for="hour in executeHourOptions" :key="hour.value" :label="hour.label" :value="hour.value"></el-option>
             </el-select>
-          </el-form-item>
+          </el-form-item> -->
+        <el-form-item label="执行小时" prop="execution_hours">
+        <el-select v-model="formData.execution_hours" placeholder="请选择执行小时" filterable clearable>
+          <el-option
+            v-for="dict in dict.type.execution_hours"
+            :key="dict.value"
+            :label="dict.label"
+            :value="dict.value"
+          >
+          </el-option>
+        </el-select>
+      </el-form-item>
         </el-col>
         <el-col :span="24">
           <!-- 关键词安装 -->
@@ -312,6 +323,7 @@ import { createPromotionOrder } from "@/api/promotion/order"
 export default {
   components: {},
   props: [],
+  dicts: ['execution_hours'],
   data() {
     return {
       // 用户列表数据加载状态
@@ -444,9 +456,9 @@ export default {
   },
   created() {
     // 组件创建时加载用户列表数据
-    this.loadUserListOptions()
+    // this.loadUserListOptions()
     // 加载执行小时选项数据
-    this.loadExecuteHourOptions()
+    // this.loadExecuteHourOptions()
     // 加载应用列表数据
     this.loadAppListOptions()
     // 初始化第一个地区配置

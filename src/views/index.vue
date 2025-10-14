@@ -14,7 +14,7 @@
           </div>
           <div class="text-item-small">
             <!-- Replace optional chaining with safer syntax -->
-            <span style="font-size: 24px; color: #ff6b6b; font-weight: bold;">¥{{ financialSummary && financialSummary.todayConsumption ? financialSummary.todayConsumption : '0.00' }}</span>
+            <span style="font-size: 24px; color: #ff6b6b; font-weight: bold;">${{ financialSummary && financialSummary.todayConsumption ? financialSummary.todayConsumption : '0.00' }}</span>
           </div>
         </el-card>
       </el-col>
@@ -25,7 +25,7 @@
           </div>
           <div class="text-item-small">
             <!-- Replace optional chaining with safer syntax -->
-            <span style="font-size: 24px; color: #4ecdc4; font-weight: bold;">¥{{ financialSummary && financialSummary.yesterdayConsumption ? financialSummary.yesterdayConsumption : '0.00' }}</span>
+            <span style="font-size: 24px; color: #4ecdc4; font-weight: bold;">${{ financialSummary && financialSummary.yesterdayConsumption ? financialSummary.yesterdayConsumption : '0.00' }}</span>
           </div>
         </el-card>
       </el-col>
@@ -36,7 +36,7 @@
           </div>
           <div class="text-item-small">
             <!-- Replace optional chaining with safer syntax -->
-            <span style="font-size: 24px; color: #45b7d1; font-weight: bold;">¥{{ financialSummary && financialSummary.accountBalance ? financialSummary.accountBalance : '0.00' }}</span>
+            <span style="font-size: 24px; color: #45b7d1; font-weight: bold;">${{ financialSummary && financialSummary.accountBalance ? financialSummary.accountBalance : '0.00' }}</span>
           </div>
         </el-card>
       </el-col>
@@ -45,9 +45,9 @@
     <el-row>
       <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
         <el-form-item label="应用" prop="appId">
-            <el-select v-model="queryParams.appId" placeholder="请输入或选择应用" 
-              filterable 
-              remote 
+            <el-select v-model="queryParams.appId" placeholder="请输入或选择应用"
+              filterable
+              remote
               :remote-method="handleAppSearch"
               :loading="userAppListLoading"
               clearable
@@ -65,12 +65,12 @@
             type="daterange"
             range-separator="-"
             start-placeholder="开始日期"
-            end-placeholder="结束日期"     
+            end-placeholder="结束日期"
             :picker-options="datePickerOptions"
              @change="fetchDailyConsumptionData"
           ></el-date-picker>
         </el-form-item>
-      </el-form>        
+      </el-form>
     </el-row>
     <el-row>
     <!-- 添加折线图容器 -->
@@ -97,7 +97,7 @@ function getWeekDateRange() {
   const end = new Date()
   const start = new Date()
   start.setDate(start.getDate() - 6) // 减去6天，得到一周前的日期（包含今天共7天）
-  
+
   // 格式化日期为YYYY-MM-DD
   const formatDate = (date) => {
     const year = date.getFullYear()
@@ -105,7 +105,7 @@ function getWeekDateRange() {
     const day = String(date.getDate()).padStart(2, '0')
     return `${year}-${month}-${day}`
   }
-  
+
   return [formatDate(start), formatDate(end)]
 }
 
@@ -151,27 +151,27 @@ export default {
           // Get today's date with time set to end of day
           const today = new Date();
           today.setHours(23, 59, 59, 999);
-          
+
           // If maxDate is set (after selecting a start date), apply both constraints
           if (maxDate) {
             return time.getTime() > Math.min(today.getTime(), maxDate.getTime());
           }
-          
+
           // Default: disable future dates only
           return time.getTime() > today.getTime();
         },
-        
+
         // Use arrow function for onPick to maintain Vue instance context
         onPick: ({ maxDate: selectedMaxDate, minDate: selectedMinDate }) => {
           if (selectedMinDate && !selectedMaxDate) {
             // When start date is selected, calculate exact 6 months later
             const sixMonthsLater = new Date(selectedMinDate);
             sixMonthsLater.setMonth(sixMonthsLater.getMonth() + 6);
-            
+
             // Get today's date with time set to end of day
             const today = new Date();
             today.setHours(23, 59, 59, 999);
-            
+
             // Ensure max date doesn't exceed today
             maxDate = sixMonthsLater > today ? today : sixMonthsLater;
           }
@@ -200,7 +200,7 @@ export default {
         endDate: this.queryParams.dateRange[1]
 
       }
-      
+
       getUserDailyConsumptionList(params).then(res => {
         if (res.code === 200 && res.data && res.data.length > 0) {
           // 处理返回的数据，转换为图表需要的格式
@@ -227,10 +227,10 @@ export default {
        // 获取图表容器
       const chartDom = document.getElementById('consumptionChart')
       if (!chartDom) return
-      
+
       // 创建图表实例
       this.chartInstance = echarts.init(chartDom)
-      
+
       // 图表配置
       const option = {
         title: {
@@ -242,7 +242,7 @@ export default {
           formatter: function(params) {
             const date = params[0].name
             const value = params[0].value
-            return `${date}<br/>消费金额: ¥${value.toFixed(2)}`
+            return `${date}<br/>消费金额: $${value.toFixed(2)}`
           }
         },
         legend: {
@@ -298,14 +298,14 @@ export default {
           }
         ]
       }
-      
+
       // 设置图表配置
       this.chartInstance.setOption(option)
-      
+
       // 添加窗口大小变化时的图表自适应
       window.addEventListener('resize', this.handleResize)
     },
-    
+
     // 图表自适应方法
     handleResize() {
       if (this.chartInstance) {
@@ -318,7 +318,7 @@ export default {
       if (this.searchTimer) {
         clearTimeout(this.searchTimer);
       }
-      
+
       // 设置防抖，300毫秒后执行搜索
       this.searchTimer = setTimeout(() => {
         this.loadUserAppListOptions(query);
@@ -329,7 +329,7 @@ export default {
     loadUserAppListOptions(inputParam) {
       // console.log('加载用户列表选项...',inputParam);
       this.userAppListLoading = true;
-      
+
       // 构建查询参数，根据是否有输入值决定传参
       const queryParams = {};
       if (inputParam) {
@@ -338,7 +338,7 @@ export default {
         queryParams.pageNum = 1;
         queryParams.pageSize = 100; // 一次获取足够多的选项
       }
-      
+
       // 调用用户列表API
       listApp(queryParams).then(response => {
         // console.log('用户列表参数:', queryParams);
@@ -357,18 +357,18 @@ export default {
       });
     },
   },
-  
+
   // 组件挂载时初始化
   mounted() {
-    this.fetchDailyConsumptionData()    
-    
+    this.fetchDailyConsumptionData()
+
      this.loadUserAppListOptions()
   },
 
-  created() { 
+  created() {
     this.fetchFinancialSummary()
   },
-  
+
   // 组件销毁时清理资源
   beforeDestroy() {
     if (this.chartInstance) {

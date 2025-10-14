@@ -42,3 +42,12 @@ export function delOrder(id) {
     method: 'delete'
   })
 }
+
+// 查询客户消费订单记录列表
+export function costListOrder(query) {
+  return request({
+    url: '/normal/order/costList',
+    method: 'get',
+    params: query
+  })
+}

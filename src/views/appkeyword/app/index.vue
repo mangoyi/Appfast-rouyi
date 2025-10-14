@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
     <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
-      <el-form-item label="用户名" prop="userId">
+      <el-form-item label="用户名" prop="userId" v-hasPermi="['system:user:list']">
         <el-select v-model="queryParams.userId" placeholder="请输入或选择用户"
                   filterable
                   remote
@@ -160,7 +160,7 @@
     <!-- 添加或修改客户APP记录对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="用户名" prop="userId">
+        <el-form-item label="用户名" prop="userId"  v-hasPermi="['system:user:list']">
             <el-select v-model="form.userId" placeholder="请输入或选择用户"
                 filterable
                 remote
@@ -216,6 +216,7 @@ import appleIcon from '@/assets/logo/as.png'
 
 // 1. 导入获取用户列表的API
 import { queryUserList } from "@/api/system/user"
+import auth from '@/plugins/auth'
 
 export default {
   name: "App",
@@ -260,7 +261,7 @@ export default {
       // 表单校验
       rules: {
         userId: [
-          { required: true, message: "用户id不能为空", trigger: "blur" }
+          { required: auth.hasPermi('system:user:list'), message: "用户id不能为空", trigger: "blur" }
         ],
         appId: [
           { required: true, message: "appId不能为空", trigger: "blur" }
@@ -280,7 +281,10 @@ export default {
   created() {
     this.getList()
          // 组件创建时加载用户列表数据
+    // 用户没有权限时，不执行获取用户列表数据
+    if (auth.hasPermi('system:user:list')) {
     this.loadUserListOptions()
+    }
   },
   methods: {
     // 处理用户搜索

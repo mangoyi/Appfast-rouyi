@@ -1,10 +1,10 @@
 <template>
   <div class="app-container">
     <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
-      <el-form-item label="用户名" prop="userId">
-        <el-select v-model="queryParams.userId" placeholder="请输入或选择用户" 
-                  filterable 
-                  remote 
+      <el-form-item label="用户名" prop="userId" v-hasPermi="['system:user:list']">
+        <el-select v-model="queryParams.userId" placeholder="请输入或选择用户"
+                  filterable
+                  remote
                   :remote-method="handleUserSearch"
                   :loading="userListLoading"
                   clearable
@@ -45,14 +45,14 @@
           placeholder="请选择订单结束日期">
         </el-date-picker>
       </el-form-item>
-      <el-form-item label="订单总天数" prop="orderTotalDays">
+      <!-- <el-form-item label="订单总天数" prop="orderTotalDays">
         <el-input
           v-model="queryParams.orderTotalDays"
           placeholder="请输入订单总天数"
           clearable
           @keyup.enter.native="handleQuery"
         />
-      </el-form-item>
+      </el-form-item> -->
       <el-form-item label="订单状态" prop="score">
         <el-input
           v-model="queryParams.score"
@@ -116,12 +116,26 @@
     <el-table v-loading="loading" :data="orderList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="主键 id" align="center" prop="id"  v-if="false"/>
-      <el-table-column label="用户id" align="center" prop="userId" />
-      <el-table-column label="应用id" align="center" prop="customerAppId" />
+      <el-table-column label="用户id" align="center" prop="userId" v-if="$auth.hasPermi('system:user:list')"/>
+      <!-- <el-table-column label="应用id" align="center" prop="customerAppId" /> -->
       <el-table-column label="应用名称" align="center" prop="appName" />
-      <el-table-column label="订单类型" align="center" prop="orderType" />
-      <el-table-column label="商店类型" align="center" prop="storeType" />
       <el-table-column label="应用id" align="center" prop="appId" />
+      <el-table-column label="订单类型" align="center" prop="orderType" > 
+        <template slot-scope="scope">
+          <dict-tag :options="dict.type.order_type" :value="scope.row.orderType"/>
+        </template>
+      </el-table-column >
+      <!-- <el-table-column label="商店类型" align="center" prop="storeType" >
+        <template slot-scope="scope">
+          <dict-tag :options="dict.type.store_type" :value="scope.row.storeType"/>
+        </template>
+      </el-table-column > -->
+
+      <el-table-column label="下单时间" align="center" prop="beginDate" width="180">
+        <template slot-scope="scope">
+          <span>{{ parseTime(scope.row.orderTime, '{y}-{m}-{d} {hh}-{mm}-{s} ') }}</span>
+        </template>
+      </el-table-column>
       <!-- <el-table-column label="国家地区" align="center" prop="area" /> -->
       <el-table-column label="订单开始日期" align="center" prop="beginDate" width="180">
         <template slot-scope="scope">
@@ -134,7 +148,11 @@
         </template>
       </el-table-column>
       <!-- <el-table-column label="订单总天数" align="center" prop="orderTotalDays" /> -->
-      <el-table-column label="订单状态" align="center" prop="orderStatus" />
+      <el-table-column label="订单状态" align="center" prop="orderStatus" >
+        <template slot-scope="scope">
+          <dict-tag :options="dict.type.order_status" :value="scope.row.orderStatus"/>
+        </template>
+      </el-table-column >
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
@@ -246,10 +264,11 @@ import appleIcon from '@/assets/logo/as.png'
 
 // 1. 导入获取用户列表的API
 import { queryUserList } from "@/api/system/user"
+import auth from '@/plugins/auth'
 
 export default {
   name: "Order",
-  dicts: ['store_type','normal_order_type'],
+  dicts: ['store_type','normal_order_type','order_status','order_type'],
   data() {
     return {
       // 遮罩层
@@ -330,7 +349,9 @@ export default {
   created() {
     this.getList()
      // 组件创建时加载用户列表数据
-    this.loadUserListOptions()
+    if (auth.hasPermi('system:user:list')) {
+      this.loadUserListOptions()
+    }
   },
   methods: {
     // 处理用户搜索
@@ -340,7 +361,7 @@ export default {
       if (this.searchTimer) {
         clearTimeout(this.searchTimer);
       }
-      
+
       // 设置防抖，300毫秒后执行搜索
       this.searchTimer = setTimeout(() => {
         this.loadUserListOptions(query);
@@ -351,7 +372,7 @@ export default {
     loadUserListOptions(inputParam) {
       // console.log('加载用户列表选项...',inputParam);
       this.userListLoading = true;
-      
+
       // 构建查询参数，根据是否有输入值决定传参
       const queryParams = {};
       if (inputParam) {
@@ -360,7 +381,7 @@ export default {
         queryParams.pageNum = 1;
         queryParams.pageSize = 100; // 一次获取足够多的选项
       }
-      
+
       // 调用用户列表API
       queryUserList(queryParams).then(response => {
         // console.log('用户列表参数:', queryParams);
