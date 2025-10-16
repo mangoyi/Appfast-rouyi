@@ -158,6 +158,20 @@
           <el-button
             size="mini"
             type="text"
+            icon="el-icon-view"
+            @click="handleView(scope.row)"
+            v-hasPermi="['normal:order:view']"
+          >查看</el-button>
+          <el-button
+            size="mini"
+            type="text"
+            icon="el-icon-edit"
+            @click="handleEdit(scope.row)"
+            v-hasPermi="['normal:order:edit']"
+          >编辑</el-button>
+          <el-button
+            size="mini"
+            type="text"
             icon="el-icon-edit"
             @click="handleUpdate(scope.row)"
             v-hasPermi="['normal:order:edit']"
@@ -472,6 +486,16 @@ export default {
       this.reset()
       this.open = true
       this.title = "添加客户普通订单记录"
+    },
+    /** 查看按钮操作 */
+    handleView(row) {
+      // 跳转到订单详情页面，假设路由为 /promotion/order/:id
+      this.$router.push(`/promotion/order/${row.id}`)
+    },
+    /** 编辑按钮操作 */
+    handleEdit(row) {
+      // 跳转到编辑页面
+      this.$router.push(`/promotion/editOrder/${row.id}`)
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
