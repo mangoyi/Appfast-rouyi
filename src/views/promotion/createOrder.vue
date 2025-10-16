@@ -90,7 +90,7 @@
                 </el-table-column>
                 <el-table-column prop="count" label="每日数量" width="150">
                   <template slot-scope="scope">
-                    <el-input v-model="scope.row.count" placeholder="请输入每日数量"></el-input>
+                    <el-input v-model="scope.row.count" placeholder="请输入每日数量" @keyup.enter.native="handleKeywordEnter(scope.row, areaIndex)"></el-input>
                   </template>
                 </el-table-column>
                 <el-table-column prop="ranking" label="排名" width="120">
