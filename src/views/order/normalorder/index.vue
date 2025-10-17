@@ -118,6 +118,7 @@
       <el-table-column label="主键 id" align="center" prop="id"  v-if="false"/>
       <el-table-column label="用户id" align="center" prop="userId" v-if="$auth.hasPermi('system:user:list')"/>
       <!-- <el-table-column label="应用id" align="center" prop="customerAppId" /> -->
+      <el-table-column label="订单编号 " align="center" prop="orderNo" width="200"/>
       <el-table-column label="应用名称" align="center" prop="appName" />
       <el-table-column label="应用id" align="center" prop="appId" />
       <el-table-column label="订单类型" align="center" prop="orderType" > 

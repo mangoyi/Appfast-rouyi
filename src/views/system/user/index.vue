@@ -3,7 +3,7 @@
     <el-row :gutter="20">
       <splitpanes :horizontal="this.$store.getters.device === 'mobile'" class="default-theme">
         <!--部门数据-->
-        <pane size="16">
+        <pane size="2" hidden="true">
           <el-col>
             <div class="head-container">
               <el-input v-model="deptName" placeholder="请输入部门名称" clearable size="small" prefix-icon="el-icon-search" style="margin-bottom: 20px" />
@@ -17,11 +17,11 @@
         <pane size="84">
           <el-col>
             <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
-              <el-form-item label="用户名称" prop="userName">
-                <el-input v-model="queryParams.userName" placeholder="请输入用户名称" clearable style="width: 240px" @keyup.enter.native="handleQuery" />
+              <el-form-item label="账号" prop="userName">
+                <el-input v-model="queryParams.userName" placeholder="请输入账号" clearable style="width: 240px" @keyup.enter.native="handleQuery" />
               </el-form-item>
-              <el-form-item label="手机号码" prop="phonenumber">
-                <el-input v-model="queryParams.phonenumber" placeholder="请输入手机号码" clearable style="width: 240px" @keyup.enter.native="handleQuery" />
+              <el-form-item label="昵称" prop="nickName">
+                <el-input v-model="queryParams.nickName" placeholder="请输入昵称" clearable style="width: 240px" @keyup.enter.native="handleQuery" />
               </el-form-item>
               <el-form-item label="状态" prop="status">
                 <el-select v-model="queryParams.status" placeholder="用户状态" clearable style="width: 240px">
@@ -58,11 +58,11 @@
 
             <el-table v-loading="loading" :data="userList" @selection-change="handleSelectionChange">
               <el-table-column type="selection" width="50" align="center" />
-              <el-table-column label="用户编号" align="center" key="userId" prop="userId" v-if="columns.userId.visible" />
+              <!-- <el-table-column label="用户编号" align="center" key="userId" prop="userId" v-if="columns.userId.visible" /> -->
               <el-table-column label="用户名称" align="center" key="userName" prop="userName" v-if="columns.userName.visible" :show-overflow-tooltip="true" />
-              <el-table-column label="用户昵称" align="center" key="nickName" prop="nickName" v-if="columns.nickName.visible" :show-overflow-tooltip="true" />
-              <el-table-column label="部门" align="center" key="deptName" prop="dept.deptName" v-if="columns.deptName.visible" :show-overflow-tooltip="true" />
-              <el-table-column label="手机号码" align="center" key="phonenumber" prop="phonenumber" v-if="columns.phonenumber.visible" width="120" />
+              <el-table-column label="昵称" align="center" key="nickName" prop="nickName" v-if="columns.nickName.visible" :show-overflow-tooltip="true" />
+              <!-- <el-table-column label="部门" align="center" key="deptName" prop="dept.deptName" v-if="columns.deptName.visible" :show-overflow-tooltip="true" /> -->
+              <el-table-column label="账号余额" align="center" key="balance" prop="balance" v-if="columns.balance.visible" width="120" />
               <el-table-column label="状态" align="center" key="status" v-if="columns.status.visible">
                 <template slot-scope="scope">
                   <el-switch v-model="scope.row.status" active-value="0" inactive-value="1" @change="handleStatusChange(scope.row)"></el-switch>
@@ -282,7 +282,7 @@ export default {
         userName: { label: '用户名称', visible: true },
         nickName: { label: '用户昵称', visible: true },
         deptName: { label: '部门', visible: true },
-        phonenumber: { label: '手机号码', visible: true },
+        balance: { label: '账户余额', visible: true },
         status: { label: '状态', visible: true },
         createTime: { label: '创建时间', visible: true }
       },

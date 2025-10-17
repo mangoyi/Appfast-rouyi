@@ -158,14 +158,14 @@
               <el-row :gutter="24">
                 <el-col :span="8">
                   <el-form-item label="5星评分">
-                    <el-input v-model="areaConfig.scoreAmount" placeholder="评分数" style="width: 150px"></el-input>
-                    <el-input v-model="areaConfig.totalScoreAmount" placeholder="总分" style="width: 100px" disabled></el-input>
+                    <el-input v-model="areaConfig.star5Amount" placeholder="评分数" style="width: 150px"></el-input>
+                    <el-input :value="areaConfig.star5Amount * orderDaysDiff" placeholder="总分" style="width: 100px" disabled></el-input>
                   </el-form-item>
                 </el-col>
                 <el-col :span="8">
                   <el-form-item label="4星评分">
-                    <el-input v-model="areaConfig.scoreAmount" placeholder="评分数" style="width: 150px"></el-input>
-                    <el-input v-model="areaConfig.totalScoreAmount" placeholder="总分" style="width: 100px" disabled></el-input>
+                    <el-input v-model="areaConfig.star4Amount" placeholder="评分数" style="width: 150px"></el-input>
+                    <el-input :value="areaConfig.star4Amount * orderDaysDiff" placeholder="总分" style="width: 100px" disabled></el-input>
                   </el-form-item>
                 </el-col>
               </el-row>
@@ -195,14 +195,14 @@
               <el-row :gutter="24">
                 <el-col :span="8">
                   <el-form-item label="5星评分">
-                    <el-input v-model="areaConfig.scoreAmount" placeholder="评分数" style="width: 150px"></el-input>
-                    <el-input v-model="areaConfig.totalScoreAmount" placeholder="总分" style="width: 100px" disabled></el-input>
+                    <el-input v-model="areaConfig.star5Amount" placeholder="评分数" style="width: 150px"></el-input>
+                    <el-input :value="areaConfig.star5Amount * orderDaysDiff" placeholder="总分" style="width: 100px" disabled></el-input>
                   </el-form-item>
                 </el-col>
                 <el-col :span="8">
                   <el-form-item label="4星评分">
-                    <el-input v-model="areaConfig.scoreAmount" placeholder="评分数" style="width: 150px"></el-input>
-                    <el-input v-model="areaConfig.totalScoreAmount" placeholder="总分" style="width: 100px" disabled></el-input>
+                    <el-input v-model="areaConfig.star4Amount" placeholder="评分数" style="width: 150px"></el-input>
+                    <el-input :value="areaConfig.star4Amount * orderDaysDiff" placeholder="总分" style="width: 100px" disabled></el-input>
                   </el-form-item>
                 </el-col>
               </el-row>
@@ -213,8 +213,8 @@
             </div>
           </el-form-item>
            <!-- 关键词保排名 -->
-           <el-form-item label="关键词保排名配置" prop="orderKeywordRanks" v-if="formData.orderType == 5">
-             <div v-for="(areaConfig, areaIndex) in formData.orderKeywordRanks" :key="areaIndex" style="margin-bottom: 20px; border: 1px solid #dcdfe6; padding: 15px; border-radius: 4px;">
+           <el-form-item label="关键词保排名配置" prop="orderAreaKeywords" v-if="formData.orderType == 5">             
+             <div v-for="(areaConfig, areaIndex) in formData.orderAreaKeywords" :key="areaIndex" style="margin-bottom: 20px; border: 1px solid #dcdfe6; padding: 15px; border-radius: 4px;">
                <el-row :gutter="24">
                  <el-col :span="6">
                    <el-form-item :label="`国家/地区`">
@@ -255,7 +255,7 @@
              <div style="margin-top: 10px;">
                <el-button type="primary" size="small" @click="addAreaConfig">添加地区配置</el-button>
              </div>
-          </el-form-item>
+           </el-form-item>
            <!-- 关键词覆盖服务 -->
            <el-form-item label="关键词覆盖服务配置" prop="orderAreaKeywords" v-if="formData.orderType == 6">
              <div v-for="(areaConfig, areaIndex) in formData.orderAreaKeywords" :key="areaIndex" style="margin-bottom: 20px; border: 1px solid #dcdfe6; padding: 15px; border-radius: 4px;">
@@ -298,6 +298,22 @@
                <el-button type="primary" size="small" @click="addAreaConfig">添加地区配置</el-button>
              </div>
           </el-form-item>
+
+          <!-- 联系方式配置 -->
+          <el-row :gutter="24" style="margin-bottom: 20px;" v-if="formData.orderType === 5 || formData.orderType === 6">
+            <el-col :span="24">
+              <el-form-item label="联系方式">
+                <el-col :span="4">
+                  <el-select v-model="formData.communicateType" placeholder="请选择联系方式类型" style="width: 120px">
+                    <el-option v-for="type in communicateTypeOptions" :key="type.value" :label="type.label" :value="type.value"></el-option>
+                  </el-select>
+                </el-col>
+                <el-col :span="8">
+                  <el-input v-model="formData.communicateNumber" placeholder="请输入联系方式号码" style="width: 200px"></el-input>
+                </el-col>
+              </el-form-item>
+            </el-col>
+          </el-row>
         </el-col>
         <el-col :span="24">
           <el-form-item size="large">
@@ -352,6 +368,8 @@ export default {
         orderType: 1,              // 关键词安装类型
         storeType: 1,              // 应用商店
         executionHour: undefined,  // 可执行小时
+        communicateNumber: '',     // 联系方式号码
+        communicateType: 1,        // 联系方式类型
         
         // 内部使用字段（用于日期范围选择器）
         orderDate: null,
@@ -392,6 +410,16 @@ export default {
           required: true,
           type: 'array',
           message: '请至少添加一个地区关键字配置',
+          trigger: 'change'
+        }],
+        communicateNumber: [{
+          required: true,
+          message: '联系方式号码不能为空',
+          trigger: 'blur'
+        }],
+        communicateType: [{
+          required: true,
+          message: '联系方式类型不能为空',
           trigger: 'change'
         }]
       },
@@ -440,9 +468,32 @@ export default {
         { label: 'top3', value: 'top3' },
         { label: 'top4', value: 'top4' }
       ],
+      // 联系方式类型选项
+      communicateTypeOptions: [
+        { label: '手机号', value: 1 },
+        { label: '微信号', value: 2 },
+        { label: 'QQ号', value: 3 },
+        { label: '邮箱', value: 4 }
+      ],
     }
   },
-  computed: {},
+  computed: {
+    // 计算订单时间的天数差值
+    orderDaysDiff() {
+      if (this.formData.orderType == 1) {
+        // 单日选择，返回1天
+        return 1
+      } else if (this.formData.orderDate && this.formData.orderDate.length === 2) {
+        // 日期范围，计算天数差值
+        const startDate = new Date(this.formData.orderDate[0])
+        const endDate = new Date(this.formData.orderDate[1])
+        const diffTime = Math.abs(endDate - startDate)
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1 // 加1是因为包含开始和结束日期
+        return diffDays
+      }
+      return 1 // 默认返回1
+    }
+  },
   watch: {
     // 监听订单类型变化，重新初始化地区配置
     'formData.orderType'(newType, oldType) {
@@ -523,26 +574,15 @@ export default {
           // 评分类型 - orderAreaScores
           return {
             area: areaConfig.area,
-            scoreAmount: parseInt(areaConfig.scoreAmount) || 0,
-            starLevel: parseInt(areaConfig.starLevel) || 5
+            star5Amount: parseInt(areaConfig.star5Amount) || 0,
+            star4Amount: parseInt(areaConfig.star4Amount) || 0
           }
         } else if (this.formData.orderType === 4) {
-          // 评论类型 - orderAreaComments
-          const commentDetailList = []
-          
-          // 检查是否有评论标题和内容
-          if (areaConfig.commentTitle && areaConfig.commentTitle.trim() && 
-              areaConfig.commentContent && areaConfig.commentContent.trim()) {
-            commentDetailList.push({
-              commentTitle: areaConfig.commentTitle.trim(),
-              commentContent: areaConfig.commentContent.trim()
-            })
-          }
-          
+          // 评论类型 - orderAreaScores
           return {
             area: areaConfig.area,
-            commentDetailList: commentDetailList,
-            starLevel: parseInt(areaConfig.starLevel) || 5
+            star5Amount: parseInt(areaConfig.star5Amount) || 0,
+            star4Amount: parseInt(areaConfig.star4Amount) || 0
           }
         } else if (this.formData.orderType === 5) {
           // 关键词保排名 - orderKeywordRanks
@@ -579,9 +619,9 @@ export default {
         } else if (this.formData.orderType === 2) {
           return item.downloadAmount > 0
         } else if (this.formData.orderType === 3) {
-          return item.scoreAmount > 0 && [3,4,5].includes(item.starLevel)
+          return item.star5Amount > 0 || item.star4Amount > 0
         } else if (this.formData.orderType === 4) {
-          return item.commentDetailList && item.commentDetailList.length > 0 && [3,4,5].includes(item.starLevel)
+          return item.star5Amount > 0 || item.star4Amount > 0
         } else if (this.formData.orderType === 5) {
           return item.keywordRankList && item.keywordRankList.length > 0
         } else if (this.formData.orderType === 6) {
@@ -608,9 +648,15 @@ export default {
       } else if (this.formData.orderType === 3) {
         apiData.orderAreaScores = areaData
       } else if (this.formData.orderType === 4) {
-        apiData.orderAreaComments = areaData
+        apiData.orderAreaScores = areaData
       } else if (this.formData.orderType === 5 || this.formData.orderType === 6) {
         apiData.orderKeywordRanks = areaData
+      }
+      
+      // 如果是关键词保排名，添加联系方式字段
+      if (this.formData.orderType === 5 || this.formData.orderType === 6) {
+        apiData.communicateNumber = this.formData.communicateNumber
+        apiData.communicateType = this.formData.communicateType
       }
       
       return apiData
@@ -721,16 +767,15 @@ export default {
         // 评分类型
         this.formData.orderAreaKeywords.push({
           area: '',
-          scoreAmount: '',
-          starLevel: 5
+          star5Amount: '',
+          star4Amount: ''
         });
       } else if (this.formData.orderType === 4) {
         // 评论类型
         this.formData.orderAreaKeywords.push({
           area: '',
-          commentTitle: '',
-          commentContent: '',
-          starLevel: 5
+          star5Amount: '',
+          star4Amount: ''
         });
       } else if (this.formData.orderType === 5) {
         // 关键词保排名
@@ -787,16 +832,15 @@ export default {
           // 评分类型
           this.formData.orderAreaKeywords.push({
             area: '',
-            scoreAmount: '',
-            starLevel: 5
+            star5Amount: '',
+            star4Amount: '',
           });
         } else if (this.formData.orderType === 4) {
           // 评论类型
           this.formData.orderAreaKeywords.push({
             area: '',
-            commentTitle: '',
-            commentContent: '',
-            starLevel: 5
+            star5Amount: '',
+            star4Amount: '',
           });
         } else if (this.formData.orderType === 5) {
           // 关键词保排名
@@ -836,6 +880,50 @@ export default {
         row.count = '';
         row.totalQuantity = 0;
         row.ranking = '-';
+      }
+    },
+    // 处理关键词保排名输入框回车事件
+    handleKeepRankEnter(row, areaIndex) {
+      console.log('handleKeepRankEnter', row, areaIndex);
+      if (row.keyword.trim()) {
+        // 将第一行的内容添加到新行
+        this.formData.orderAreaKeywords[areaIndex].keepRankList.push({
+          keyword: row.keyword,
+          targetRank: row.targetRank || 'top1'
+        });
+        
+        // 清空第一行的输入内容，保持第一行作为输入项
+        row.keyword = '';
+        row.targetRank = 'top1';
+      }
+    },
+    // 处理关键词覆盖服务输入框回车事件
+    handleCoverEnter(row, areaIndex) {
+      console.log('handleCoverEnter', row, areaIndex);
+      if (row.keyword.trim()) {
+        // 将第一行的内容添加到新行
+        this.formData.orderAreaKeywords[areaIndex].coverList.push({
+          keyword: row.keyword,
+          currentRank: row.currentRank || '-'
+        });
+        
+        // 清空第一行的输入内容，保持第一行作为输入项
+        row.keyword = '';
+        row.currentRank = '-';
+      }
+    },
+    // 删除关键词保排名行
+    removeKeepRankRow(keywordIndex, areaIndex) {
+      // 防止删除第一行
+      if (keywordIndex > 0) {
+        this.formData.orderAreaKeywords[areaIndex].keepRankList.splice(keywordIndex, 1);
+      }
+    },
+    // 删除关键词覆盖服务行
+    removeCoverRow(keywordIndex, areaIndex) {
+      // 防止删除第一行
+      if (keywordIndex > 0) {
+        this.formData.orderAreaKeywords[areaIndex].coverList.splice(keywordIndex, 1);
       }
     },
     // 加载执行小时选项
