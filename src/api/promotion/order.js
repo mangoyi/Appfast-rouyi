@@ -21,7 +21,7 @@ export function updatePromotionOrder(data) {
 // 获取推广订单详情
 export function getPromotionOrder(id) {
   return request({
-    url: `/promotion/order/${id}`,
+    url: `/normal/order/${id}`,
     method: 'get'
   })
 }
