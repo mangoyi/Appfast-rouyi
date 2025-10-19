@@ -52,9 +52,10 @@ export function delApp(id) {
   })
 }
 
-export function outerAppQuery(id) {
+export function outerAppQuery(data) {
   return request({
-    url: '/appStore/app/'+id,
-    method: 'get'
+    url: '/appStore/app/search',
+    method: 'post',
+    data: data
   })
 }

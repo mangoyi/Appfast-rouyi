@@ -187,8 +187,19 @@
             </el-option>
           </el-select>
         </el-form-item>
+        <el-form-item label="地区" prop="area">
+        <el-select v-model="form.area" clearable>
+          <el-option
+            v-for="dict in dict.type.country_area"
+            :key="dict.value"
+            :label="dict.label"
+            :value="dict.value"
+          >
+          </el-option>
+        </el-select>
+      </el-form-item>
         <el-form-item label="应用ID" prop="appId">
-          <el-input v-model="form.appId" placeholder="请输入应用ID" />
+          <el-input v-model="form.appId" :placeholder="getAppIdPlaceholder()" />
           <el-button type="primary" icon="el-icon-search" @click="searchAppInfo" style="margin-left: 10px">搜索</el-button>
         </el-form-item>
         <el-form-item label="名称" prop="appName">
@@ -220,7 +231,7 @@ import auth from '@/plugins/auth'
 
 export default {
   name: "App",
-  dicts: ['store_type'],
+  dicts: ['store_type', 'country_area'],
   data() {
     return {
       // 遮罩层
@@ -287,6 +298,13 @@ export default {
     }
   },
   methods: {
+
+    getAppIdPlaceholder() {
+      if (this.form.storeType === null || this.form.storeType === '') {
+        return 'please select store type';
+      }
+      return this.form.storeType === '2' ? 'please input bundle.id' : 'please input app id';
+    },
     // 处理用户搜索
     handleUserSearch(query) {
       // console.log('用户搜索...',query);
@@ -447,35 +465,45 @@ export default {
       }, `app_${new Date().getTime()}.xlsx`)
     },
     searchAppInfo() {
+      // 验证商店类型
+      if (!this.form.storeType) {
+        this.$modal.msgWarning("choose store");
+        return;
+      }
+
       // 验证app_id是否为空
       if (!this.form.appId) {
         this.$modal.msgWarning("请输入app_id");
         return;
       }
 
+      const query = {
+        id: this.form.appId,
+        storeType: this.form.storeType,
+        area: this.form.area
+      };
       // 调用服务端接口查询应用信息
-      outerAppQuery(this.form.appId).then(response => {
-      if (response.code == 200 && response.appinfo && Array.isArray(response.appinfo.results) && response.appinfo.results.length > 0) {
-          // // 使用results数组长度代替可能不存在的resultCount
-          // const resultCount = response.appinfo.results.length;
-          // 从appinfo.results中获取第一个结果
-          const appInfo = response.appinfo.results[0];
-          // this.$modal.msgSuccess(resultCount + '条记录，' + appInfo.artistName);
+      outerAppQuery(query).then(response => {
+      if (response.code == 200) {
+        if(response.appinfo != null){
+          const appInfo = response.appinfo;
           // 将查询结果填充到appName中
-          this.form.appName = appInfo.trackName;
-          // 也可以根据需要填充其他字段
-          this.form.appDescription = appInfo.description;
-          this.form.iconImage = appInfo.artworkUrl512;
+          this.form.appName = appInfo.appName;
+          this.form.iconImage = appInfo.iconImageUrl;
 
-          this.$modal.msgSuccess("搜索成功，已自动填充应用信息");
+          this.$modal.msgSuccess("search success. Auto fill app info.");
         } else {
-          this.$modal.msgInfo("未找到对应的应用信息");
+          this.$modal.msgInfo(response.error);
           // 清空已有的名称，避免显示旧数据
           this.form.appName = '';
+          this.form.iconImage = '';
+        } 
+      } 
+      else {
+          this.$modal.msgInfo(response.error);
         }
       }).catch(error => {
-        console.error("搜索应用信息失败", error);
-        this.$modal.msgError("搜索失败，请重试");
+        this.$modal.msgError("query failed，please check appId or bundle.id");
       });
     },
       // 添加跳转到新建订单页面的方法

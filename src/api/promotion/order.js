@@ -12,7 +12,7 @@ export function createPromotionOrder(data) {
 // 更新推广订单
 export function updatePromotionOrder(data) {
   return request({
-    url: '/promotion/order/update',
+    url: '/normal/order',
     method: 'put',
     data: data
   })
