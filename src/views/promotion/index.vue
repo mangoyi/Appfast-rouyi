@@ -1,216 +1,157 @@
 <template>
-   <div class="app-container">
-      <div class="app-container">
-    <!-- 促销服务卡片网格布局 - 每行三个卡片，共两行 -->
-    <div class="promotion-grid">
-      <!-- 第一行卡片 -->
-      <div  
-        class="keyword-install-card card dd-flex dd-align-center" 
-        @click="handleCardClick"
-      >
-        <img :src="p1Pic" alt="关键词安装" class="img" />
-        <div class="content">
-          <div class="dd-flex dd-align-center">
-            <div class="title">关键词安装</div>
-            <div class="half-bg">
-              5折
+  <div class="app-container">
+    <div class="app-container">
+      <!-- 促销服务卡片网格布局 - 每行三个卡片，共两行 -->
+      <div class="promotion-grid">
+        <!-- 第一行卡片 -->
+        <!-- <div class="keyword-install-card card dd-flex dd-align-center" @click="handleCardClick">
+          <img :src="p1Pic" alt="关键词安装" class="img" />
+          <div class="content">
+            <div class="dd-flex dd-align-center">
+              <div class="title">关键词安装</div>
+              <div class="half-bg">
+                5折
+              </div>
             </div>
+            <el-tooltip class="txt dd-omit-2" effect="dark" placement="top" content="您获得的安装次数越多，关键字排名越高，您获得的自然流量就越多。">
+              <div class="description">
+                您获得的安装次数越多，关键字排名越高，您获得的自然流量就越多。
+              </div>
+            </el-tooltip>
+            <el-button type="default" size="small" class="btn" @click.stop="handleCardClick">
+              新建订单
+            </el-button>
           </div>
-          <el-tooltip 
-            class="txt dd-omit-2"
-            effect="dark"
-            placement="top"
-            content="您获得的安装次数越多，关键字排名越高，您获得的自然流量就越多。"
-          >
-            <div class="description">
-              您获得的安装次数越多，关键字排名越高，您获得的自然流量就越多。
-            </div>  
-          </el-tooltip>
-          <el-button 
-            type="default"
-            size="small"
-            class="btn"
-            @click.stop="handleCreateOrder"
-          >
-            新建订单
-          </el-button>
-        </div>
+        </div> -->
+        <a href="" class="keyword-install-card card dd-flex dd-align-center"
+          @click="handleCardClick(1)">
+          <img :src="p1Pic" alt="关键词安装" class="img" />
+          <div class="content">
+            <div class="dd-flex dd-align-center">
+              <div class="title">关键词安装</div>
+              <div class="half-bg">
+                5折
+              </div>
+            </div>
+            <el-tooltip class="txt dd-omit-2" effect="dark" placement="top" content="提升应用下载量，增强应用市场排名，获得更多曝光机会。">
+              <div class="description">
+                您获得的安装次数越多，关键字排名越高，您获得的自然流量就越多。
+              </div>
+            </el-tooltip>
+            <el-button type="default" size="small" class="btn" @click.stop="handleCardClick(1)">
+              新建订单
+            </el-button>
+          </div>
+        </a>
+
+        <a href="" class="keyword-install-card card dd-flex dd-align-center"
+          @click="handleCardClick(2)">
+          <img :src="p2Pic" alt="下载量" class="img" />
+          <div class="content">
+            <div class="dd-flex dd-align-center">
+              <div class="title">下载量</div>
+              <div class="half-bg">
+                5折
+              </div>
+            </div>
+            <el-tooltip class="txt dd-omit-2" effect="dark" placement="top" content="提升应用下载量，增强应用市场排名，获得更多曝光机会。">
+              <div class="description">
+                提升应用下载量，增强应用市场排名，获得更多曝光机会。
+              </div>
+            </el-tooltip>
+            <el-button type="default" size="small" class="btn" @click.stop="handleCardClick(2)">
+              新建订单
+            </el-button>
+          </div>
+        </a>
+
+        <a href="" class="keyword-install-card card dd-flex dd-align-center"
+          @click="handleCardClick(3)">
+          <img :src="p3Pic" alt="用户评价" class="img" />
+          <div class="content">
+            <div class="dd-flex dd-align-center">
+              <div class="title">用户评价</div>
+              <div class="half-bg">
+                6折
+              </div>
+            </div>
+            <el-tooltip class="txt dd-omit-2" effect="dark" placement="top" content="高质量用户评价可以提升应用可信度，增加下载转化率。">
+              <div class="description">
+                高质量用户评价可以提升应用可信度，增加下载转化率。
+              </div>
+            </el-tooltip>
+            <el-button type="default" size="small" class="btn" @click.stop="handleCardClick(3)">
+              新建订单
+            </el-button>
+          </div>
+        </a>
+
+        <!-- 第二行卡片 -->
+        <a href="" class="keyword-install-card card dd-flex dd-align-center"
+          @click="handleCardClick(4)">
+          <img :src="p4Pic" alt="星级评分" class="img" />
+          <div class="content">
+            <div class="dd-flex dd-align-center">
+              <div class="title">星级评分</div>
+              <div class="half-bg">
+                7折
+              </div>
+            </div>
+            <el-tooltip class="txt dd-omit-2" effect="dark" placement="top" content="提升应用星级评分，改善应用在市场中的整体形象。">
+              <div class="description">
+                提升应用星级评分，改善应用在市场中的整体形象。
+              </div>
+            </el-tooltip>
+            <el-button type="default" size="small" class="btn" @click.stop="handleCardClick(4)">
+              新建订单
+            </el-button>
+          </div>
+        </a>
+
+        <a href="" class="keyword-install-card card dd-flex dd-align-center"
+          @click="handleCardClick(5)">
+          <img :src="p5Pic" alt="推荐位" class="img" />
+          <div class="content">
+            <div class="dd-flex dd-align-center">
+              <div class="title">推荐位</div>
+              <div class="half-bg">
+                8折
+              </div>
+            </div>
+            <el-tooltip class="txt dd-omit-2" effect="dark" placement="top" content="获得应用商店推荐位，大幅提升应用曝光度和下载量。">
+              <div class="description">
+                获得应用商店推荐位，大幅提升应用曝光度和下载量。
+              </div>
+            </el-tooltip>
+            <el-button type="default" size="small" class="btn" @click.stop="handleCardClick(5)">
+              新建订单
+            </el-button>
+          </div>
+        </a>
+
+        <a href="" class="keyword-install-card card dd-flex dd-align-center" @click="handleCardClick(6)">
+          <img :src="p6Pic" alt="ASO优化" class="img" />
+          <div class="content">
+            <div class="dd-flex dd-align-center">
+              <div class="title">ASO优化</div>
+              <div class="half-bg">
+                6折
+              </div>
+            </div>
+            <el-tooltip class="txt dd-omit-2" effect="dark" placement="top" content="专业ASO优化服务，提升应用在搜索结果中的排名。">
+              <div class="description">
+                专业ASO优化服务，提升应用在搜索结果中的排名。
+              </div>
+            </el-tooltip>
+            <el-button type="default" size="small" class="btn" @click.stop="handleCardClick(6)">
+              新建订单
+            </el-button>
+          </div>
+        </a>
       </div>
-      
-      <a 
-        href="/zh/services/downloads" 
-        class="keyword-install-card card dd-flex dd-align-center" 
-        @click="handleCardClick"
-      >
-        <img :src="p2Pic" alt="下载量" class="img" />
-        <div class="content">
-          <div class="dd-flex dd-align-center">
-            <div class="title">下载量</div>
-            <div class="half-bg">
-              5折
-            </div>
-          </div>
-          <el-tooltip 
-            class="txt dd-omit-2"
-            effect="dark"
-            placement="top"
-            content="提升应用下载量，增强应用市场排名，获得更多曝光机会。"
-          >
-            <div class="description">
-              提升应用下载量，增强应用市场排名，获得更多曝光机会。
-            </div>  
-          </el-tooltip>
-          <el-button 
-            type="default"
-            size="small"
-            class="btn"
-            @click.stop="handleCreateOrder"
-          >
-            新建订单
-          </el-button>
-        </div>
-      </a>
-      
-      <a 
-        href="/zh/services/reviews" 
-        class="keyword-install-card card dd-flex dd-align-center" 
-        @click="handleCardClick"
-      >
-        <img :src="p3Pic" alt="用户评价" class="img" />
-        <div class="content">
-          <div class="dd-flex dd-align-center">
-            <div class="title">用户评价</div>
-            <div class="half-bg">
-              6折
-            </div>
-          </div>
-          <el-tooltip 
-            class="txt dd-omit-2"
-            effect="dark"
-            placement="top"
-            content="高质量用户评价可以提升应用可信度，增加下载转化率。"
-          >
-            <div class="description">
-              高质量用户评价可以提升应用可信度，增加下载转化率。
-            </div>  
-          </el-tooltip>
-          <el-button 
-            type="default"
-            size="small"
-            class="btn"
-            @click.stop="handleCreateOrder"
-          >
-            新建订单
-          </el-button>
-        </div>
-      </a>
-      
-      <!-- 第二行卡片 -->
-      <a 
-        href="/zh/services/ratings" 
-        class="keyword-install-card card dd-flex dd-align-center" 
-        @click="handleCardClick"
-      >
-        <img :src="p4Pic" alt="星级评分" class="img" />
-        <div class="content">
-          <div class="dd-flex dd-align-center">
-            <div class="title">星级评分</div>
-            <div class="half-bg">
-              7折
-            </div>
-          </div>
-          <el-tooltip 
-            class="txt dd-omit-2"
-            effect="dark"
-            placement="top"
-            content="提升应用星级评分，改善应用在市场中的整体形象。"
-          >
-            <div class="description">
-              提升应用星级评分，改善应用在市场中的整体形象。
-            </div>  
-          </el-tooltip>
-          <el-button 
-            type="default"
-            size="small"
-            class="btn"
-            @click.stop="handleCreateOrder"
-          >
-            新建订单
-          </el-button>
-        </div>
-      </a>
-      
-      <a 
-        href="/zh/services/featured" 
-        class="keyword-install-card card dd-flex dd-align-center" 
-        @click="handleCardClick"
-      >
-        <img :src="p5Pic" alt="推荐位" class="img" />
-        <div class="content">
-          <div class="dd-flex dd-align-center">
-            <div class="title">推荐位</div>
-            <div class="half-bg">
-              8折
-            </div>
-          </div>
-          <el-tooltip 
-            class="txt dd-omit-2"
-            effect="dark"
-            placement="top"
-            content="获得应用商店推荐位，大幅提升应用曝光度和下载量。"
-          >
-            <div class="description">
-              获得应用商店推荐位，大幅提升应用曝光度和下载量。
-            </div>  
-          </el-tooltip>
-          <el-button 
-            type="default"
-            size="small"
-            class="btn"
-            @click.stop="handleCreateOrder"
-          >
-            新建订单
-          </el-button>
-        </div>
-      </a>
-      
-      <a 
-        href="/zh/services/aso" 
-        class="keyword-install-card card dd-flex dd-align-center" 
-        @click="handleCardClick"
-      >
-        <img :src="p6Pic" alt="ASO优化" class="img" />
-        <div class="content">
-          <div class="dd-flex dd-align-center">
-            <div class="title">ASO优化</div>
-            <div class="half-bg">
-              6折
-            </div>
-          </div>
-          <el-tooltip 
-            class="txt dd-omit-2"
-            effect="dark"
-            placement="top"
-            content="专业ASO优化服务，提升应用在搜索结果中的排名。"
-          >
-            <div class="description">
-              专业ASO优化服务，提升应用在搜索结果中的排名。
-            </div>  
-          </el-tooltip>
-          <el-button 
-            type="default"
-            size="small"
-            class="btn"
-            @click.stop="handleCreateOrder"
-          >
-            新建订单
-          </el-button>
-        </div>
-      </a>
-    </div>
-    
-    <!-- 促销服务列表 - 适配RuoYi-Vue框架 -->
-    <div v-loading="loading" class="service-list">
+
+      <!-- 促销服务列表 - 适配RuoYi-Vue框架 -->
+      <!-- <div v-loading="loading" class="service-list">
       <div v-for="service in services" :key="service.id" class="service-card">
           <div class="card-header">
               <h3>{{ service.title }}</h3>
@@ -226,9 +167,9 @@
               </el-button>
           </div>
       </div>
+    </div> -->
     </div>
   </div>
-    </div>
 </template>
 
 <script>
@@ -249,12 +190,12 @@ export default {
       // 遮罩层 - 标准加载状态
       loading: false,
       //图片资源
-      p1Pic:p1Pic,
-      p2Pic:p2Pic,
-      p3Pic:p3Pic,
-      p4Pic:p4Pic,
-      p5Pic:p5Pic,
-      p6Pic:p6Pic,
+      p1Pic: p1Pic,
+      p2Pic: p2Pic,
+      p3Pic: p3Pic,
+      p4Pic: p4Pic,
+      p5Pic: p5Pic,
+      p6Pic: p6Pic,
       // 促销服务列表数据
       services: [],
       // 查询参数
@@ -285,53 +226,36 @@ export default {
         this.$message.error('获取促销服务列表失败，请稍后重试')
       })
     },
-    
+
     /** 处理卡片点击事件 - 适配Vue路由 */
-    handleCardClick(e) {
+    handleCardClick(type) {
       // 阻止默认行为以使用Vue路由
       // alert('点击了卡片') 
-      e.preventDefault()
-      this.$router.push('/promotion/createOrder')
+      // e.preventDefault()
+      this.$router.push(`/promotion/createOrder?type=${type}`)
     },
-    
-    /** 处理新建订单按钮点击事件 - 使用框架的弹窗组件 */
-    handleCreateOrder() {
-      this.$modal.confirm('确认创建关键词安装订单吗？').then(() => {
-        // 调用创建订单的API
-        request({
-          url: '/promotion/service/order/keyword',
-          method: 'post'
-        }).then(() => {
-          this.$message.success('订单创建成功')
-        }).catch(() => {
-          this.$message.error('订单创建失败，请稍后重试')
-        })
-      }).catch(() => {
-        this.$message.info('已取消订单创建')
-      })
-    },
-    
+
     /** 订购促销服务 - 适配框架的对话框和消息提示 */
-    addToCart(service) {
-      this.$modal.confirm(`确认订购 ${service.title} 服务吗？`).then(() => {
-        // 调用订购服务的API
-        request({
-          url: '/promotion/service/order',
-          method: 'post',
-          data: {
-            serviceId: service.id,
-            serviceName: service.title,
-            price: service.price
-          }
-        }).then(() => {
-          this.$message.success('订购成功')
-        }).catch(() => {
-          this.$message.error('订购失败，请稍后重试')
-        })
-      }).catch(() => {
-        this.$message.info('已取消订购')
-      })
-    }
+    // addToCart(service) {
+    //   this.$modal.confirm(`确认订购 ${service.title} 服务吗？`).then(() => {
+    //     // 调用订购服务的API
+    //     request({
+    //       url: '/promotion/service/order',
+    //       method: 'post',
+    //       data: {
+    //         serviceId: service.id,
+    //         serviceName: service.title,
+    //         price: service.price
+    //       }
+    //     }).then(() => {
+    //       this.$message.success('订购成功')
+    //     }).catch(() => {
+    //       this.$message.error('订购失败，请稍后重试')
+    //     })
+    //   }).catch(() => {
+    //     this.$message.info('已取消订购')
+    //   })
+    // }
   }
 }
 </script>
@@ -354,18 +278,18 @@ export default {
     transform: translateY(-2px);
   }
 
-/* 促销卡片网格布局 - 实现每行三个卡片 */
-.promotion-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-  margin-bottom: 24px;
-}
+  /* 促销卡片网格布局 - 实现每行三个卡片 */
+  .promotion-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+  }
 
-/* 调整卡片样式，移除原有margin-bottom，统一由网格gap控制 */
-.keyword-install-card {
-  margin-bottom: 0 !important;
-}
+  /* 调整卡片样式，移除原有margin-bottom，统一由网格gap控制 */
+  .keyword-install-card {
+    margin-bottom: 0 !important;
+  }
 
   .img {
     width: 64px;
