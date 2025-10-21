@@ -323,6 +323,8 @@
 
 // 1. 导入获取用户列表的API
 import { queryUserList } from "@/api/system/user"
+// 2. 导入获取执行小时选项的API
+import { getExecuteHourOptions } from "@/api/promotion/executeHour"
 // 3. 导入应用列表API
 import { listApp, getSimpleAppList  } from "@/api/appkeyword/app"
 // 4. 导入订单API
@@ -939,12 +941,29 @@ export default {
     },
     // 加载执行小时选项
     loadExecuteHourOptions() {
-      this.executeHourOptions = [
+      this.executeHourLoading = true;
+      
+      getExecuteHourOptions().then(response => {
+        console.log('执行小时选项响应:', response);
+        // 假设服务端返回的数据格式为 { data: [{ value: '09:00', label: '09:00' }, ...] }
+        const hours = response.data || response.rows || [];
+        this.executeHourOptions = hours.map(hour => ({
+          label: hour.dictLabel,
+          value: hour.dictValue
+        }));
+      }).catch(error => {
+        console.error('获取执行小时选项失败:', error);
+        this.executeHourOptions = [];
+        // 如果API调用失败，提供默认选项
+        this.executeHourOptions = [
         { label: '1 hour', value: 1 },
         { label: '2 hours', value: 2 },
         { label: '3 hours', value: 3 },
         { label: '4 hours', value: 4 },
       ];
+      }).finally(() => {
+        this.executeHourLoading = false;
+      });
     },
     // 加载应用列表选项
     loadAppListOptions() {

@@ -44,23 +44,17 @@
           <el-divider></el-divider>
         </el-col>
         <el-col :span="24" v-if="formData.orderType == 1">
-          <!-- <el-form-item label="执行小时" prop="execution_hours">
-            <el-select v-model="formData.execution_hours" placeholder="请选择执行小时" filterable clearable
-              :style="{width: '30%'}" :loading="executeHourLoading">
-              <el-option v-for="hour in executeHourOptions" :key="hour.value" :label="hour.label" :value="hour.value"></el-option>
+          <el-form-item label="执行小时" prop="executionHour">
+            <el-select v-model="formData.executionHour" placeholder="请选择执行小时" filterable clearable>
+              <el-option
+                v-for="item in executeHourOptions"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              >
+              </el-option>
             </el-select>
-          </el-form-item> -->
-        <el-form-item label="执行小时" prop="execution_hours">
-        <el-select v-model="formData.execution_hours" placeholder="请选择执行小时" filterable clearable>
-          <el-option
-            v-for="dict in dict.type.execution_hours"
-            :key="dict.value"
-            :label="dict.label"
-            :value="dict.value"
-          >
-          </el-option>
-        </el-select>
-      </el-form-item>
+          </el-form-item>
         </el-col>
         <el-col :span="24">
           <!-- 关键词安装 -->
@@ -509,7 +503,7 @@ export default {
     // 组件创建时加载用户列表数据
     // this.loadUserListOptions()
     // 加载执行小时选项数据
-    // this.loadExecuteHourOptions()
+    this.loadExecuteHourOptions()
     // 加载应用列表数据
     this.loadAppListOptions()
     // 初始化第一个地区配置
@@ -929,29 +923,25 @@ export default {
     // 加载执行小时选项
     loadExecuteHourOptions() {
       this.executeHourLoading = true;
-      
+      console.log('执行力')
       getExecuteHourOptions().then(response => {
         console.log('执行小时选项响应:', response);
         // 假设服务端返回的数据格式为 { data: [{ value: '09:00', label: '09:00' }, ...] }
         const hours = response.data || response.rows || [];
         this.executeHourOptions = hours.map(hour => ({
-          label: hour.label || hour.name || hour.value,
-          value: hour.value || hour.id
+          label: hour.dictLabel,
+          value: hour.dictValue
         }));
       }).catch(error => {
         console.error('获取执行小时选项失败:', error);
         this.executeHourOptions = [];
         // 如果API调用失败，提供默认选项
         this.executeHourOptions = [
-          { label: '09:00', value: '09:00' },
-          { label: '10:00', value: '10:00' },
-          { label: '11:00', value: '11:00' },
-          { label: '14:00', value: '14:00' },
-          { label: '15:00', value: '15:00' },
-          { label: '16:00', value: '16:00' },
-          { label: '17:00', value: '17:00' },
-          { label: '18:00', value: '18:00' }
-        ];
+        { label: '1 hour', value: 1 },
+        { label: '2 hours', value: 2 },
+        { label: '3 hours', value: 3 },
+        { label: '4 hours', value: 4 },
+      ];
       }).finally(() => {
         this.executeHourLoading = false;
       });
