@@ -311,7 +311,7 @@ export default {
           { required: auth.hasPermi('system:user:list'), message: "用户id不能为空", trigger: "blur" }
         ],
         appId: [
-          { required: true, message: "appId不能为空", trigger: "blur" }
+          { required: true, message: "app.id or bundle.id can not be null", trigger: "blur" }
         ],
         storeType: [
           { required: true, message: "商店不能为空", trigger: "blur" }

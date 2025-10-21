@@ -138,12 +138,12 @@
         </template>
       </el-table-column>
       <!-- <el-table-column label="国家地区" align="center" prop="area" /> -->
-      <el-table-column label="开始日期" align="center" prop="beginDate" width="180">
+      <el-table-column label="订单开始日期" align="center" prop="beginDate" width="180">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.beginDate, '{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="结束日期" align="center" prop="endDate" width="180">
+      <el-table-column label="订单结束日期" align="center" prop="endDate" width="180">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.endDate, '{y}-{m}-{d}') }}</span>
         </template>
@@ -157,41 +157,33 @@
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
-            v-if="scope.row.orderStatus != 1"
             size="mini"
             type="text"
             icon="el-icon-view"
             @click="handleView(scope.row)"
             v-hasPermi="['normal:order:query']"
           >查看</el-button>
-          <el-button v-if="scope.row.orderStatus == 1"
+          <el-button
             size="mini"
             type="text"
             icon="el-icon-edit"
             @click="handleEdit(scope.row)"
             v-hasPermi="['normal:order:edit']"
           >编辑</el-button>
-          <!-- <el-button
+          <el-button
             size="mini"
             type="text"
             icon="el-icon-edit"
             @click="handleUpdate(scope.row)"
             v-hasPermi="['normal:order:edit']"
-          >修改</el-button> -->
-          <el-button v-if="scope.row.orderStatus != 1"
-            size="mini"
-            type="text"
-            icon="el-icon-edit"
-            @click="handleEdit(scope.row)"
-            v-hasPermi="['normal:order:edit']"
-          >复制</el-button>
-          <!-- <el-button
+          >修改</el-button>
+          <el-button
             size="mini"
             type="text"
             icon="el-icon-delete"
             @click="handleDelete(scope.row)"
             v-hasPermi="['normal:order:remove']"
-          >删除</el-button> -->
+          >删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -211,7 +203,7 @@
           <el-input v-model="form.userId" placeholder="请输入用户id" />
         </el-form-item>
         <el-form-item label="商店" prop="storeType">
-          <el-select v-model="queryParams.storeType" placeholder="全部" clearable>
+          <el-select v-model="form.storeType" placeholder="全部" clearable>
             <el-option
               v-for="dict in dict.type.store_type"
               :key="dict.value"
@@ -230,7 +222,7 @@
           <el-input v-model="form.customerAppId" placeholder="请输入订单关联的应用id" />
         </el-form-item>
         <el-form-item label="任务类型" prop="orderType">
-          <el-select v-model="queryParams.orderType" placeholder="全部" clearable>
+          <el-select v-model="form.orderType" placeholder="全部" clearable>
             <el-option
               v-for="dict in dict.type.normal_order_type"
               :key="dict.value"
@@ -440,7 +432,7 @@ export default {
     /** 查询客户普通订单记录列表 */
     getList() {
       this.loading = true
-      this.queryParams.storeType = 1
+      this.queryParams.storeType = 2
       listOrder(this.queryParams).then(response => {
         this.orderList = response.rows
         this.total = response.total

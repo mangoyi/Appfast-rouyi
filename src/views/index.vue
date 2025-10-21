@@ -29,17 +29,7 @@
           </div>
         </el-card>
       </el-col>
-      <el-col :xs="24" :sm="24" :md="6" :lg="6">
-        <el-card class="update-log" style="background-color: lightgoldenrodyellow; border-radius: 10px;">
-          <div slot="header" class="clearfix">
-            <span>账户余额</span>
-          </div>
-          <div class="text-item-small">
-            <!-- Replace optional chaining with safer syntax -->
-            <span style="font-size: 24px; color: #45b7d1; font-weight: bold;">${{ financialSummary && financialSummary.accountBalance ? financialSummary.accountBalance : '0.00' }}</span>
-          </div>
-        </el-card>
-      </el-col>
+
     </el-row>
     <el-divider />
     <el-row>

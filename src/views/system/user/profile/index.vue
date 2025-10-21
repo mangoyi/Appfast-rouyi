@@ -12,27 +12,15 @@
             </div>
             <ul class="list-group list-group-striped">
               <li class="list-group-item">
-                <svg-icon icon-class="user" />用户名称
+                <svg-icon icon-class="email" />Account
                 <div class="pull-right">{{ user.userName }}</div>
               </li>
-              <li class="list-group-item">
-                <svg-icon icon-class="phone" />手机号码
-                <div class="pull-right">{{ user.phonenumber }}</div>
+               <li class="list-group-item">
+                <svg-icon icon-class="user" />Nick Name
+                <div class="pull-right">{{ user.nickName }}</div>
               </li>
               <li class="list-group-item">
-                <svg-icon icon-class="email" />用户邮箱
-                <div class="pull-right">{{ user.email }}</div>
-              </li>
-              <li class="list-group-item">
-                <svg-icon icon-class="tree" />所属部门
-                <div class="pull-right" v-if="user.dept">{{ user.dept.deptName }} / {{ postGroup }}</div>
-              </li>
-              <li class="list-group-item">
-                <svg-icon icon-class="peoples" />所属角色
-                <div class="pull-right">{{ roleGroup }}</div>
-              </li>
-              <li class="list-group-item">
-                <svg-icon icon-class="date" />创建日期
+                <svg-icon icon-class="date" />Create Time
                 <div class="pull-right">{{ user.createTime }}</div>
               </li>
             </ul>

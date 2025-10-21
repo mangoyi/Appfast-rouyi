@@ -157,41 +157,33 @@
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
-            v-if="scope.row.orderStatus != 1"
             size="mini"
             type="text"
             icon="el-icon-view"
             @click="handleView(scope.row)"
             v-hasPermi="['normal:order:query']"
           >查看</el-button>
-          <el-button v-if="scope.row.orderStatus == 1"
+          <el-button
             size="mini"
             type="text"
             icon="el-icon-edit"
             @click="handleEdit(scope.row)"
             v-hasPermi="['normal:order:edit']"
           >编辑</el-button>
-          <!-- <el-button
+          <el-button
             size="mini"
             type="text"
             icon="el-icon-edit"
             @click="handleUpdate(scope.row)"
             v-hasPermi="['normal:order:edit']"
-          >修改</el-button> -->
-          <el-button v-if="scope.row.orderStatus != 1"
-            size="mini"
-            type="text"
-            icon="el-icon-edit"
-            @click="handleEdit(scope.row)"
-            v-hasPermi="['normal:order:edit']"
-          >复制</el-button>
-          <!-- <el-button
+          >修改</el-button>
+          <el-button
             size="mini"
             type="text"
             icon="el-icon-delete"
             @click="handleDelete(scope.row)"
             v-hasPermi="['normal:order:remove']"
-          >删除</el-button> -->
+          >删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -440,7 +432,7 @@ export default {
     /** 查询客户普通订单记录列表 */
     getList() {
       this.loading = true
-      this.queryParams.storeType = 1
+      this.queryParams.storeType = 3
       listOrder(this.queryParams).then(response => {
         this.orderList = response.rows
         this.total = response.total
