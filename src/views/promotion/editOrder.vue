@@ -43,13 +43,13 @@
           <el-divider></el-divider>
         </el-col>
         <el-col :span="24" v-if="formData.orderType == 1">
-          <el-form-item label="执行小时" prop="execution_hours">
-          <el-select v-model="formData.execution_hours" placeholder="请选择执行小时" filterable clearable>
+          <el-form-item label="执行小时" prop="executionHour">
+          <el-select v-model="formData.executionHour" placeholder="请选择执行小时" filterable clearable>
             <el-option
-              v-for="dict in dict.type.execution_hours"
-              :key="dict.value"
-              :label="dict.label"
-              :value="dict.value"
+              v-for="item in executeHourOptions"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
             >
             </el-option>
           </el-select>
@@ -323,8 +323,6 @@
 
 // 1. 导入获取用户列表的API
 import { queryUserList } from "@/api/system/user"
-// 2. 导入获取执行小时选项的API
-import { getExecuteHourOptions } from "@/api/promotion/executeHour"
 // 3. 导入应用列表API
 import { listApp, getSimpleAppList  } from "@/api/appkeyword/app"
 // 4. 导入订单API
@@ -494,8 +492,6 @@ export default {
       if (newType !== oldType) {
         // 清空现有配置
         this.formData.orderAreaKeywords = []
-        // 重新初始化
-        this.initFirstAreaConfig()
       }
     }
   },
@@ -508,11 +504,9 @@ export default {
     // 组件创建时加载用户列表数据
     // this.loadUserListOptions()
     // 加载执行小时选项数据
-    // this.loadExecuteHourOptions()
+    this.loadExecuteHourOptions()
     // 加载应用列表数据
     this.loadAppListOptions()
-    // 初始化第一个地区配置
-    this.initFirstAreaConfig()
   },
   mounted() {},
   methods: {
@@ -524,6 +518,7 @@ export default {
         
         // 将API数据映射到表单数据
         this.formData = {
+          id: orderData.id,
           customerAppId: orderData.customerAppId,
           beginDate: orderData.beginDate,
           endDate: orderData.endDate,
@@ -579,9 +574,6 @@ export default {
             }
             return areaConfig
           })
-        } else {
-          // 如果没有地区配置，初始化一个空的
-          this.initFirstAreaConfig()
         }
       }).catch(error => {
         console.error('获取订单详情失败:', error)
@@ -730,6 +722,8 @@ export default {
         apiData.communicateNumber = this.formData.communicateNumber
         apiData.communicateType = this.formData.communicateType
       }
+
+      apiData.id = this.formData.id
       
       return apiData
     },
@@ -772,7 +766,6 @@ export default {
       this.$refs['elForm'].resetFields()
       // 重新初始化第一个地区配置
       this.formData.orderAreaKeywords = []
-      this.initFirstAreaConfig()
     },
         handleUserSearch(query) {
       // console.log('用户搜索...',query);
@@ -881,61 +874,6 @@ export default {
         this.formData.orderAreaKeywords[areaIndex].keywordList.splice(keywordIndex, 1);
       }
     },
-    // 初始化第一个地区配置
-    initFirstAreaConfig() {
-      if (this.formData.orderAreaKeywords.length === 0) {
-        if (this.formData.orderType === 1) {
-          // 关键词安装类型
-          this.formData.orderAreaKeywords.push({
-            area: '',
-            keywordList: [{
-              keyword: '',
-              count: '',
-              totalQuantity: 0,
-              ranking: '-'
-            }]
-          });
-        } else if (this.formData.orderType === 2) {
-          // 下载量类型
-          this.formData.orderAreaKeywords.push({
-            area: '',
-            downloadCount: ''
-          });
-        } else if (this.formData.orderType === 3) {
-          // 评分类型
-          this.formData.orderAreaKeywords.push({
-            area: '',
-            star5Amount: '',
-            star4Amount: '',
-          });
-        } else if (this.formData.orderType === 4) {
-          // 评论类型
-          this.formData.orderAreaKeywords.push({
-            area: '',
-            star5Amount: '',
-            star4Amount: '',
-          });
-        } else if (this.formData.orderType === 5) {
-          // 关键词保排名
-          this.formData.orderAreaKeywords.push({
-            area: '',
-            keepRankList: [{
-              keyword: '',
-              targetRank: 'top1'
-            }]
-          });
-        } else if (this.formData.orderType === 6) {
-          // 关键词覆盖服务
-          this.formData.orderAreaKeywords.push({
-            area: '',
-            coverList: [{
-              keyword: '',
-              currentRank: '-'
-            }]
-          });
-        }
-      }
-    },
     // 处理关键词输入框回车事件
     handleKeywordEnter(row, areaIndex) {
       console.log('handleKeywordEnter', row, areaIndex);
@@ -1001,33 +939,12 @@ export default {
     },
     // 加载执行小时选项
     loadExecuteHourOptions() {
-      this.executeHourLoading = true;
-      
-      getExecuteHourOptions().then(response => {
-        console.log('执行小时选项响应:', response);
-        // 假设服务端返回的数据格式为 { data: [{ value: '09:00', label: '09:00' }, ...] }
-        const hours = response.data || response.rows || [];
-        this.executeHourOptions = hours.map(hour => ({
-          label: hour.label || hour.name || hour.value,
-          value: hour.value || hour.id
-        }));
-      }).catch(error => {
-        console.error('获取执行小时选项失败:', error);
-        this.executeHourOptions = [];
-        // 如果API调用失败，提供默认选项
-        this.executeHourOptions = [
-          { label: '09:00', value: '09:00' },
-          { label: '10:00', value: '10:00' },
-          { label: '11:00', value: '11:00' },
-          { label: '14:00', value: '14:00' },
-          { label: '15:00', value: '15:00' },
-          { label: '16:00', value: '16:00' },
-          { label: '17:00', value: '17:00' },
-          { label: '18:00', value: '18:00' }
-        ];
-      }).finally(() => {
-        this.executeHourLoading = false;
-      });
+      this.executeHourOptions = [
+        { label: '1 hour', value: 1 },
+        { label: '2 hours', value: 2 },
+        { label: '3 hours', value: 3 },
+        { label: '4 hours', value: 4 },
+      ];
     },
     // 加载应用列表选项
     loadAppListOptions() {
