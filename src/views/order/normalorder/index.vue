@@ -14,21 +14,26 @@
         </el-select>
       </el-form-item>
       <el-form-item label="应用" prop="customerAppId">
-        <el-input
-          v-model="queryParams.customerAppId"
-          placeholder="请输入订单关联的应用"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
+          <el-select v-model="queryParams.customerAppId" placeholder="请输入或选择应用"
+              filterable
+              remote
+              :remote-method="handleAppSearch"
+              :loading="userAppListLoading"
+              clearable
+              :style="{width: '100%'}">
+            <el-option v-for="item in userAppListOptions" :key="item.value" :label="item.label"
+                :value="item.value"></el-option>
+          </el-select>
       </el-form-item>
-      <el-form-item label="国家地区" prop="area">
+      
+      <!-- <el-form-item label="国家地区" prop="area">
         <el-input
           v-model="queryParams.area"
           placeholder="请输入国家地区"
           clearable
           @keyup.enter.native="handleQuery"
         />
-      </el-form-item>
+      </el-form-item> -->
       <el-form-item label="开始日期" prop="beginDate">
         <el-date-picker clearable
           v-model="queryParams.beginDate"
@@ -54,12 +59,15 @@
         />
       </el-form-item> -->
       <el-form-item label="订单状态" prop="score">
-        <el-input
-          v-model="queryParams.score"
-          placeholder="请输入订单状态"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
+        <el-select v-model="queryParams.orderStatus" clearable>
+          <el-option
+            v-for="dict in dict.type.order_status"
+            :key="dict.value"
+            :label="dict.label"
+            :value="dict.value"
+          >
+          </el-option>
+        </el-select>  
       </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
@@ -211,7 +219,7 @@
           <el-input v-model="form.userId" placeholder="请输入用户id" />
         </el-form-item>
         <el-form-item label="商店" prop="storeType">
-          <el-select v-model="queryParams.storeType" placeholder="全部" clearable>
+          <el-select v-model="form.storeType" placeholder="全部" clearable>
             <el-option
               v-for="dict in dict.type.store_type"
               :key="dict.value"
@@ -230,7 +238,7 @@
           <el-input v-model="form.customerAppId" placeholder="请输入订单关联的应用id" />
         </el-form-item>
         <el-form-item label="任务类型" prop="orderType">
-          <el-select v-model="queryParams.orderType" placeholder="全部" clearable>
+          <el-select v-model="form.orderType" placeholder="全部" clearable>
             <el-option
               v-for="dict in dict.type.normal_order_type"
               :key="dict.value"
@@ -288,6 +296,7 @@ import appleIcon from '@/assets/logo/as.png'
 // 1. 导入获取用户列表的API
 import { queryUserList } from "@/api/system/user"
 import auth from '@/plugins/auth'
+import { getSimpleAppList } from "@/api/appkeyword/app"
 
 export default {
   name: "Order",
@@ -299,6 +308,9 @@ export default {
       // 用户列表数据加载状态
       userListOptions: [],
       userListLoading: false,
+      // 用户应用列表数据加载状态
+      userAppListOptions: [],
+      userAppListLoading: false,
       searchTimer: null,
       // 选中数组
       ids: [],
@@ -375,6 +387,8 @@ export default {
     if (auth.hasPermi('system:user:list')) {
       this.loadUserListOptions()
     }
+    // 组件创建时加载应用列表数据
+    this.loadUserAppListOptions()
   },
   methods: {
     // 处理用户搜索
@@ -388,6 +402,20 @@ export default {
       // 设置防抖，300毫秒后执行搜索
       this.searchTimer = setTimeout(() => {
         this.loadUserListOptions(query);
+      }, 300);
+    },
+
+    // 处理应用搜索
+    handleAppSearch(query) {
+      // console.log('应用搜索...',query);
+      // 清除之前的定时器
+      if (this.searchTimer) {
+        clearTimeout(this.searchTimer);
+      }
+
+      // 设置防抖，300毫秒后执行搜索
+      this.searchTimer = setTimeout(() => {
+        this.loadUserAppListOptions(query);
       }, 300);
     },
 
@@ -423,6 +451,40 @@ export default {
       });
     },
 
+    // 加载用户应用列表选项
+    loadUserAppListOptions(inputParam) {
+      // console.log('加载用户应用列表选项...',inputParam);
+      this.userAppListLoading = true;
+
+      // 构建查询参数，根据是否有输入值决定传参
+      const queryParams = {
+        pageNum: 1,
+        pageSize: 100
+      };
+      
+      if (inputParam) {
+        // 有输入值时，传递搜索参数
+        queryParams.appName = inputParam;
+      }
+
+      // 调用应用列表API
+      getSimpleAppList(queryParams).then(response => {
+        // console.log('应用列表参数:', queryParams);
+        // console.log('应用列表响应:', response); // 添加日志以便调试
+        const userApps = response.rows || response.data || [];
+        // 转换为select组件需要的格式
+        this.userAppListOptions = userApps.map(app => ({
+          label: app.appName + " " + app.customerAppId,
+          value: app.customerAppId
+        }));
+      }).catch(error => {
+        console.error('获取用户应用列表失败:', error);
+        this.userAppListOptions = [];
+      }).finally(() => {
+        this.userAppListLoading = false;
+      });
+    },
+
     // 获取商店类型对应的图标
     getStoreIcon(value) {
       // 根据实际业务值调整图标映射关系
@@ -430,7 +492,7 @@ export default {
         '1': appleIcon,         // 假设值1对应手机图标
         '2': googleSrc          // 假设值2对应地球图标
       }
-      return iconMap[value] || 'el-icon-help'  // 默认图标
+      return iconMap[value] || appleIcon  // 默认图标
     },
     // 获取商店类型对应的标签文本
     getStoreLabel(value) {
@@ -440,7 +502,7 @@ export default {
     /** 查询客户普通订单记录列表 */
     getList() {
       this.loading = true
-      this.queryParams.storeType = 1
+      // Removed the problematic line that was causing issues
       listOrder(this.queryParams).then(response => {
         this.orderList = response.rows
         this.total = response.total
@@ -552,11 +614,17 @@ export default {
       this.download('normal/order/export', {
         ...this.queryParams
       }, `order_${new Date().getTime()}.xlsx`)
-    },// 添加跳转到新建订单页面的方法
-      goToCreateOrder() {
-        //  alert('点击了卡片')
-        this.$router.push('/promotion/createOrder')
-      },
+    },
+    // 添加跳转到新建订单页面的方法
+    goToCreateOrder() {
+      this.$router.push('/promotion/createOrder')
+    }
+  },
+  // 组件销毁时清理资源
+  beforeDestroy() {
+    if (this.searchTimer) {
+      clearTimeout(this.searchTimer);
+    }
   }
 }
 </script>

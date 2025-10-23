@@ -41,7 +41,7 @@
               :remote-method="handleAppSearch"
               :loading="userAppListLoading"
               clearable
-                          @change="fetchDailyConsumptionData"
+              @change="fetchDailyConsumptionData"
               :style="{width: '100%'}">
             <el-option v-for="item in userAppListOptions" :key="item.value" :label="item.label"
                 :value="item.value"></el-option>

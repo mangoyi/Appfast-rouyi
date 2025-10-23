@@ -1,173 +1,36 @@
 <template>
   <div class="app-container">
-    <div class="app-container">
-      <!-- 促销服务卡片网格布局 - 每行三个卡片，共两行 -->
-      <div class="promotion-grid">
-        <!-- 第一行卡片 -->
-        <!-- <div class="keyword-install-card card dd-flex dd-align-center" @click="handleCardClick">
-          <img :src="p1Pic" alt="关键词安装" class="img" />
-          <div class="content">
-            <div class="dd-flex dd-align-center">
-              <div class="title">关键词安装</div>
-              <div class="half-bg">
-                5折
-              </div>
-            </div>
-            <el-tooltip class="txt dd-omit-2" effect="dark" placement="top" content="您获得的安装次数越多，关键字排名越高，您获得的自然流量就越多。">
-              <div class="description">
-                您获得的安装次数越多，关键字排名越高，您获得的自然流量就越多。
-              </div>
-            </el-tooltip>
-            <el-button type="default" size="small" class="btn" @click.stop="handleCardClick">
-              新建订单
-            </el-button>
-          </div>
-        </div> -->
-        <a href="" class="keyword-install-card card dd-flex dd-align-center"
-          @click="handleCardClick(1)">
-          <img :src="p1Pic" alt="关键词安装" class="img" />
-          <div class="content">
-            <div class="dd-flex dd-align-center">
-              <div class="title">关键词安装</div>
-              <div class="half-bg">
-                5折
-              </div>
-            </div>
-            <el-tooltip class="txt dd-omit-2" effect="dark" placement="top" content="提升应用下载量，增强应用市场排名，获得更多曝光机会。">
-              <div class="description">
-                您获得的安装次数越多，关键字排名越高，您获得的自然流量就越多。
-              </div>
-            </el-tooltip>
-            <el-button type="default" size="small" class="btn" @click.stop="handleCardClick(1)">
-              新建订单
-            </el-button>
-          </div>
-        </a>
-
-        <a href="" class="keyword-install-card card dd-flex dd-align-center"
-          @click="handleCardClick(2)">
-          <img :src="p2Pic" alt="下载量" class="img" />
-          <div class="content">
-            <div class="dd-flex dd-align-center">
-              <div class="title">下载量</div>
-              <div class="half-bg">
-                5折
-              </div>
-            </div>
-            <el-tooltip class="txt dd-omit-2" effect="dark" placement="top" content="提升应用下载量，增强应用市场排名，获得更多曝光机会。">
-              <div class="description">
-                提升应用下载量，增强应用市场排名，获得更多曝光机会。
-              </div>
-            </el-tooltip>
-            <el-button type="default" size="small" class="btn" @click.stop="handleCardClick(2)">
-              新建订单
-            </el-button>
-          </div>
-        </a>
-
-        <a href="" class="keyword-install-card card dd-flex dd-align-center"
-          @click="handleCardClick(3)">
-          <img :src="p3Pic" alt="用户评价" class="img" />
-          <div class="content">
-            <div class="dd-flex dd-align-center">
-              <div class="title">用户评价</div>
-              <div class="half-bg">
-                6折
-              </div>
-            </div>
-            <el-tooltip class="txt dd-omit-2" effect="dark" placement="top" content="高质量用户评价可以提升应用可信度，增加下载转化率。">
-              <div class="description">
-                高质量用户评价可以提升应用可信度，增加下载转化率。
-              </div>
-            </el-tooltip>
-            <el-button type="default" size="small" class="btn" @click.stop="handleCardClick(3)">
-              新建订单
-            </el-button>
-          </div>
-        </a>
-
-        <!-- 第二行卡片 -->
-        <a href="" class="keyword-install-card card dd-flex dd-align-center"
-          @click="handleCardClick(4)">
-          <img :src="p4Pic" alt="星级评分" class="img" />
-          <div class="content">
-            <div class="dd-flex dd-align-center">
-              <div class="title">星级评分</div>
-              <div class="half-bg">
-                7折
-              </div>
-            </div>
-            <el-tooltip class="txt dd-omit-2" effect="dark" placement="top" content="提升应用星级评分，改善应用在市场中的整体形象。">
-              <div class="description">
-                提升应用星级评分，改善应用在市场中的整体形象。
-              </div>
-            </el-tooltip>
-            <el-button type="default" size="small" class="btn" @click.stop="handleCardClick(4)">
-              新建订单
-            </el-button>
-          </div>
-        </a>
-
-        <a href="" class="keyword-install-card card dd-flex dd-align-center"
-          @click="handleCardClick(5)">
-          <img :src="p5Pic" alt="推荐位" class="img" />
-          <div class="content">
-            <div class="dd-flex dd-align-center">
-              <div class="title">推荐位</div>
-              <div class="half-bg">
-                8折
-              </div>
-            </div>
-            <el-tooltip class="txt dd-omit-2" effect="dark" placement="top" content="获得应用商店推荐位，大幅提升应用曝光度和下载量。">
-              <div class="description">
-                获得应用商店推荐位，大幅提升应用曝光度和下载量。
-              </div>
-            </el-tooltip>
-            <el-button type="default" size="small" class="btn" @click.stop="handleCardClick(5)">
-              新建订单
-            </el-button>
-          </div>
-        </a>
-
-        <a href="" class="keyword-install-card card dd-flex dd-align-center" @click="handleCardClick(6)">
-          <img :src="p6Pic" alt="ASO优化" class="img" />
-          <div class="content">
-            <div class="dd-flex dd-align-center">
-              <div class="title">ASO优化</div>
-              <div class="half-bg">
-                6折
-              </div>
-            </div>
-            <el-tooltip class="txt dd-omit-2" effect="dark" placement="top" content="专业ASO优化服务，提升应用在搜索结果中的排名。">
-              <div class="description">
-                专业ASO优化服务，提升应用在搜索结果中的排名。
-              </div>
-            </el-tooltip>
-            <el-button type="default" size="small" class="btn" @click.stop="handleCardClick(6)">
-              新建订单
-            </el-button>
-          </div>
-        </a>
+    <div class="promotion-container">
+      <div class="page-header">
+        <h3>选择适合您的推广服务，提升应用市场表现</h3>
       </div>
 
-      <!-- 促销服务列表 - 适配RuoYi-Vue框架 -->
-      <!-- <div v-loading="loading" class="service-list">
-      <div v-for="service in services" :key="service.id" class="service-card">
-          <div class="card-header">
-              <h3>{{ service.title }}</h3>
-              <span v-if="service.discount" class="discount-badge">{{ service.discount }}</span>
+      <!-- 促销服务卡片网格布局 -->
+      <div class="promotion-grid">
+        <div 
+          v-for="(card, index) in promotionCards" 
+          :key="index"
+          class="promotion-card"
+          @click="handleCardClick(card.type)"
+        >
+          <div class="card-badge" :class="`badge-${card.badgeType}`">{{ card.badge }}</div>
+          <div class="card-image">
+            <img :src="card.image" :alt="card.title" />
           </div>
           <div class="card-content">
-              <p>{{ service.description }}</p>
+            <h3 class="card-title">{{ card.title }}</h3>
+            <p class="card-description">{{ card.description }}</p>
+            <el-button 
+              type="primary" 
+              size="small" 
+              class="order-button"
+              @click.stop="handleCardClick(card.type)"
+            >
+              立即订购
+            </el-button>
           </div>
-          <div class="card-footer">
-              <span class="price">{{ service.price }}</span>
-              <el-button type="primary" size="small" @click="addToCart(service)">
-                  <i class="el-icon-shopping-cart"></i> 订购
-              </el-button>
-          </div>
+        </div>
       </div>
-    </div> -->
     </div>
   </div>
 </template>
@@ -181,8 +44,6 @@ import p4Pic from '@/assets/promo/p4.png'
 import p5Pic from '@/assets/promo/p5.png'
 import p6Pic from '@/assets/promo/p6.png'
 
-
-// 组件适配为RuoYi-Vue标准格式
 export default {
   name: 'Promotion',
   data() {
@@ -202,7 +63,58 @@ export default {
       queryParams: {
         pageNum: 1,
         pageSize: 10
-      }
+      },
+      // 促销卡片数据
+      promotionCards: [
+        {
+          type: 1,
+          title: '关键词安装',
+          description: '您获得的安装次数越多，关键字排名越高，您获得的自然流量就越多。',
+          image: p1Pic,
+          badge: '5折',
+          badgeType: 'hot'
+        },
+        {
+          type: 2,
+          title: '下载量',
+          description: '提升应用下载量，增强应用市场排名，获得更多曝光机会。',
+          image: p2Pic,
+          badge: '5折',
+          badgeType: 'hot'
+        },
+        {
+          type: 3,
+          title: '用户评价',
+          description: '高质量用户评价可以提升应用可信度，增加下载转化率。',
+          image: p3Pic,
+          badge: '6折',
+          badgeType: 'popular'
+        },
+        {
+          type: 4,
+          title: '星级评分',
+          description: '提升应用星级评分，改善应用在市场中的整体形象。',
+          image: p4Pic,
+          badge: '7折',
+          badgeType: 'normal'
+        },
+        {
+          type: 5,
+          title: '推荐位',
+          description: '获得应用商店推荐位，大幅提升应用曝光度和下载量。',
+          image: p5Pic,
+          badge: '8折',
+          badgeType: 'normal'
+        },
+        {
+          type: 6,
+          title: 'ASO优化',
+          description: '专业ASO优化服务，提升应用在搜索结果中的排名。',
+          image: p6Pic,
+          badge: '6折',
+          badgeType: 'popular'
+        }
+      ]
     }
   },
   // 组件创建时自动加载数据
@@ -229,354 +141,230 @@ export default {
 
     /** 处理卡片点击事件 - 适配Vue路由 */
     handleCardClick(type) {
-      // 阻止默认行为以使用Vue路由
-      // alert('点击了卡片') 
-      // e.preventDefault()
+      // 使用Vue Router进行导航，避免页面刷新
       this.$router.push(`/promotion/createOrder?type=${type}`)
     },
-
-    /** 订购促销服务 - 适配框架的对话框和消息提示 */
-    // addToCart(service) {
-    //   this.$modal.confirm(`确认订购 ${service.title} 服务吗？`).then(() => {
-    //     // 调用订购服务的API
-    //     request({
-    //       url: '/promotion/service/order',
-    //       method: 'post',
-    //       data: {
-    //         serviceId: service.id,
-    //         serviceName: service.title,
-    //         price: service.price
-    //       }
-    //     }).then(() => {
-    //       this.$message.success('订购成功')
-    //     }).catch(() => {
-    //       this.$message.error('订购失败，请稍后重试')
-    //     })
-    //   }).catch(() => {
-    //     this.$message.info('已取消订购')
-    //   })
-    // }
   }
 }
 </script>
 
 <style lang="scss" scoped>
-/* 保留原有样式并添加RuoYi-Vue风格的布局 */
-.keyword-install-card {
-  display: flex;
-  align-items: center;
-  padding: 16px;
-  background: #fff;
-  border-radius: 4px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
-  text-decoration: none;
-  color: inherit;
-
-  &:hover {
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
-    transform: translateY(-2px);
-  }
-
-  /* 促销卡片网格布局 - 实现每行三个卡片 */
-  .promotion-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
-    margin-bottom: 24px;
-  }
-
-  /* 调整卡片样式，移除原有margin-bottom，统一由网格gap控制 */
-  .keyword-install-card {
-    margin-bottom: 0 !important;
-  }
-
-  .img {
-    width: 64px;
-    height: 64px;
-    margin-right: 16px;
-    background-color: #f0f0f0;
-    border-radius: 4px;
-  }
-
-  .content {
-    flex: 1;
-    min-width: 0;
-
-    .dd-flex {
-      display: flex;
-      align-items: center;
-      margin-bottom: 8px;
-    }
-
-    .title {
-      font-size: 16px;
-      font-weight: 500;
-      color: #333;
-      margin-right: 8px;
-    }
-
-    .half-bg {
-      padding: 2px 8px;
-      background-color: #ff4949;
-      color: #fff;
-      font-size: 12px;
-      border-radius: 4px;
-    }
-
-    .description {
-      font-size: 13px;
-      color: #666;
-      line-height: 1.5;
-      margin-bottom: 12px;
-      max-width: 100%;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-    }
-  }
+.promotion-container {
+  padding: 15px;
+  background-color: #f5f7fa;
+  min-height: calc(100vh - 84px);
 }
 
-/* 促销服务列表样式 - 改为网格布局 */
-.service-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 16px;
+.page-header {
+  text-align: center;
+  margin-bottom: 20px;
+  padding: 15px 0;
 }
 
-.service-card {
-  background: #fff;
-  border-radius: 4px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  padding: 16px;
-  transition: all 0.3s ease;
-
-  &:hover {
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
-    transform: translateY(-2px);
-  }
-
-  .card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 12px;
-
-    h3 {
-      font-size: 16px;
-      font-weight: 500;
-      color: #333;
-      margin: 0;
-    }
-
-    .discount-badge {
-      padding: 2px 8px;
-      background-color: #ff4949;
-      color: #fff;
-      font-size: 12px;
-      border-radius: 4px;
-    }
-  }
-
-  .card-content {
-    margin-bottom: 16px;
-
-    p {
-      font-size: 13px;
-      color: #666;
-      line-height: 1.5;
-      margin: 0;
-      display: -webkit-box;
-      -webkit-line-clamp: 3;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-  }
-
-  .card-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-
-    .price {
-      font-size: 16px;
-      font-weight: 600;
-      color: #ff4949;
-    }
-  }
-}
-
-/* 页面标题和工具栏样式 */
 .page-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: #303133;
+  margin: 0 0 6px 0;
+}
+
+.page-subtitle {
+  font-size: 14px;
+  color: #909399;
   margin: 0;
-  font-size: 18px;
-  font-weight: 500;
-  color: #333;
 }
 
-.toolbar {
-  display: flex;
-  gap: 8px;
-}
-
-/* 保留原有样式并添加RuoYi-Vue风格的布局 */
-.keyword-install-card {
-  display: flex;
-  align-items: center;
-  padding: 16px;
-  background: #fff;
-  border-radius: 4px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
-  text-decoration: none;
-  color: inherit;
-  margin-bottom: 0 !important;
-  width: 100%;
-
-  &:hover {
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
-    transform: translateY(-2px);
-  }
-
-  .img {
-    width: 64px;
-    height: 64px;
-    margin-right: 16px;
-    background-color: #f0f0f0;
-    border-radius: 4px;
-  }
-
-  .content {
-    flex: 1;
-    min-width: 0;
-
-    .dd-flex {
-      display: flex;
-      align-items: center;
-      margin-bottom: 8px;
-    }
-
-    .title {
-      font-size: 16px;
-      font-weight: 500;
-      color: #333;
-      margin-right: 8px;
-    }
-
-    .half-bg {
-      padding: 2px 8px;
-      background-color: #ff4949;
-      color: #fff;
-      font-size: 12px;
-      border-radius: 4px;
-    }
-
-    .description {
-      font-size: 13px;
-      color: #666;
-      line-height: 1.5;
-      margin-bottom: 12px;
-      max-width: 100%;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-    }
-  }
-}
-
-/* 促销卡片网格布局 - 实现每行三个卡片 */
 .promotion-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 16px;
-  margin-bottom: 24px;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding-bottom: 20vh; /* 20%空白区域 */
 }
 
-/* 促销服务列表样式 - 改为网格布局 */
-.service-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 16px;
-}
-
-.service-card {
+.promotion-card {
   background: #fff;
-  border-radius: 4px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  padding: 16px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   transition: all 0.3s ease;
-
+  overflow: hidden;
+  position: relative;
+  cursor: pointer;
+  
   &:hover {
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
-    transform: translateY(-2px);
-  }
-
-  .card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 12px;
-
-    h3 {
-      font-size: 16px;
-      font-weight: 500;
-      color: #333;
-      margin: 0;
-    }
-
-    .discount-badge {
-      padding: 2px 8px;
-      background-color: #ff4949;
-      color: #fff;
-      font-size: 12px;
-      border-radius: 4px;
-    }
-  }
-
-  .card-content {
-    margin-bottom: 16px;
-
-    p {
-      font-size: 13px;
-      color: #666;
-      line-height: 1.5;
-      margin: 0;
-      display: -webkit-box;
-      -webkit-line-clamp: 3;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-  }
-
-  .card-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-
-    .price {
-      font-size: 16px;
-      font-weight: 600;
-      color: #ff4949;
-    }
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    transform: translateY(-3px);
   }
 }
 
-/* 页面标题和工具栏样式 */
-.page-title {
-  margin: 0;
-  font-size: 18px;
-  font-weight: 500;
-  color: #333;
+.card-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  padding: 3px 8px;
+  border-radius: 16px;
+  font-size: 11px;
+  font-weight: 600;
+  z-index: 2;
 }
 
-.toolbar {
+.badge-hot {
+  background: linear-gradient(135deg, #ff4949, #ff6b6b);
+  color: white;
+}
+
+.badge-popular {
+  background: linear-gradient(135deg, #409eff, #64b5f6);
+  color: white;
+}
+
+.badge-normal {
+  background: linear-gradient(135deg, #67c23a, #95d475);
+  color: white;
+}
+
+.card-image {
+  height: 80px;
+  background: linear-gradient(120deg, #e0f7fa, #f8f9fa);
   display: flex;
-  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  
+  img {
+    max-width: 70%;
+    max-height: 60px;
+    object-fit: contain;
+  }
+}
+
+.card-content {
+  padding: 15px;
+}
+
+.card-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #303133;
+  margin: 0 0 8px 0;
+}
+
+.card-description {
+  font-size: 12px;
+  color: #606266;
+  line-height: 1.5;
+  margin: 0 0 10px 0; /* 减少底部边距 */
+  min-height: 54px;
+}
+
+.order-button {
+  width: 100%;
+  background: linear-gradient(135deg, #409eff, #1a73e8);
+  border: none;
+  font-weight: 500;
+  padding: 10px;
+  font-size: 13px;
+  margin-top: 5px; /* 添加顶部边距以保持适当间距 */
+  
+  &:hover {
+    background: linear-gradient(135deg, #1a73e8, #0d5bb8);
+  }
+}
+
+/* 响应式设计 */
+@media (max-width: 1100px) {
+  .promotion-grid {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .promotion-container {
+    padding: 12px;
+  }
+  
+  .page-title {
+    font-size: 22px;
+  }
+  
+  .page-subtitle {
+    font-size: 13px;
+  }
+  
+  .promotion-grid {
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 14px;
+  }
+  
+  .card-image {
+    height: 100px;
+  }
+  
+  .card-content {
+    padding: 12px;
+  }
+  
+  .card-title {
+    font-size: 15px;
+  }
+  
+  .card-description {
+    font-size: 11px;
+    min-height: 50px;
+    margin: 0 0 8px 0; /* 移动端进一步减少间距 */
+  }
+  
+  .order-button {
+    padding: 8px;
+    font-size: 12px;
+    margin-top: 3px; /* 移动端较小的顶部边距 */
+  }
+}
+
+@media (max-width: 480px) {
+  .promotion-container {
+    padding: 10px;
+  }
+  
+  .page-header {
+    margin-bottom: 15px;
+    padding: 10px 0;
+  }
+  
+  .page-title {
+    font-size: 20px;
+  }
+  
+  .page-subtitle {
+    font-size: 12px;
+  }
+  
+  .promotion-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding-bottom: 15vh;
+  }
+  
+  .card-image {
+    height: 90px;
+  }
+  
+  .card-content {
+    padding: 10px;
+  }
+  
+  .card-title {
+    font-size: 14px;
+  }
+  
+  .card-description {
+    font-size: 11px;
+    margin-bottom: 8px; /* 移动端进一步减少间距 */
+  }
+  
+  .order-button {
+    padding: 8px;
+    font-size: 12px;
+  }
 }
 </style>

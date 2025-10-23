@@ -21,14 +21,6 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="国家地区" prop="area">
-        <el-input
-          v-model="queryParams.area"
-          placeholder="请输入国家地区"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
       <el-form-item label="开始日期" prop="beginDate">
         <el-date-picker clearable
           v-model="queryParams.beginDate"
@@ -53,13 +45,16 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item> -->
-      <el-form-item label="订单状态" prop="score">
-        <el-input
-          v-model="queryParams.score"
-          placeholder="请输入订单状态"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
+<el-form-item label="订单状态" prop="score">
+        <el-select v-model="queryParams.orderStatus" clearable>
+          <el-option
+            v-for="dict in dict.type.order_status"
+            :key="dict.value"
+            :label="dict.label"
+            :value="dict.value"
+          >
+          </el-option>
+        </el-select>  
       </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
