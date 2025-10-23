@@ -74,11 +74,11 @@
           plain
           icon="el-icon-plus"
           size="mini"
-          @click="handleAdd"
+          @click="goToCreateOrder"
           v-hasPermi="['normal:order:add']"
         >新增</el-button>
       </el-col>
-      <el-col :span="1.5">
+      <!-- <el-col :span="1.5">
         <el-button
           type="success"
           plain
@@ -88,8 +88,8 @@
           @click="handleUpdate"
           v-hasPermi="['normal:order:edit']"
         >修改</el-button>
-      </el-col>
-      <el-col :span="1.5">
+      </el-col> -->
+      <!-- <el-col :span="1.5">
         <el-button
           type="danger"
           plain
@@ -99,7 +99,7 @@
           @click="handleDelete"
           v-hasPermi="['normal:order:remove']"
         >删除</el-button>
-      </el-col>
+      </el-col> -->
       <el-col :span="1.5">
         <el-button
           type="warning"
@@ -552,7 +552,11 @@ export default {
       this.download('normal/order/export', {
         ...this.queryParams
       }, `order_${new Date().getTime()}.xlsx`)
-    }
+    },// 添加跳转到新建订单页面的方法
+      goToCreateOrder() {
+        //  alert('点击了卡片')
+        this.$router.push('/promotion/createOrder')
+      },
   }
 }
 </script>

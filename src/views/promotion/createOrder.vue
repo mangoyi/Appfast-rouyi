@@ -1,4 +1,3 @@
-
 <template>
   <div>
     <el-form ref="elForm" :model="formData" :rules="rules" size="medium" label-width="300px">
@@ -87,11 +86,11 @@
                     <el-input v-model="scope.row.count" placeholder="请输入每日数量" @keyup.enter.native="handleKeywordEnter(scope.row, areaIndex)"></el-input>
                   </template>
                 </el-table-column>
-                <el-table-column prop="ranking" label="排名" width="120">
+                <!-- <el-table-column prop="ranking" label="排名" width="120">
                   <template slot-scope="scope">
                     <span>{{ scope.row.ranking || '-' }}</span>
                   </template>
-                </el-table-column>
+                </el-table-column> -->
                 <el-table-column label="操作" width="120">
                   <template slot-scope="scope">
                     <el-button v-if="scope.$index > 0" type="text" @click="removeKeywordRow(scope.$index, areaIndex)">删除</el-button>
@@ -311,8 +310,17 @@
         </el-col>
         <el-col :span="24">
           <el-form-item size="large">
-            <el-button type="primary" @click="submitForm">提交</el-button>
-            <el-button @click="resetForm">重置</el-button>
+            <div class="form-footer">
+              <div class="total-amount">
+                合计: <span class="amount">${{ totalAmount }}</span>
+              </div>
+              <div class="total-amount" style="margin-right: 20px;">
+                明细
+              </div>
+              <div class="buttons">
+                <el-button type="primary" @click="submitForm">提交</el-button>
+              </div>
+            </div>
           </el-form-item>
         </el-col>
       </el-form>
@@ -359,8 +367,8 @@ export default {
         endDate: null,             // 订单结束日期
         orderAreaKeywords: [],     // 地区和关键词安装列表
         orderKeywordRanks: [],     // 关键词保排名列表
-        orderType: 1,              // 关键词安装类型
-        storeType: 1,              // 应用商店
+        orderType: null,              // 关键词安装类型
+        storeType: null,              // 应用商店
         executionHour: undefined,  // 可执行小时
         communicateNumber: '',     // 联系方式号码
         communicateType: 1,        // 联系方式类型
@@ -486,6 +494,73 @@ export default {
         return diffDays
       }
       return 1 // 默认返回1
+    },
+    // 计算总金额
+    totalAmount() {
+      // 这里只是一个示例计算逻辑，你需要根据实际业务需求调整
+      let total = 0;
+      
+      // 根据不同的订单类型计算总金额
+      if (this.formData.orderType === 1) {
+        // 关键词安装
+        this.formData.orderAreaKeywords.forEach(areaConfig => {
+          if (areaConfig.keywordList) {
+            areaConfig.keywordList.forEach(keyword => {
+              if (keyword.count) {
+                // 示例：每个关键词每天1元
+                total += parseInt(keyword.count) || 0;
+              }
+            });
+          }
+        });
+      } else if (this.formData.orderType === 2) {
+        // 下载量
+        this.formData.orderAreaKeywords.forEach(areaConfig => {
+          if (areaConfig.downloadCount) {
+            // 示例：每个下载量1元
+            total += parseInt(areaConfig.downloadCount) || 0;
+          }
+        });
+      } else if (this.formData.orderType === 3 || this.formData.orderType === 4) {
+        // 评分或评论
+        this.formData.orderAreaKeywords.forEach(areaConfig => {
+          if (areaConfig.star5Amount) {
+            // 示例：每个5星评分2元
+            total += (parseInt(areaConfig.star5Amount) || 0) * 2;
+          }
+          if (areaConfig.star4Amount) {
+            // 示例：每个4星评分1.5元
+            total += (parseInt(areaConfig.star4Amount) || 0) * 1.5;
+          }
+        });
+      } else if (this.formData.orderType === 5) {
+        // 关键词保排名
+        this.formData.orderAreaKeywords.forEach(areaConfig => {
+          if (areaConfig.keepRankList) {
+            areaConfig.keepRankList.forEach(rank => {
+              // 示例：每个保排名关键词5元
+              total += 5;
+            });
+          }
+        });
+      } else if (this.formData.orderType === 6) {
+        // 关键词覆盖服务
+        this.formData.orderAreaKeywords.forEach(areaConfig => {
+          if (areaConfig.coverList) {
+            areaConfig.coverList.forEach(cover => {
+              // 示例：每个覆盖关键词3元
+              total += 3;
+            });
+          }
+        });
+      }
+      
+      // 乘以天数
+      if (this.formData.orderType !== 1) {
+        total *= this.orderDaysDiff;
+      }
+      
+      return total.toFixed(2);
     }
   },
   watch: {
@@ -693,6 +768,7 @@ export default {
       this.$refs['elForm'].resetFields()
       // 重新初始化第一个地区配置
       this.formData.orderAreaKeywords = []
+      this.formData.orderType = null
       this.initFirstAreaConfig()
     },
         handleUserSearch(query) {
@@ -968,5 +1044,29 @@ export default {
 }
 
 </script>
-<style>
+<style scoped>
+.form-footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: right;
+  width: 100%;
+  padding: 20px 0;
+}
+
+.total-amount {
+  font-size: 16px;
+  font-weight: bold;
+  margin-right: 20px;
+}
+
+.total-amount .amount {
+  color: #ff4949;
+  font-size: 18px;
+}
+
+.buttons {
+  display: flex;
+  gap: 10px;
+  margin-right: 50px;
+}
 </style>

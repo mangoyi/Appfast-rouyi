@@ -86,11 +86,11 @@
                     <el-input v-model="scope.row.count" placeholder="请输入每日数量" @keyup.enter.native="handleKeywordEnter(scope.row, areaIndex)"></el-input>
                   </template>
                 </el-table-column>
-                <el-table-column prop="ranking" label="排名" width="120">
+                <!-- <el-table-column prop="ranking" label="排名" width="120">
                   <template slot-scope="scope">
                     <span>{{ scope.row.ranking || '-' }}</span>
                   </template>
-                </el-table-column>
+                </el-table-column> -->
                 <el-table-column label="操作" width="120">
                   <template slot-scope="scope">
                     <el-button v-if="scope.$index > 0" type="text" @click="removeKeywordRow(scope.$index, areaIndex)">删除</el-button>
