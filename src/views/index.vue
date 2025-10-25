@@ -1,12 +1,14 @@
 <template>
   <div class="app-container home">
-    <el-row :gutter="20">
+    <!-- <el-row :gutter="20">
       <el-col :sm="24" :lg="12" style="padding-left: 20px">
-        <!-- <h3>账户首页</h3> -->
+        <h3>账户首页</h3>
       </el-col>
-    </el-row>
+    </el-row> -->
     <!-- <el-divider /> -->
-    <el-row :gutter="20">
+    <ChildComponent  v-if="$auth.hasRole('admin')"></ChildComponent>
+    <div v-if="!$auth.hasRole('admin')">
+    <el-row>
       <el-col :xs="24" :sm="24" :md="6" :lg="6">
         <el-card class="update-log" style="background-color: lightgoldenrodyellow; border-radius: 10px; ">
           <div slot="header" class="clearfix">
@@ -73,6 +75,7 @@
         </el-card>
       </el-col>
     </el-row>
+    </div>
   </div>
 </template>
 
@@ -81,6 +84,8 @@
 import * as echarts from 'echarts'
 import { getUserFinancialSummary, getUserDailyConsumptionList } from '@/api/income/income'
 import { listApp } from "@/api/appkeyword/app"
+
+import ChildComponent from '@/views/order/normalorder/tobeConfirm.vue';
 
 // 计算当前一周的日期范围
 function getWeekDateRange() {
@@ -102,6 +107,9 @@ function getWeekDateRange() {
 
 export default {
   name: "Index",
+  components: {
+    ChildComponent
+  },
     dicts: [ 'income_type'],
   data() {
     let maxDate = null;

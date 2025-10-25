@@ -2,18 +2,13 @@
   <div class="register">
     <el-form ref="registerForm" :model="registerForm" :rules="registerRules" class="register-form">
       <h3 class="title">{{title}}</h3>
-      <el-form-item prop="firstName">
-        <el-input v-model="registerForm.firstName" type="text" auto-complete="off" placeholder="姓">
-          <svg-icon slot="prefix" icon-class="user" class="el-input__icon input-icon" />
-        </el-input>
-      </el-form-item>
-      <el-form-item prop="lastName">
-        <el-input v-model="registerForm.lastName" type="text" auto-complete="off" placeholder="名">
+      <el-form-item prop="nickName">
+        <el-input v-model="registerForm.nickName" type="text" auto-complete="off" placeholder="Nickname">
           <svg-icon slot="prefix" icon-class="user" class="el-input__icon input-icon" />
         </el-input>
       </el-form-item>
       <el-form-item prop="email">
-        <el-input v-model="registerForm.email" type="text" auto-complete="off" placeholder="邮箱">
+        <el-input v-model="registerForm.email" type="text" auto-complete="off" placeholder="E-mail">
           <svg-icon slot="prefix" icon-class="email" class="el-input__icon input-icon" />
         </el-input>
       </el-form-item>
@@ -22,7 +17,7 @@
           v-model="registerForm.password"
           type="password"
           auto-complete="off"
-          placeholder="密码"
+          placeholder="Please enter password"
           @keyup.enter.native="handleRegister"
         >
           <svg-icon slot="prefix" icon-class="password" class="el-input__icon input-icon" />
@@ -33,7 +28,7 @@
           v-model="registerForm.confirmPassword"
           type="password"
           auto-complete="off"
-          placeholder="确认密码"
+          placeholder="Confirm password"
           @keyup.enter.native="handleRegister"
         >
           <svg-icon slot="prefix" icon-class="password" class="el-input__icon input-icon" />
@@ -43,7 +38,7 @@
         <el-input
           v-model="registerForm.code"
           auto-complete="off"
-          placeholder="验证码"
+          placeholder="Verify code"
           style="width: 63%"
           @keyup.enter.native="handleRegister"
         >
@@ -61,17 +56,17 @@
           style="width:100%;"
           @click.native.prevent="handleRegister"
         >
-          <span v-if="!loading">注 册</span>
-          <span v-else>注 册 中...</span>
+          <span v-if="!loading">Sign Up</span>
+          <span v-else>Signing Up...</span>
         </el-button>
-        <div style="float: right;">
-          <router-link class="link-type" :to="'/login'">使用已有账户登录</router-link>
+        <div style="float: right;">Already have an account?
+          <router-link class="link-type" :to="'/login'">Log In</router-link>
         </div>
       </el-form-item>
     </el-form>
     <!--  底部  -->
     <div class="el-register-footer">
-      <span>Copyright © 2018-2025 ruoyi.vip All Rights Reserved.</span>
+      <span>Copyright © 2018-2025 ouyou.vip All Rights Reserved.</span>
     </div>
   </div>
 </template>
@@ -84,7 +79,7 @@ export default {
   data() {
     const equalToPassword = (rule, value, callback) => {
       if (this.registerForm.password !== value) {
-        callback(new Error("两次输入的密码不一致"))
+        callback(new Error("Two passwords are inconsistent"))
       } else {
         callback()
       }
@@ -92,9 +87,9 @@ export default {
     const emailValidator = (rule, value, callback) => {
       const emailReg = /^([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+(.[a-zA-Z0-9_-])+/
       if (!value) {
-        callback(new Error("请输入邮箱"))
+        callback(new Error("Please enter your E-mail"))
       } else if (!emailReg.test(value)) {
-        callback(new Error("请输入有效的邮箱地址"))
+        callback(new Error("Please enter the correct E-mail"))
       } else {
         callback()
       }
@@ -103,8 +98,7 @@ export default {
       title: process.env.VUE_APP_TITLE,
       codeUrl: "",
       registerForm: {
-        firstName: "",
-        lastName: "",
+        nickName: "",
         email: "",
         password: "",
         confirmPassword: "",
@@ -112,27 +106,23 @@ export default {
         uuid: ""
       },
       registerRules: {
-        firstName: [
-          { required: true, trigger: "blur", message: "请输入您的姓" },
-          { min: 1, max: 20, message: '姓长度必须介于 1 和 20 之间', trigger: 'blur' }
-        ],
-        lastName: [
-          { required: true, trigger: "blur", message: "请输入您的名" },
-          { min: 1, max: 20, message: '名长度必须介于 1 和 20 之间', trigger: 'blur' }
+        nickName: [
+          { required: true, trigger: "blur", message: "Please enter the Nickname" },
+          { min: 1, max: 20, message: 'Nickname length must be between 1 and 20 characters', trigger: 'blur' }
         ],
         email: [
           { required: true, validator: emailValidator, trigger: "blur" }
         ],
         password: [
-          { required: true, trigger: "blur", message: "请输入您的密码" },
-          { min: 5, max: 20, message: "用户密码长度必须介于 5 和 20 之间", trigger: "blur" },
-          { pattern: /^[^<>'|\\]+$/, message: "不能包含非法字符：< > \" ' \\ |", trigger: "blur" }        
+          { required: true, trigger: "blur", message: "Please enter the password" },
+          { min: 5, max: 20, message: "Password length must be between 5 and 20 characters", trigger: "blur" },
+          { pattern: /^[^<>'|\\]+$/, message: "Password cannot contain illegal characters: < > \" ' \\ |", trigger: "blur" }        
         ],
         confirmPassword: [
-          { required: true, trigger: "blur", message: "请再次输入您的密码" },
+          { required: true, trigger: "blur", message: "Please confirm your password" },
           { required: true, validator: equalToPassword, trigger: "blur" }
         ],
-        code: [{ required: true, trigger: "change", message: "请输入验证码" }]
+        code: [{ required: true, trigger: "change", message: "Please enter the verification code" }],
       },
       loading: false,
       captchaEnabled: true
@@ -162,7 +152,8 @@ export default {
           }
           register(registerData).then(res => {
             const email = this.registerForm.email
-            this.$alert("<font color='red'>恭喜你，您的邮箱 " + email + " 注册成功！</font>", '系统提示', {
+            this.$alert("<font color='red'>Congratulations, " + email + " has successfully registered！</font>", 'System Prompt', 
+            {
               dangerouslyUseHTMLString: true,
               type: 'success'
             }).then(() => {

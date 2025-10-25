@@ -454,7 +454,7 @@ export default {
     handleAdd() {
       this.reset()
       this.open = true
-      this.title = "添加客户APP记录"
+      this.title = "Add App"
     },
     /** 修改按钮操作 */
     handleUpdate(row) {

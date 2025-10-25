@@ -1,14 +1,18 @@
 <template>
   <div class="app-container">
     <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
-      <el-form-item label="用户id" prop="userId">
-        <el-input
-          v-model="queryParams.userId"
-          placeholder="请输入用户id"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
+        <el-form-item label="用户名" prop="userId"  v-hasPermi="['system:user:list']">
+            <el-select v-model="form.userId" placeholder="请输入或选择用户"
+                filterable
+                remote
+                :remote-method="handleUserSearch"
+                :loading="userListLoading"
+                clearable
+                :style="{width: '100%'}">
+              <el-option v-for="item in userListOptions" :key="item.value" :label="item.label"
+                  :value="item.value"></el-option>
+            </el-select>
+        </el-form-item>
       <el-form-item label="类型" prop="incomeType">
         <el-select
           v-model="queryParams.incomeType"
@@ -77,7 +81,7 @@
           v-hasPermi="['income:add']"
         >新增</el-button>
       </el-col>
-      <el-col :span="1.5">
+      <!-- <el-col :span="1.5">
         <el-button
           type="success"
           plain
@@ -107,8 +111,8 @@
           size="mini"
           @click="handleExport"
           v-hasPermi="['income:export']"
-        >导出</el-button>
-      </el-col>
+        >导出</el-button> 
+      </el-col>-->
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
@@ -162,8 +166,17 @@
     <!-- 添加或修改收入支出记录对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="用户id" prop="userId">
-          <el-input v-model="form.userId" placeholder="请输入用户id" />
+        <el-form-item label="用户名" prop="userId">
+          <el-select v-model="form.userId" placeholder="请输入或选择用户"
+                filterable
+                remote
+                :remote-method="handleUserSearch"
+                :loading="userListLoading"
+                clearable
+                :style="{width: '100%'}">
+              <el-option v-for="item in userListOptions" :key="item.value" :label="item.label"
+                  :value="item.value"></el-option>
+            </el-select>
         </el-form-item>
         <el-form-item label="金额" prop="amount">
           <el-input v-model="form.amount" placeholder="请输入金额" />
@@ -172,7 +185,19 @@
           <el-input v-model="form.balance" placeholder="请输入余额" />
         </el-form-item>
         <el-form-item label="类型" prop="incomeType">
-          <el-input v-model="form.incomeType" placeholder="请选择类型" />
+               <el-select
+                v-model="form.incomeType"
+                placeholder="全部"
+                clearable
+                style="width: 240px"
+              >
+                <el-option
+                  v-for="dict in dict.type.income_type"
+                  :key="dict.value"
+                  :label="dict.label"
+                  :value="dict.value"
+                />
+        </el-select>
         </el-form-item>
         <el-form-item label="备注" prop="remark">
           <el-input v-model="form.remark" placeholder="请输入备注" />
@@ -188,6 +213,8 @@
 
 <script>
 import { listIncome, getIncome, delIncome, addIncome, updateIncome } from "@/api/income/income"
+// 1. 导入获取用户列表的API
+import { queryUserList } from "@/api/system/user"
 
 export default {
   name: "Income",
@@ -202,6 +229,9 @@ export default {
       single: true,
       // 非多个禁用
       multiple: true,
+      // 用户列表数据加载状态
+      userListOptions: [],
+      userListLoading: false,
       // 显示搜索条件
       showSearch: true,
       // 总条数
@@ -248,6 +278,7 @@ export default {
   },
   created() {
     this.getList()
+    this.loadUserListOptions()
   },
   methods: {
     /** 查询收入支出记录列表 */
@@ -348,7 +379,51 @@ export default {
       this.download('income/export', {
         ...this.queryParams
       }, `income_${new Date().getTime()}.xlsx`)
-    }
+    },// 处理用户搜索
+    handleUserSearch(query) {
+      // console.log('用户搜索...',query);
+      // 清除之前的定时器
+      if (this.searchTimer) {
+        clearTimeout(this.searchTimer);
+      }
+
+      // 设置防抖，300毫秒后执行搜索
+      this.searchTimer = setTimeout(() => {
+        this.loadUserListOptions(query);
+      }, 300);
+    },
+
+    // 加载用户列表选项
+    loadUserListOptions(inputParam) {
+      // console.log('加载用户列表选项...',inputParam);
+      this.userListLoading = true;
+
+      // 构建查询参数，根据是否有输入值决定传参
+      const queryParams = {};
+      if (inputParam) {
+        // 有输入值时，传递搜索参数（根据实际API调整字段名）
+        queryParams.idOrName = inputParam;
+        queryParams.pageNum = 1;
+        queryParams.pageSize = 100; // 一次获取足够多的选项
+      }
+
+      // 调用用户列表API
+      queryUserList(queryParams).then(response => {
+        // console.log('用户列表参数:', queryParams);
+        // console.log('用户列表响应:', response); // 添加日志以便调试
+        const users = response.rows || response.data || [];
+        // 转换为select组件需要的格式
+        this.userListOptions = users.map(user => ({
+          label: user.nickName || user.userName || user.userId,
+          value: user.userId
+        }));
+      }).catch(error => {
+        console.error('获取用户列表失败:', error);
+        this.userListOptions = [];
+      }).finally(() => {
+        this.userListLoading = false;
+      });
+    },
   }
 }
 </script>
