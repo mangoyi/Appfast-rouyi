@@ -358,7 +358,7 @@ export default {
         const users = response.rows || response.data || [];
         // 转换为select组件需要的格式
         this.userListOptions = users.map(user => ({
-          label: user.nickName || user.userName || user.userId,
+          label: user.userName,
           value: user.userId
         }));
       }).catch(error => {

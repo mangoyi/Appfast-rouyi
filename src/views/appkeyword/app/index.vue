@@ -128,14 +128,13 @@
     <el-table v-loading="loading" :data="appList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="主键id" align="center" prop="id" v-if="false"/>
-
+      <el-table-column label="用户名" align="center" prop="userName" v-if="$auth.hasPermi('system:user:list')"/>
       <el-table-column label="图标" align="center" prop="iconImage" width="100">
         <template slot-scope="scope">
           <image-preview :src="scope.row.iconImage" :width="50" :height="50"/>
         </template>
       </el-table-column>
       <el-table-column label="名称" align="center" prop="appName" />
-      <el-table-column label="用户id" align="center" prop="userId" v-if="false"/>
       <el-table-column label="应用ID" align="center" prop="appId" />
       <el-table-column prop="storeType" label="商店">
            <template slot-scope="scope">

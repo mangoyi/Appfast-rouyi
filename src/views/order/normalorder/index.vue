@@ -124,7 +124,7 @@
     <el-table v-loading="loading" :data="orderList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="主键 id" align="center" prop="id"  v-if="false"/>
-      <el-table-column label="用户id" align="center" prop="userId" v-if="$auth.hasPermi('system:user:list')"/>
+      <el-table-column label="用户名" align="center" prop="userName" v-if="$auth.hasPermi('system:user:list')"/>
       <!-- <el-table-column label="应用id" align="center" prop="customerAppId" /> -->
       <el-table-column label="订单编号 " align="center" prop="orderNo" width="200"/>
       <el-table-column label="应用名称" align="center" prop="appName" />
@@ -502,6 +502,7 @@ export default {
     /** 查询客户普通订单记录列表 */
     getList() {
       this.loading = true
+      this.queryParams.storeType = 1
       // Removed the problematic line that was causing issues
       listOrder(this.queryParams).then(response => {
         this.orderList = response.rows
