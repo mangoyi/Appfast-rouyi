@@ -328,7 +328,7 @@ import { getExecuteHourOptions } from "@/api/promotion/executeHour"
 // 3. 导入应用列表API
 import { listApp, getSimpleAppList  } from "@/api/appkeyword/app"
 // 4. 导入订单API
-import { getPromotionOrder, updatePromotionOrder } from "@/api/promotion/order"
+import { getPromotionOrder, updatePromotionOrder, createPromotionOrder } from "@/api/promotion/order"
 
 export default {
   components: {},
@@ -731,6 +731,9 @@ export default {
     },
     // 更新订单
     updateOrder(data) {
+      const { isReOrder } = this.$route.query;
+
+
       this.$confirm('确认保存订单吗？', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -743,14 +746,20 @@ export default {
           spinner: 'el-icon-loading',
           background: 'rgba(0, 0, 0, 0.7)'
         })
+
+        const updateOrReOrder = isReOrder ? createPromotionOrder : updatePromotionOrder;
         
-        updatePromotionOrder(data).then(response => {
+        if (isReOrder) {
+          delete data.id;
+        }
+
+        updateOrReOrder(data).then(response => {
           loading.close()
           this.$message.success('订单保存成功！')
           console.log('订单保存响应:', response)
           
           // 保存成功后跳转回列表页面
-          this.$router.push('/promotion/orderList')
+          this.$router.go(-1)
         }).catch(error => {
           loading.close()
           console.error('订单保存失败:', error)

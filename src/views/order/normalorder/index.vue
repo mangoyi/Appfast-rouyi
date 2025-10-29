@@ -179,6 +179,13 @@
             @click="handleEdit(scope.row)"
             v-hasPermi="['normal:order:edit']"
           >编辑</el-button>
+          <el-button v-if="scope.row.orderStatus == 1"
+            size="mini"
+            type="text"
+            icon="el-icon-edit"
+            @click="handleReOrder(scope.row)"
+            v-hasPermi="['normal:order:edit']"
+          >续单</el-button>
           <!-- <el-button
             size="mini"
             type="text"
@@ -569,6 +576,9 @@ export default {
     handleEdit(row) {
       // 跳转到编辑页面
       this.$router.push(`/promotion/editOrder/${row.id}`)
+    },
+    handleReOrder(row) {
+      this.$router.push(`/promotion/editOrder/${row.id}?isReOrder=1`)
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
