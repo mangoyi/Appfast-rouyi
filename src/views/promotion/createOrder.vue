@@ -596,6 +596,9 @@ export default {
     }
   },
   created() {
+    // 从路由query初始化订单类型（默认1）
+    const qType = this.$route && this.$route.query ? parseInt(this.$route.query.type) : NaN
+    this.formData.orderType = Number.isNaN(qType) ? 1 : qType
     // 组件创建时加载用户列表数据
     // this.loadUserListOptions()
     // 加载执行小时选项数据
