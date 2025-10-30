@@ -58,6 +58,24 @@
         <el-col :span="24">
           <!-- 关键词安装 -->
           <el-form-item label="地区关键字配置" prop="orderAreaKeywords" v-if="formData.orderType == 1">
+            <div style="margin: 10px 0;">
+              <el-button type="primary" size="small" icon="el-icon-download" @click="downloadTemplate">
+                下载模版
+              </el-button>
+
+              <el-upload
+                :action="uploadUrl"
+                :headers="uploadHeaders"
+                :show-file-list="false"
+                accept=".xls,.xlsx,.csv"
+                :on-success="handleImportSuccess"
+                :on-error="handleImportError"
+                style="display: inline-block; margin-left: 10px;"
+              >
+                <el-button type="success" size="small" icon="el-icon-upload2">批量导入</el-button>
+              </el-upload>
+            </div>
+
             <div v-for="(areaConfig, areaIndex) in formData.orderAreaKeywords" :key="areaIndex" style="margin-bottom: 20px; border: 1px solid #dcdfe6; padding: 15px; border-radius: 4px;">
               <el-row :gutter="15">
                 <el-col :span="6">
@@ -337,6 +355,7 @@ import { getExecuteHourOptions } from "@/api/promotion/executeHour"
 import { listApp, getSimpleAppList  } from "@/api/appkeyword/app"
 // 4. 导入订单API
 import { createPromotionOrder } from "@/api/promotion/order"
+import { getToken } from '@/utils/auth'
 
 export default {
   components: {},
@@ -477,6 +496,8 @@ export default {
         { label: 'QQ号', value: 3 },
         { label: '邮箱', value: 4 }
       ],
+      uploadUrl: process.env.VUE_APP_BASE_API + '/normal/order/import/keyword  ',
+      uploadHeaders: { Authorization: 'Bearer ' + getToken() },
     }
   },
   computed: {
@@ -586,6 +607,89 @@ export default {
   },
   mounted() {},
   methods: {
+    downloadTemplate() {
+      this.download('/normal/order/keyword/importTemplate', {}, '订单导入模板.xlsx')
+    },
+    handleImportSuccess(response) {
+      // 如需刷新数据/回显，可在此处追加逻辑
+      if (response.code === 200) {
+        this.$message.success('导入成功')
+
+        try {
+          // rows的数据结构 [{area: 'us', keyword: '20', amount: 30},{area: 'cn', keyword: '20', amount: 30}]
+          const rows = response.rows;
+          console.log('rows');
+          // 根据订单类型，按地区归并数据并填充到表单
+          if (!Array.isArray(rows)) return;
+
+          // 先将已有的按地区的映射建立，便于合并
+          const areaToConfig = new Map();
+          (this.formData.orderAreaKeywords || []).forEach(cfg => {
+            if (cfg && cfg.area) areaToConfig.set(cfg.area, cfg);
+          });
+
+          // 逐行处理导入数据
+          rows.forEach(item => {
+            const area = item.area;
+            if (!area) return;
+
+            // 取/建对应的地区配置
+            let areaCfg = areaToConfig.get(area);
+            if (!areaCfg) {
+              areaCfg = { area };
+              // 针对不同类型初始化不同结构
+              if (this.formData.orderType === 1) {
+                areaCfg.keywordList = [];
+              } else if (this.formData.orderType === 2) {
+                areaCfg.downloadCount = 0;
+              }
+              areaToConfig.set(area, areaCfg);
+            }
+
+            // 不同订单类型下的填充逻辑
+            if (this.formData.orderType === 1) {
+              // 关键词安装：累计 keywordList（keyword/count）
+              const keyword = (item.keyword || '').toString().trim();
+              const count = Number(item.amount) || 0;
+              if (!Array.isArray(areaCfg.keywordList)) areaCfg.keywordList = [];
+              if (keyword && count > 0) {
+                areaCfg.keywordList.push({ keyword, count });
+              }
+            } else if (this.formData.orderType === 2) {
+              // 下载量：按地区汇总 downloadCount
+              const add = Number(item.amount) || 0;
+              areaCfg.downloadCount = (Number(areaCfg.downloadCount) || 0) + add;
+            }
+          });
+
+          // 生成新的数组（保持原有顺序基础上追加新地区）
+          const merged = [];
+          areaToConfig.forEach(cfg => {
+            // 清理空数据：类型1要求有 keywordList；类型2 需要正数下载量
+            if (this.formData.orderType === 1) {
+              if (Array.isArray(cfg.keywordList) && cfg.keywordList.length > 0) {
+                merged.push(cfg);
+              }
+            } else if (this.formData.orderType === 2) {
+              if ((Number(cfg.downloadCount) || 0) > 0) {
+                merged.push(cfg);
+              }
+            } else {
+              // 其他类型暂不处理导入，直接忽略
+            }
+          });
+
+          this.formData.orderAreaKeywords = merged;
+        } catch(err) {
+          console.log(err)
+        }
+
+      }
+    },
+    handleImportError(err) {
+      this.$message.error('导入失败，请重试')
+      // 可按需查看 err 定位具体问题
+    },
     submitForm() {
       this.$refs['elForm'].validate(valid => {
         if (!valid) return

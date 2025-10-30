@@ -42,3 +42,11 @@ export function delOrder(id) {
     method: 'delete'
   })
 }
+
+// 下载模版
+export function downloadExcelTemplate() {
+  return request({
+    url: '/keyword/importTemplate',
+    method: 'post'
+  })
+}
