@@ -356,6 +356,8 @@ import { listApp, getSimpleAppList  } from "@/api/appkeyword/app"
 // 4. 导入订单API
 import { createPromotionOrder } from "@/api/promotion/order"
 import { getToken } from '@/utils/auth'
+// 5. 导入国家选项的API
+import { getCountryOptions } from "@/api/promotion/country"
 
 export default {
   components: {},
@@ -471,17 +473,18 @@ export default {
         "value": 2
       }],
       countryOptions: [
-        { label: "美国", value: "us" },
-        { label: "中国", value: "cn" },
-        { label: "日本", value: "jp" },
-        { label: "韩国", value: "kr" },
-        { label: "英国", value: "gb" },
-        { label: "德国", value: "de" },
-        { label: "法国", value: "fr" },
-        { label: "加拿大", value: "ca" },
-        { label: "澳大利亚", value: "au" },
-        { label: "印度", value: "in" }
+        // { label: "美国", value: "us" },
+        // { label: "中国", value: "cn" },
+        // { label: "日本", value: "jp" },
+        // { label: "韩国", value: "kr" },
+        // { label: "英国", value: "gb" },
+        // { label: "德国", value: "de" },
+        // { label: "法国", value: "fr" },
+        // { label: "加拿大", value: "ca" },
+        // { label: "澳大利亚", value: "au" },
+        // { label: "印度", value: "in" }
       ],
+      countryLoading: false,
       // 关键词保排名的目标排名选项
       targetRankOptions: [
         { label: 'top1', value: 'top1' },
@@ -607,6 +610,8 @@ export default {
     this.loadAppListOptions()
     // 初始化第一个地区配置
     this.initFirstAreaConfig()
+    // 加载国家选项数据
+    this.loadCountryOptions()
   },
   mounted() {},
   methods: {
@@ -1145,6 +1150,24 @@ export default {
         this.appListOptions = [];
       }).finally(() => {
         this.appListLoading = false;
+      });
+    },
+    // 地区列表
+    loadCountryOptions() {
+      this.countryLoading = true;
+      getCountryOptions().then(response => {
+        // 假设服务端返回的数据格式为 { data: [{ value: '09:00', label: '09:00' }, ...] }
+        const countries = response.rows || [];
+        this.countryOptions = countries.map(country => ({
+          label: country.areaName,
+          value: country.areaCode
+        }));
+      }).catch(error => {
+        console.error('获取国家选项失败:', error);
+        // 如果API调用失败，提供默认选项
+        // this.countryOptions = [];
+      }).finally(() => {
+        this.countryLoading = false;
       });
     },
   }
