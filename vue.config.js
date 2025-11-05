@@ -9,7 +9,7 @@ const CompressionPlugin = require('compression-webpack-plugin')
 
 const name = process.env.VUE_APP_TITLE || '广告投放系统' // 网页标题
 
-// const baseUrl = 'http://116.62.70.124:8080' // 后端接口
+// const baseUrl = 'http://43.165.65.33:8080' // 后端接口
 const baseUrl = 'http://localhost:8080' // 后端接口
 
 

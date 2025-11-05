@@ -80,8 +80,12 @@
               <el-row :gutter="15">
                 <el-col :span="6">
                   <el-form-item :label="`国家/地区`">
-                    <el-select v-model="areaConfig.area" placeholder="请选择国家/地区" filterable clearable style="width: 100px">
-                      <el-option v-for="country in countryOptions" :key="country.value" :label="country.label" :value="country.value"></el-option>
+                    <el-select v-model="areaConfig.area" placeholder="请选择国家/地区" filterable clearable style="width: 200px">
+                      <el-option v-for="country in countryOptions" :key="country.value" :label="country.label" :value="country.value">
+                        <span style="display: inline-flex; align-items: center;">
+                          <img :src="country.image" style="width: 16px; height: 16px; margin-right: 8px;">{{ country.label }}
+                        </span>
+                      </el-option>                    
                     </el-select>
                   </el-form-item>
                 </el-col>
@@ -127,9 +131,13 @@
                <el-row :gutter="15">
                  <el-col :span="6">
                    <el-form-item :label="`国家/地区`">
-                     <el-select v-model="areaConfig.area" placeholder="国家/地区" filterable clearable style="width: 100px">
-                       <el-option v-for="country in countryOptions" :key="country.value" :label="country.label" :value="country.value"></el-option>
-                     </el-select>
+                    <el-select v-model="areaConfig.area" placeholder="请选择国家/地区" filterable clearable style="width: 200px">
+                      <el-option v-for="country in countryOptions" :key="country.value" :label="country.label" :value="country.value">
+                        <span style="display: inline-flex; align-items: center;">
+                          <img :src="country.image" style="width: 16px; height: 16px; margin-right: 8px;">{{ country.label }}
+                        </span>
+                      </el-option>                    
+                    </el-select>
                    </el-form-item>
                  </el-col>
                  <el-col :span="6">
@@ -155,8 +163,12 @@
               <el-row :gutter="24">
                 <el-col :span="6">
                   <el-form-item :label="`国家/地区`">
-                    <el-select v-model="areaConfig.area" placeholder="国家/地区" filterable clearable style="width: 100px">
-                      <el-option v-for="country in countryOptions" :key="country.value" :label="country.label" :value="country.value"></el-option>
+                          <el-select v-model="areaConfig.area" placeholder="请选择国家/地区" filterable clearable style="width: 200px">
+                      <el-option v-for="country in countryOptions" :key="country.value" :label="country.label" :value="country.value">
+                        <span style="display: inline-flex; align-items: center;">
+                          <img :src="country.image" style="width: 16px; height: 16px; margin-right: 8px;">{{ country.label }}
+                        </span>
+                      </el-option>                    
                     </el-select>
                   </el-form-item>
                 </el-col>
@@ -192,8 +204,12 @@
               <el-row :gutter="24">
                 <el-col :span="6">
                   <el-form-item :label="`国家/地区`">
-                    <el-select v-model="areaConfig.area" placeholder="国家/地区" filterable clearable style="width: 100px">
-                      <el-option v-for="country in countryOptions" :key="country.value" :label="country.label" :value="country.value"></el-option>
+                      <el-select v-model="areaConfig.area" placeholder="请选择国家/地区" filterable clearable style="width: 200px">
+                      <el-option v-for="country in countryOptions" :key="country.value" :label="country.label" :value="country.value">
+                        <span style="display: inline-flex; align-items: center;">
+                          <img :src="country.image" style="width: 16px; height: 16px; margin-right: 8px;">{{ country.label }}
+                        </span>
+                      </el-option>                    
                     </el-select>
                   </el-form-item>
                 </el-col>
@@ -229,9 +245,13 @@
                <el-row :gutter="24">
                  <el-col :span="6">
                    <el-form-item :label="`国家/地区`">
-                     <el-select v-model="areaConfig.area" placeholder="国家/地区" filterable clearable style="width: 100px">
-                       <el-option v-for="country in countryOptions" :key="country.value" :label="country.label" :value="country.value"></el-option>
-                     </el-select>
+                      <el-select v-model="areaConfig.area" placeholder="请选择国家/地区" filterable clearable style="width: 200px">
+                      <el-option v-for="country in countryOptions" :key="country.value" :label="country.label" :value="country.value">
+                        <span style="display: inline-flex; align-items: center;">
+                          <img :src="country.image" style="width: 16px; height: 16px; margin-right: 8px;">{{ country.label }}
+                        </span>
+                      </el-option>                    
+                    </el-select>
                    </el-form-item>
                  </el-col>
                  <el-col :span="2">
@@ -269,12 +289,16 @@
            </el-form-item>
            <!-- 关键词覆盖服务 -->
            <el-form-item label="关键词覆盖服务配置" prop="orderAreaKeywords" v-if="formData.orderType == 6">
-             <div v-for="(areaConfig, areaIndex) in formData.orderAreaKeywords" :key="areaIndex" style="margin-bottom: 20px; border: 1px solid #dcdfe6; padding: 15px; border-radius: 4px;">
+             <div v-for="(areaConfig, areaIndex) in formData.orderAreaKeywords" :key="areaIndex" style="margin-bottom: 20px; border: 1px solid #dcdfe6; padding: 15px; border-radius: 4px; width:60px">
                <el-row :gutter="24">
                  <el-col :span="6">
                    <el-form-item :label="`国家/地区`">
-                     <el-select v-model="areaConfig.area" placeholder="国家/地区" filterable clearable style="width: 100px">
-                       <el-option v-for="country in countryOptions" :key="country.value" :label="country.label" :value="country.value"></el-option>
+                     <el-select v-model="areaConfig.area" placeholder="国家/地区" filterable clearable style="width: 200px">
+                       <el-option v-for="country in countryOptions" :key="country.value" :label="country.label" :value="country.value">
+                            <span style="display: inline-flex; align-items: center;">
+                              <img :src="country.image" style="width: 16px; height: 16px; margin-right: 8px;">{{ country.label }}
+                            </span>
+                       </el-option>
                      </el-select>
                    </el-form-item>
                  </el-col>
@@ -1160,7 +1184,8 @@ export default {
         const countries = response.rows || [];
         this.countryOptions = countries.map(country => ({
           label: country.areaName,
-          value: country.areaCode
+          value: country.areaCode,
+          image: country.areaImage
         }));
       }).catch(error => {
         console.error('获取国家选项失败:', error);
