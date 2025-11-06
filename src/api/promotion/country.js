@@ -7,3 +7,10 @@ export function getCountryOptions() {
     method: 'get'
   })
 }
+
+export function getTime() {
+  return request({
+    url: '/area/config/time',
+    method: 'get'
+  })
+}

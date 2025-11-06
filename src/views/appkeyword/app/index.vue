@@ -223,15 +223,13 @@
           </el-select>
         </el-form-item>
         <el-form-item label="地区" prop="area">
-        <el-select v-model="form.area" clearable>
-          <el-option
-            v-for="dict in dict.type.country_area"
-            :key="dict.value"
-            :label="dict.label"
-            :value="dict.value"
-          >
-          </el-option>
-        </el-select>
+         <el-select v-model="form.area" placeholder="area" filterable clearable style="width: 22    0px">
+            <el-option v-for="country in countryOptions" :key="country.value" :label="country.label" :value="country.value">
+                <span style="display: inline-flex; align-items: center;">
+                  <img :src="country.image" style="width: 16px; height: 16px; margin-right: 8px;">{{ country.label }}
+                </span>
+            </el-option>
+          </el-select>
       </el-form-item>
         <el-form-item label="应用ID" prop="appId">
           <el-input v-model="form.appId" :placeholder="getAppIdPlaceholder()" />
@@ -263,6 +261,7 @@ import appleIcon from '@/assets/logo/as.png'
 // 1. 导入获取用户列表的API
 import { queryUserList } from "@/api/system/user"
 import auth from '@/plugins/auth'
+import { getCountryOptions } from "@/api/promotion/country"
 
 export default {
   name: "App",
@@ -289,6 +288,19 @@ export default {
       appList: [],
       // 弹出层标题
       title: "",
+      countryOptions: [
+        // { label: "美国", value: "us" },
+        // { label: "中国", value: "cn" },
+        // { label: "日本", value: "jp" },
+        // { label: "韩国", value: "kr" },
+        // { label: "英国", value: "gb" },
+        // { label: "德国", value: "de" },
+        // { label: "法国", value: "fr" },
+        // { label: "加拿大", value: "ca" },
+        // { label: "澳大利亚", value: "au" },
+        // { label: "印度", value: "in" }
+      ],
+      countryLoading: false,
       // 是否显示弹出层
       open: false,
       // 查询参数
@@ -330,6 +342,8 @@ export default {
     // 用户没有权限时，不执行获取用户列表数据
     if (auth.hasPermi('system:user:list')) {
     this.loadUserListOptions()
+       // 加载国家选项数据
+    this.loadCountryOptions()
     }
   },
   methods: {
@@ -548,6 +562,25 @@ export default {
         //  alert('点击了卡片')
         this.$router.push('/promotion/createOrder')
       },
+       // 地区列表
+    loadCountryOptions() {
+      this.countryLoading = true;
+      getCountryOptions().then(response => {
+        // 假设服务端返回的数据格式为 { data: [{ value: '09:00', label: '09:00' }, ...] }
+        const countries = response.rows || [];
+        this.countryOptions = countries.map(country => ({
+          label: country.areaName,
+          value: country.areaCode,
+          image: country.areaImage
+        }));
+      }).catch(error => {
+        console.error('获取国家选项失败:', error);
+        // 如果API调用失败，提供默认选项
+        // this.countryOptions = [];
+      }).finally(() => {
+        this.countryLoading = false;
+      });
+    },
   }
 }
 </script>

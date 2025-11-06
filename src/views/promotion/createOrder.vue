@@ -36,7 +36,11 @@
             <el-date-picker type="daterange" v-model="formData.orderDate" format="yyyy-MM-dd"
               value-format="yyyy-MM-dd" :style="{width: '50%'}" start-placeholder="开始日期"
               end-placeholder="结束日期" range-separator="至" clearable></el-date-picker>
-            </template>
+            </template>          <span style="margin-left: 30px; color: blue;">System Time (UCT+8) :<span id="currentTime" style="margin-left: 10px;">{{ currentTime }}</span ></span>
+            <!-- 文本框，显示当前系统时间 -->
+       <!-- <div class="time-display"> 
+                  
+                </div> -->
           </el-form-item>
         </el-col>
         <el-col :span="24">
@@ -381,7 +385,7 @@ import { listApp, getSimpleAppList  } from "@/api/appkeyword/app"
 import { createPromotionOrder } from "@/api/promotion/order"
 import { getToken } from '@/utils/auth'
 // 5. 导入国家选项的API
-import { getCountryOptions } from "@/api/promotion/country"
+import { getCountryOptions,getTime } from "@/api/promotion/country"
 
 export default {
   components: {},
@@ -405,6 +409,7 @@ export default {
         pageSize: 10,
         idOrName: null,
       },
+      currentTime: null,
       formData: {
         // API字段映射
         customerAppId: undefined,           // 应用ID
@@ -637,8 +642,24 @@ export default {
     // 加载国家选项数据
     this.loadCountryOptions()
   },
-  mounted() {},
+  mounted() {
+        // Fetch initial time
+   this.fetchSystemTime();
+    // Update time every second
+    this.timer = setInterval(this.fetchSystemTime, 5000);
+  },
   methods: {
+     fetchSystemTime() {
+      try {
+        getTime().then(response => { 
+        this.currentTime = response.msg;
+        });
+      } catch (error) {
+        console.error('Failed to fetch system time:', error);
+        // Fallback to client time if API fails
+        this.currentTime = new Date().toLocaleString();
+      }
+    },
     downloadTemplate() {
       this.download('/normal/order/keyword/importTemplate', {}, '订单导入模板.xlsx')
     },

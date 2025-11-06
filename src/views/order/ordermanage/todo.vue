@@ -157,11 +157,11 @@
         </template>
       </el-table-column>
       <!-- <el-table-column label="订单总天数" align="center" prop="orderTotalDays" /> -->
-      <el-table-column label="订单状态" align="center" prop="orderStatus" >
+      <!-- <el-table-column label="订单状态" align="center" prop="orderStatus" >
         <template slot-scope="scope">
           <dict-tag :options="dict.type.order_status" :value="scope.row.orderStatus"/>
         </template>
-      </el-table-column >
+      </el-table-column > -->
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
@@ -172,27 +172,27 @@
             @click="handleView(scope.row)"
             v-hasPermi="['normal:order:query']"
           >查看</el-button>
-          <el-button v-if="scope.row.orderStatus == 1"
+          <!-- <el-button v-if="scope.row.orderStatus == 1"
             size="mini"
             type="text"
             icon="el-icon-edit"
             @click="handleEdit(scope.row)"
             v-hasPermi="['normal:order:edit']"
-          >编辑</el-button>
-          <!-- <el-button
+          >编辑</el-button> -->
+          <el-button
             size="mini"
             type="text"
             icon="el-icon-edit"
             @click="handleUpdate(scope.row)"
             v-hasPermi="['normal:order:edit']"
-          >修改</el-button> -->
-          <el-button v-if="scope.row.orderStatus != 1"
+          >执行</el-button>
+          <!-- <el-button v-if="scope.row.orderStatus != 1"
             size="mini"
             type="text"
             icon="el-icon-edit"
             @click="handleEdit(scope.row)"
             v-hasPermi="['normal:order:edit']"
-          >复制</el-button>
+          >复制</el-button> -->
           <!-- <el-button
             size="mini"
             type="text"
@@ -289,7 +289,7 @@
 </template>
 
 <script>
-import { listOrder, getOrder, delOrder, addOrder, updateOrder } from "@/api/order/normalorder"
+import { listOrder, getOrder, delOrder, addOrder, updateOrder, updateOrderStatus} from "@/api/order/normalorder"
 import googleSrc from '@/assets/logo/gp.png'
 import appleIcon from '@/assets/logo/as.png'
 
@@ -619,7 +619,23 @@ export default {
     // 添加跳转到新建订单页面的方法
     goToCreateOrder() {
       this.$router.push('/promotion/createOrder')
-    }
+    },
+    // 确认执行，将订单状态由为3变更为4
+    confirmExecuteOp(val) { 
+      this.$modal.confirm('是否执行订单,编号为"' + val.orderNo + '"？').then(function() {
+             // 调用接口更新订单状态
+      const data = {
+        // ids是数组
+        ids: [val.id],
+        toStatus: 4,
+        status:3
+      }
+      return updateOrderStatus(data);
+      }).then(() => {
+        this.getList()
+        this.$modal.msgSuccess("执行成功")
+      }).catch(() => {})
+    },
   },
   // 组件销毁时清理资源
   beforeDestroy() {

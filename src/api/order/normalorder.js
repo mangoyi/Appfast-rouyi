@@ -51,3 +51,12 @@ export function costListOrder(query) {
     params: query
   })
 }
+
+// 修改订单状态
+export function updateOrderStatus(data) {
+  return request({
+    url: '/normal/order/changeStatus',
+    method: 'post',
+    data: data
+  })
+}

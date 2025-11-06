@@ -115,7 +115,7 @@
             size="mini"
             type="text"
             icon="el-icon-edit"
-            @click="confirm(scope.row)"
+            @click="confirmOrderOp(scope.row)"
             v-hasPermi="['normal:order:edit']"
           >确认</el-button>
         </template>
@@ -207,7 +207,7 @@
 </template>
 
 <script>
-import { listOrder, getOrder, delOrder, addOrder, updateOrder } from "@/api/order/normalorder"
+import { listOrder, getOrder, delOrder, addOrder, updateOrder,updateOrderStatus} from "@/api/order/normalorder"
 import googleSrc from '@/assets/logo/gp.png'
 import appleIcon from '@/assets/logo/as.png'
 
@@ -215,6 +215,7 @@ import appleIcon from '@/assets/logo/as.png'
 import { queryUserList } from "@/api/system/user"
 import auth from '@/plugins/auth'
 import { getSimpleAppList } from "@/api/appkeyword/app"
+import { status } from "nprogress"
 
 export default {
   name: "Order",
@@ -537,7 +538,23 @@ export default {
     // 添加跳转到新建订单页面的方法
     goToCreateOrder() {
       this.$router.push('/promotion/createOrder')
-    }
+    },
+      // 确认订单，将订单状态改为3已确认待执行
+    confirmOrderOp(val) { 
+      this.$modal.confirm('是否确认订单,编号为"' + val.orderNo + '"？').then(function() {
+             // 调用接口更新订单状态
+      const data = {
+        // ids是数组
+        ids: [val.id],
+        toStatus: 3,
+        status:2
+      }
+      return updateOrderStatus(data);
+      }).then(() => {
+        this.getList()
+        this.$modal.msgSuccess("确认成功")
+      }).catch(() => {})
+    },
   },
   // 组件销毁时清理资源
   beforeDestroy() {
@@ -545,18 +562,5 @@ export default {
       clearTimeout(this.searchTimer);
     }
   },
-  // 确认订单，将订单状态改为3已确认待执行
-  confirmOrderOp(val) { 
-    this.$modal.confirm('是否确认订单编号为"' + val.id + '"？').then(function() {
-      return confirmOrder(val.id)
-    }).then(() => {
-      this.getList()
-      this.$modal.msgSuccess("确认成功")
-    }).catch(() => {})
-  },
-  confirmOrder(id) {
-    // 调用接口更新订单状态
-    
-  }
 }
 </script>

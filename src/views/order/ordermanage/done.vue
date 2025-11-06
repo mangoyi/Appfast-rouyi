@@ -157,11 +157,11 @@
         </template>
       </el-table-column>
       <!-- <el-table-column label="订单总天数" align="center" prop="orderTotalDays" /> -->
-      <el-table-column label="订单状态" align="center" prop="orderStatus" >
+      <!-- <el-table-column label="订单状态" align="center" prop="orderStatus" >
         <template slot-scope="scope">
           <dict-tag :options="dict.type.order_status" :value="scope.row.orderStatus"/>
         </template>
-      </el-table-column >
+      </el-table-column > -->
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
@@ -172,13 +172,13 @@
             @click="handleView(scope.row)"
             v-hasPermi="['normal:order:query']"
           >查看</el-button>
-          <el-button v-if="scope.row.orderStatus == 1"
+          <!-- <el-button v-if="scope.row.orderStatus == 1"
             size="mini"
             type="text"
             icon="el-icon-edit"
             @click="handleEdit(scope.row)"
             v-hasPermi="['normal:order:edit']"
-          >编辑</el-button>
+          >编辑</el-button> -->
           <!-- <el-button
             size="mini"
             type="text"
@@ -273,9 +273,9 @@
         <el-form-item label="订单总天数" prop="orderTotalDays">
           <el-input v-model="form.orderTotalDays" placeholder="请输入订单总天数" />
         </el-form-item>
-        <el-form-item label="订单状态" prop="orderStatus">
+        <!-- <el-form-item label="订单状态" prop="orderStatus">
           <el-input v-model="form.orderStatus" placeholder="请输入订单状态" />
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item label="删除标志" prop="delFlag">
           <el-input v-model="form.delFlag" placeholder="请输入删除标志" />
         </el-form-item>
