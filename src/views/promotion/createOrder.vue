@@ -390,7 +390,7 @@ import { getCountryOptions,getTime } from "@/api/promotion/country"
 export default {
   components: {},
   props: [],
-  dicts: ['execution_hours'],
+  dicts: ['execution_hours','unit_price'],
   data() {
     return {
       // 用户列表数据加载状态
@@ -548,20 +548,38 @@ export default {
       }
       return 1 // 默认返回1
     },
+    getUnitPriceByType() {
+    // Access the dictionary data
+    const dictData = this.dict.type.unit_price || [];
+    // alert(dictData);
+    // Return a function that accepts orderType parameter
+    return (orderType) => {
+      if (!dictData.length) return 0;
+      
+      // Find the matching dictionary entry
+      const dictEntry = dictData.find(item => 
+        item.label === orderType.toString()
+      );
+      
+      // Return the price value or 0 if not found
+      return dictEntry ? parseFloat(dictEntry.value) || 0 : 0;
+    };
+  },
     // 计算总金额
     totalAmount() {
       // 这里只是一个示例计算逻辑，你需要根据实际业务需求调整
       let total = 0;
-      
+      const unitPrice = this.getUnitPriceByType(this.formData.orderType);
       // 根据不同的订单类型计算总金额
       if (this.formData.orderType === 1) {
+
         // 关键词安装
         this.formData.orderAreaKeywords.forEach(areaConfig => {
           if (areaConfig.keywordList) {
             areaConfig.keywordList.forEach(keyword => {
               if (keyword.count) {
                 // 示例：每个关键词每天1元
-                total += parseInt(keyword.count) || 0;
+                total += parseInt(keyword.count)*unitPrice || 0;
               }
             });
           }
@@ -571,7 +589,7 @@ export default {
         this.formData.orderAreaKeywords.forEach(areaConfig => {
           if (areaConfig.downloadCount) {
             // 示例：每个下载量1元
-            total += parseInt(areaConfig.downloadCount) || 0;
+            total += parseInt(areaConfig.downloadCount)*unitPrice || 0;
           }
         });
       } else if (this.formData.orderType === 3 || this.formData.orderType === 4) {
@@ -579,11 +597,11 @@ export default {
         this.formData.orderAreaKeywords.forEach(areaConfig => {
           if (areaConfig.star5Amount) {
             // 示例：每个5星评分2元
-            total += (parseInt(areaConfig.star5Amount) || 0) * 2;
+            total += (parseInt(areaConfig.star5Amount) || 0) * unitPrice;
           }
           if (areaConfig.star4Amount) {
             // 示例：每个4星评分1.5元
-            total += (parseInt(areaConfig.star4Amount) || 0) * 1.5;
+            total += (parseInt(areaConfig.star4Amount) || 0) *unitPrice;
           }
         });
       } else if (this.formData.orderType === 5) {
@@ -592,7 +610,7 @@ export default {
           if (areaConfig.keepRankList) {
             areaConfig.keepRankList.forEach(rank => {
               // 示例：每个保排名关键词5元
-              total += 5;
+              total += 500;
             });
           }
         });
@@ -602,7 +620,7 @@ export default {
           if (areaConfig.coverList) {
             areaConfig.coverList.forEach(cover => {
               // 示例：每个覆盖关键词3元
-              total += 3;
+              total += 300;
             });
           }
         });
@@ -625,7 +643,17 @@ export default {
         // 重新初始化
         this.initFirstAreaConfig()
       }
-    }
+    },
+      // 监听订单类型变化，重新初始化地区配置
+    'formData.storeType'(newType, oldType) {
+      if (newType !== oldType) {
+        // 清空现有配置
+        this.formData.appListOptions = []
+        // 重新初始化
+        this.loadAppListOptions()
+      }
+    },
+
   },
   created() {
     // 从路由query初始化订单类型（默认1）
@@ -1156,9 +1184,9 @@ export default {
     // 加载执行小时选项
     loadExecuteHourOptions() {
       this.executeHourLoading = true;
-      console.log('执行力')
+      // console.log('执行力')
       getExecuteHourOptions().then(response => {
-        console.log('执行小时选项响应:', response);
+        // console.log('执行小时选项响应:', response);
         // 假设服务端返回的数据格式为 { data: [{ value: '09:00', label: '09:00' }, ...] }
         const hours = response.data || response.rows || [];
         this.executeHourOptions = hours.map(hour => ({
@@ -1182,8 +1210,8 @@ export default {
     // 加载应用列表选项
     loadAppListOptions() {
       this.appListLoading = true;
-      
-      getSimpleAppList({ storeType: 1 }).then(response => {
+      const query = { page: 1, limit: 100, storeType: this.formData.storeType };
+      getSimpleAppList(query).then(response => {
         console.log('应用列表响应:', response);
         const apps = response.rows || response.data || [];
         this.appListOptions = apps.map(app => ({
