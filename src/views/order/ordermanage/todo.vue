@@ -142,7 +142,7 @@
 
       <el-table-column label="下单时间" align="center" prop="beginDate" width="180">
         <template slot-scope="scope">
-          <span>{{ parseTime(scope.row.orderTime, '{y}-{m}-{d} {hh}-{mm}-{s} ') }}</span>
+          <span>{{ parseTime(scope.row.orderTime, '{y}-{m}-{d} {h}:{i}:{s} ') }}</span>
         </template>
       </el-table-column>
       <!-- <el-table-column label="国家地区" align="center" prop="area" /> -->
@@ -172,18 +172,18 @@
             @click="handleView(scope.row)"
             v-hasPermi="['normal:order:query']"
           >查看</el-button>
-          <!-- <el-button v-if="scope.row.orderStatus == 1"
+          <el-button v-if="scope.row.orderStatus == 3"
             size="mini"
             type="text"
             icon="el-icon-edit"
-            @click="handleEdit(scope.row)"
-            v-hasPermi="['normal:order:edit']"
-          >编辑</el-button> -->
+            @click="handleExportDetail(scope.row)"
+            v-hasPermi="['normal:order:export']"
+          >导出</el-button>
           <el-button
             size="mini"
             type="text"
             icon="el-icon-edit"
-            @click="handleUpdate(scope.row)"
+            @click="confirmExecuteOp(scope.row)"
             v-hasPermi="['normal:order:edit']"
           >执行</el-button>
           <!-- <el-button v-if="scope.row.orderStatus != 1"
@@ -502,7 +502,7 @@ export default {
     /** 查询客户普通订单记录列表 */
     getList() {
       this.loading = true
-      this.queryParams.orderStatus = 2
+      this.queryParams.orderStatus = 3
       // Removed the problematic line that was causing issues
       listOrder(this.queryParams).then(response => {
         this.orderList = response.rows
@@ -615,6 +615,11 @@ export default {
       this.download('normal/order/export', {
         ...this.queryParams
       }, `order_${new Date().getTime()}.xlsx`)
+    },
+    /** 导出订单详情按钮操作 */
+    handleExportDetail(row) {
+      this.download('normal/order/detail/export/'+row.id, {
+      }, `orderDetail_${new Date().getTime()}.xlsx`)
     },
     // 添加跳转到新建订单页面的方法
     goToCreateOrder() {

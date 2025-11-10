@@ -93,7 +93,7 @@
           icon="el-icon-edit"
           size="mini"
           :disabled="single"
-          @click="handleUpdate"
+          @click="confirmExecuteOp(scope.row)"
           v-hasPermi="['normal:order:edit']"
         >暂停执行</el-button>
       </el-col>
@@ -142,7 +142,7 @@
 
       <el-table-column label="下单时间" align="center" prop="beginDate" width="180">
         <template slot-scope="scope">
-          <span>{{ parseTime(scope.row.orderTime, '{y}-{m}-{d} {hh}-{mm}-{s} ') }}</span>
+          <span>{{ parseTime(scope.row.orderTime, '{y}-{m}-{d} {h}:{i}:{s} ') }}</span>
         </template>
       </el-table-column>
       <!-- <el-table-column label="国家地区" align="center" prop="area" /> -->
@@ -502,7 +502,7 @@ export default {
     /** 查询客户普通订单记录列表 */
     getList() {
       this.loading = true
-      this.queryParams.orderStatus = 3
+      this.queryParams.orderStatus = 4
       // Removed the problematic line that was causing issues
       listOrder(this.queryParams).then(response => {
         this.orderList = response.rows

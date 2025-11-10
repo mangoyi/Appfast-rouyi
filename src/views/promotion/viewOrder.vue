@@ -59,11 +59,6 @@
                     <span>{{ scope.row.count }}</span>
                   </template>
                 </el-table-column>
-                <el-table-column prop="ranking" label="排名" width="120">
-                  <template slot-scope="scope">
-                    <span>{{ scope.row.ranking || '-' }}</span>
-                  </template>
-                </el-table-column>
               </el-table>
             </div>
           </el-form-item>

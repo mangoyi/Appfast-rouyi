@@ -2,7 +2,7 @@
   <div class="app-container">
     <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
         <el-form-item label="用户名" prop="userId"  v-hasPermi="['system:user:list']">
-            <el-select v-model="form.userId" placeholder="请输入或选择用户"
+            <el-select v-model="queryParams.userId" placeholder="请输入或选择用户"
                 filterable
                 remote
                 :remote-method="handleUserSearch"
@@ -118,7 +118,9 @@
 
     <el-table v-loading="loading" :data="incomeList" @selection-change="handleSelectionChange">
       <!-- <el-table-column type="selection" width="55" align="center" /> -->
-      <el-table-column label="用户id" align="center" prop="userId" />
+      <!-- <el-table-column label="用户id" align="center" prop="userId" /> -->
+      <el-table-column label="用户名" align="center" prop="userName" />
+
        <!-- 数字转化为字符串  1充值 2支付 3退款 -->
       <el-table-column label="类型" align="center" prop="incomeType">
         <template slot-scope="scope">
@@ -130,7 +132,9 @@
       <el-table-column label="余额" align="center" prop="balance" />
       <el-table-column label="时间" align="center" prop="createTime">
         <template slot-scope="scope">
-          <span>{{ parseTime(scope.row.createTime) }}</span>
+          <!-- <span>{{ parseTime(scope.row.createTime,'{y}-{m}-{d} {hh}-{mm}-{s} ) }}</span> -->
+          <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d} {hh}:{i}:{s} ') }}</span>
+
         </template>
       </el-table-column>
       <el-table-column label="编号 " align="center" prop="incomeNo" />
