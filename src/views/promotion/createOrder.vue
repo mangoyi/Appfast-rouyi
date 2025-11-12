@@ -13,8 +13,16 @@
       <el-form ref="elForm" :model="formData" :rules="rules" size="medium" label-width="100px">
         <el-col :span="20">
           <el-form-item label="应用商店" prop="storeType">
-            <el-radio-group v-model="formData.storeType" size="medium">
+            <el-radio-group v-model="formData.storeType" size="medium" v-if="formData.storeType === null">
               <el-radio-button v-for="(item, index) in storeTypeOptions" :key="index" :label="item.value"
+                :disabled="item.disabled">{{item.label}}</el-radio-button>
+            </el-radio-group>
+                      <el-radio-group v-model="formData.storeType" size="medium" v-if="formData.storeType === 1 || formData.storeType === 3">
+              <el-radio-button v-for="(item, index) in storeTypeOptions1" :key="index" :label="item.value"
+                :disabled="item.disabled">{{item.label}}</el-radio-button>
+            </el-radio-group>
+                      <el-radio-group v-model="formData.storeType" size="medium" v-if="formData.storeType === 2">
+              <el-radio-button v-for="(item, index) in storeTypeOptions2" :key="index" :label="item.value"
                 :disabled="item.disabled">{{item.label}}</el-radio-button>
             </el-radio-group>
           </el-form-item>
@@ -501,6 +509,14 @@ export default {
         "label": "Google Play",
         "value": 2
       }],
+      storeTypeOptions1: [{
+        "label": "AppStore",
+        "value": 1
+      }],   
+      storeTypeOptions2: [{
+        "label": "Google Play",
+        "value": 2
+      }],
       countryOptions: [
         // { label: "美国", value: "us" },
         // { label: "中国", value: "cn" },
@@ -659,6 +675,13 @@ export default {
     // 从路由query初始化订单类型（默认1）
     const qType = this.$route && this.$route.query ? parseInt(this.$route.query.type) : NaN
     this.formData.orderType = Number.isNaN(qType) ? 1 : qType
+    // 从路由query初始化商店类型（默认1）
+    const sType = this.$route && this.$route.query ? parseInt(this.$route.query.storeType) : NaN
+    if (!Number.isNaN(sType)) {
+      this.formData.storeType =  sType === 3 ? 1 : sType
+    }
+    
+    
     // 组件创建时加载用户列表数据
     // this.loadUserListOptions()
     // 加载执行小时选项数据
@@ -677,6 +700,14 @@ export default {
     this.timer = setInterval(this.fetchSystemTime, 5000);
   },
   methods: {
+    resetStoreTypeOptions(selectedStoreType) {
+    // 根据路由参数禁用其他选项，只保留选中的选项可用
+    this.storeTypeOptions = this.storeTypeOptions.map(option => {
+      return {
+        disabled: option.value !== selectedStoreType
+      }
+    })
+  },
      fetchSystemTime() {
       try {
         getTime().then(response => { 

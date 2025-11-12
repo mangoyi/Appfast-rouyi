@@ -628,7 +628,7 @@ export default {
     },
     // 添加跳转到新建订单页面的方法
     goToCreateOrder() {
-      this.$router.push('/promotion/createOrder')
+      this.$router.push('/promotion/createOrder?storeType=1')
     }
   },
   // 组件销毁时清理资源
