@@ -150,35 +150,29 @@
         </template>
       </el-table-column >
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
-        <template slot-scope="scope">
+         <template slot-scope="scope">
           <el-button
+            v-if="scope.row.orderStatus != 1"
             size="mini"
             type="text"
             icon="el-icon-view"
             @click="handleView(scope.row)"
             v-hasPermi="['normal:order:query']"
           >查看</el-button>
-          <el-button
+          <el-button v-if="scope.row.orderStatus == 1"
             size="mini"
             type="text"
             icon="el-icon-edit"
             @click="handleEdit(scope.row)"
             v-hasPermi="['normal:order:edit']"
           >编辑</el-button>
-          <el-button
+          <el-button v-if="scope.row.orderStatus != 1"
             size="mini"
             type="text"
             icon="el-icon-edit"
-            @click="handleUpdate(scope.row)"
+            @click="handleReOrder(scope.row)"
             v-hasPermi="['normal:order:edit']"
-          >修改</el-button>
-          <el-button
-            size="mini"
-            type="text"
-            icon="el-icon-delete"
-            @click="handleDelete(scope.row)"
-            v-hasPermi="['normal:order:remove']"
-          >删除</el-button>
+          >续单</el-button>
         </template>
       </el-table-column>
     </el-table>
