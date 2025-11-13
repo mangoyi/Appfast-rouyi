@@ -348,6 +348,8 @@ import { listApp, getSimpleAppList  } from "@/api/appkeyword/app"
 // 4. 导入订单API
 import { getPromotionOrder, updatePromotionOrder, createPromotionOrder } from "@/api/promotion/order"
 import { getToken } from '@/utils/auth'
+// 5. 导入国家选项的API
+import { getCountryOptions,getTime } from "@/api/promotion/country"
 
 export default {
   components: {},
@@ -530,6 +532,9 @@ export default {
     this.loadExecuteHourOptions()
     // 加载应用列表数据
     this.loadAppListOptions()
+    
+    // 加载国家选项数据
+    this.loadCountryOptions()
   },
   mounted() {},
   methods: {
@@ -1080,8 +1085,8 @@ export default {
     // 加载应用列表选项
     loadAppListOptions() {
       this.appListLoading = true;
-      
-      getSimpleAppList({ storeType: 1 }).then(response => {
+      const query = { page: 1, limit: 100, storeType: this.formData.storeType };
+      getSimpleAppList(query).then(response => {
         console.log('应用列表响应:', response);
         const apps = response.rows || response.data || [];
         this.appListOptions = apps.map(app => ({
@@ -1093,6 +1098,24 @@ export default {
         this.appListOptions = [];
       }).finally(() => {
         this.appListLoading = false;
+      });
+    },
+    // 地区列表
+    loadCountryOptions() {
+      this.countryLoading = true;
+      getCountryOptions().then(response => {
+        const countries = response.rows || [];
+        this.countryOptions = countries.map(country => ({
+          label: country.areaName,
+          value: country.areaCode,
+          image: country.areaImage
+        }));
+      }).catch(error => {
+        console.error('获取国家选项失败:', error);
+        // 如果API调用失败，提供默认选项
+        // this.countryOptions = [];
+      }).finally(() => {
+        this.countryLoading = false;
       });
     },
   }

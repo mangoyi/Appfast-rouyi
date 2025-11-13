@@ -15,7 +15,7 @@
         </el-col>
         <el-col :span="24">
           <el-form-item label="应用">
-            <span>{{ formData.customerAppId || '未选择' }}</span>
+            <span>{{ formData.appName  }}</span>
           </el-form-item>
         </el-col>
         <el-col :span="24">
@@ -64,7 +64,7 @@
           </el-form-item>
            <!-- 下载量 -->
            <el-form-item label="地区下载量配置" v-if="formData.orderType == 2">
-             <div v-for="(areaConfig, areaIndex) in formData.orderAreaKeywords" :key="areaIndex" style="margin-bottom: 20px; border: 1px solid #dcdfe6; padding: 15px; border-radius: 4px;">
+             <div v-for="(areaConfig, areaIndex) in formData.orderAreaDownloads" :key="areaIndex" style="margin-bottom: 20px; border: 1px solid #dcdfe6; padding: 15px; border-radius: 4px;">
                <el-row :gutter="15">
                  <el-col :span="6">
                    <el-form-item label="国家/地区">
@@ -81,7 +81,7 @@
            </el-form-item>
           <!-- 评分 --> 
           <el-form-item label="地区评分配置" v-if="formData.orderType == 3">
-            <div v-for="(areaConfig, areaIndex) in formData.orderAreaKeywords" :key="areaIndex" style="margin-bottom: 20px; border: 1px solid #dcdfe6; padding: 15px; border-radius: 4px;">
+            <div v-for="(areaConfig, areaIndex) in formData.orderAreaScores" :key="areaIndex" style="margin-bottom: 20px; border: 1px solid #dcdfe6; padding: 15px; border-radius: 4px;">
               <el-row :gutter="24">
                 <el-col :span="6">
                   <el-form-item label="国家/地区">
@@ -104,8 +104,8 @@
             </div>
           </el-form-item>
           <!-- 评论 -->
-          <el-form-item label="地区评分配置" v-if="formData.orderType == 4">
-            <div v-for="(areaConfig, areaIndex) in formData.orderAreaKeywords" :key="areaIndex" style="margin-bottom: 20px; border: 1px solid #dcdfe6; padding: 15px; border-radius: 4px;">
+          <el-form-item label="地区评论配置" v-if="formData.orderType == 4">
+            <div v-for="(areaConfig, areaIndex) in formData.orderAreaScores" :key="areaIndex" style="margin-bottom: 20px; border: 1px solid #dcdfe6; padding: 15px; border-radius: 4px;">
               <el-row :gutter="24">
                 <el-col :span="6">
                   <el-form-item label="国家/地区">
@@ -115,13 +115,18 @@
               </el-row>
               <el-row :gutter="24">
                 <el-col :span="8">
-                  <el-form-item label="5星评分">
+                  <el-form-item label="5星评论">
                     <span>{{ areaConfig.star5Amount || 0 }}</span> 分
                   </el-form-item>
                 </el-col>
                 <el-col :span="8">
-                  <el-form-item label="4星评分">
+                  <el-form-item label="4星评论">
                     <span>{{ areaConfig.star4Amount || 0 }}</span> 分
+                  </el-form-item>
+                </el-col>
+                <el-col :span="8">
+                  <el-form-item label="评论附件">
+                    <span>{{ areaConfig.fileName }}</span>
                   </el-form-item>
                 </el-col>
               </el-row>
@@ -129,7 +134,7 @@
           </el-form-item>
            <!-- 关键词保排名 -->
            <el-form-item label="关键词保排名配置" v-if="formData.orderType == 5">             
-             <div v-for="(areaConfig, areaIndex) in formData.orderAreaKeywords" :key="areaIndex" style="margin-bottom: 20px; border: 1px solid #dcdfe6; padding: 15px; border-radius: 4px;">
+             <div v-for="(areaConfig, areaIndex) in formData.orderKeywordRanks" :key="areaIndex" style="margin-bottom: 20px; border: 1px solid #dcdfe6; padding: 15px; border-radius: 4px;">
                <el-row :gutter="24">
                  <el-col :span="6">
                    <el-form-item label="国家/地区">
@@ -154,7 +159,7 @@
            </el-form-item>
            <!-- 关键词覆盖服务 -->
            <el-form-item label="关键词覆盖服务配置" v-if="formData.orderType == 6">
-             <div v-for="(areaConfig, areaIndex) in formData.orderAreaKeywords" :key="areaIndex" style="margin-bottom: 20px; border: 1px solid #dcdfe6; padding: 15px; border-radius: 4px;">
+             <div v-for="(areaConfig, areaIndex) in formData.orderKeywordRanks" :key="areaIndex" style="margin-bottom: 20px; border: 1px solid #dcdfe6; padding: 15px; border-radius: 4px;">
                <el-row :gutter="24">
                  <el-col :span="6">
                    <el-form-item label="国家/地区">
@@ -207,6 +212,8 @@ import { getExecuteHourOptions } from "@/api/promotion/executeHour"
 import { listApp, getSimpleAppList  } from "@/api/appkeyword/app"
 // 4. 导入订单API
 import { getPromotionOrder } from "@/api/promotion/order"
+// 5. 导入国家选项的API
+import { getCountryOptions,getTime } from "@/api/promotion/country"
 
 export default {
   components: {},
@@ -232,12 +239,16 @@ export default {
       },
       formData: {
         // API字段映射
+        appId: undefined,
+        appName: null,
         customerAppId: undefined,           // 应用ID
         beginDate: null,           // 订单开始日期
         endDate: null,             // 订单结束日期
-        orderAreaKeywords: [],     // 地区和关键词安装列表
+        orderAreaKeywords: [],     // 关键词安装列表
+        orderAreaDownloads: [],     // 下载列表
+        orderAreaScores: [],     // 评分评论列表
         orderKeywordRanks: [],     // 关键词保排名列表
-        orderType: 1,              // 关键词安装类型
+        orderType: 1,              // 订单类型
         storeType: 1,              // 应用商店
         executionHour: undefined,  // 可执行小时
         communicateNumber: '',     // 联系方式号码
@@ -273,7 +284,7 @@ export default {
         "value": 2
       }],
       countryOptions: [
-        { label: "美国", value: "us" },
+        { label: "美国", value: "US" },
         { label: "中国", value: "cn" },
         { label: "日本", value: "jp" },
         { label: "韩国", value: "kr" },
@@ -294,6 +305,11 @@ export default {
     }
   },
   computed: {
+     selectedAppName() {
+    if (!this.formData.customerAppId) return '未选择';
+    const selectedApp = this.appListOptions.find(app => app.value === this.formData.customerAppId);
+    return selectedApp ? selectedApp.label : '未选择';
+    },
     // 计算订单时间的天数差值
     orderDaysDiff() {
       if (this.formData.orderType == 1) {
@@ -336,6 +352,9 @@ export default {
     // this.loadExecuteHourOptions()
     // 加载应用列表数据
     this.loadAppListOptions()
+    
+    // 加载国家选项数据
+    this.loadCountryOptions()
   },
   mounted() {},
   methods: {
@@ -347,6 +366,8 @@ export default {
         
         // 将API数据映射到表单数据
         this.formData = {
+          appId: orderData.appId,
+          appName: orderData.appName,
           customerAppId: orderData.customerAppId,
           beginDate: orderData.beginDate,
           endDate: orderData.endDate,
@@ -358,51 +379,61 @@ export default {
           orderDate: orderData.orderType == 1 ? orderData.beginDate : [orderData.beginDate, orderData.endDate]
         }
         
-        // 根据订单类型处理地区配置数据
-        if (orderData.orderAreaKeywords && orderData.orderAreaKeywords.length > 0) {
+        if (orderData.orderType === 1 &&orderData.orderAreaKeywords && orderData.orderAreaKeywords.length > 0) {
           this.formData.orderAreaKeywords = orderData.orderAreaKeywords.map(areaConfig => {
-            if (orderData.orderType === 1) {
-              // 关键词安装类型
+            // 关键词安装类型
               return {
-                area: areaConfig.area,
+                area: this.getCountryLabel(areaConfig.area),
                 keywordList: areaConfig.keywordList || []
               }
-            } else if (orderData.orderType === 2) {
-              // 下载量类型
+          })
+        } else if (orderData.orderType === 2 &&orderData.orderAreaDownloads && orderData.orderAreaDownloads.length > 0) {
+          this.formData.orderAreaDownloads = orderData.orderAreaDownloads.map(areaConfig => {
+            // 下载量类型
               return {
                 area: areaConfig.area,
                 downloadCount: areaConfig.downloadAmount || 0
               }
-            } else if (orderData.orderType === 3) {
-              // 评分类型
+          })
+         }
+         else if (orderData.orderType === 3 &&orderData.orderAreaScores && orderData.orderAreaScores.length > 0) {
+          this.formData.orderAreaScores = orderData.orderAreaScores.map(areaConfig => {
+            // 评分评论类型
               return {
                 area: areaConfig.area,
                 star5Amount: areaConfig.star5Amount || 0,
                 star4Amount: areaConfig.star4Amount || 0
               }
-            } else if (orderData.orderType === 4) {
-              // 评论类型
+          })
+         } else if (orderData.orderType === 4 &&orderData.orderAreaScores && orderData.orderAreaScores.length > 0) {
+          this.formData.orderAreaScores = orderData.orderAreaScores.map(areaConfig => {
+            // 评分评论类型
               return {
                 area: areaConfig.area,
                 star5Amount: areaConfig.star5Amount || 0,
-                star4Amount: areaConfig.star4Amount || 0
+                star4Amount: areaConfig.star4Amount || 0,
+                fileName: areaConfig.fileName
               }
-            } else if (orderData.orderType === 5) {
-              // 关键词保排名
-              return {
-                area: areaConfig.area,
-                keepRankList: areaConfig.keywordRankList || []
-              }
-            } else if (orderData.orderType === 6) {
-              // 关键词覆盖服务
+          })
+          }
+          else if (orderData.orderType === 5 &&orderData.orderKeywordRanks && orderData.orderKeywordRanks.length > 0) {
+          this.formData.orderKeywordRanks = orderData.orderKeywordRanks.map(areaConfig => {
+            // 关键词保排名
               return {
                 area: areaConfig.area,
                 coverList: areaConfig.keywordRankList || []
               }
-            }
-            return areaConfig
           })
-        }
+          } 
+          else if (orderData.orderType === 6 &&orderData.orderKeywordRanks && orderData.orderKeywordRanks.length > 0) {
+          this.formData.orderKeywordRanks = orderData.orderKeywordRanks.map(areaConfig => {
+            // 关键词覆盖服务
+              return {
+                area: areaConfig.area,
+                keepRankList: areaConfig.keywordRankList || []
+              }
+          })
+          }
       }).catch(error => {
         console.error('获取订单详情失败:', error)
         this.$message.error('获取订单详情失败')
@@ -418,6 +449,12 @@ export default {
     getCountryLabel(value) {
       const country = this.countryOptions.find(opt => opt.value === value)
       return country ? country.label : value
+    },
+
+        // 获取国家标签
+    getAppName(value) {
+      const appName = this.appListOptions.find(opt => opt.label === value)
+      return appName ? appName.value : value
     },
     
     // 获取联系方式类型标签
@@ -463,7 +500,7 @@ export default {
       this.executeHourLoading = true;
       
       getExecuteHourOptions().then(response => {
-        console.log('执行小时选项响应:', response);
+        // console.log('执行小时选项响应:', response);
         // 假设服务端返回的数据格式为 { data: [{ value: '09:00', label: '09:00' }, ...] }
         const hours = response.data || response.rows || [];
         this.executeHourOptions = hours.map(hour => ({
@@ -492,12 +529,12 @@ export default {
     // 加载应用列表选项
     loadAppListOptions() {
       this.appListLoading = true;
-      
-      getSimpleAppList({ storeType: 1 }).then(response => {
-        console.log('应用列表响应:', response);
+      const query = { page: 1, limit: 100, storeType: this.formData.storeType };
+      getSimpleAppList(query).then(response => {
+        // console.log('应用列表响应:', response);
         const apps = response.rows || response.data || [];
         this.appListOptions = apps.map(app => ({
-          label: app.appName || app.name || app.customerAppId,
+          label: app.appName,
           value: app.customerAppId
         }));
       }).catch(error => {
@@ -505,6 +542,24 @@ export default {
         this.appListOptions = [];
       }).finally(() => {
         this.appListLoading = false;
+      });
+    },
+    // 地区列表
+    loadCountryOptions() {
+      this.countryLoading = true;
+      getCountryOptions().then(response => {
+        const countries = response.rows || [];
+        this.countryOptions = countries.map(country => ({
+          label: country.areaName,
+          value: country.areaCode,
+          image: country.areaImage
+        }));
+      }).catch(error => {
+        console.error('获取国家选项失败:', error);
+        // 如果API调用失败，提供默认选项
+        // this.countryOptions = [];
+      }).finally(() => {
+        this.countryLoading = false;
       });
     },
   }

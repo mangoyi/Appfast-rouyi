@@ -13,15 +13,15 @@
       <el-form ref="elForm" :model="formData" :rules="rules" size="medium" label-width="100px">
         <el-col :span="20">
           <el-form-item label="应用商店" prop="storeType">
-            <el-radio-group v-model="formData.storeType" size="medium" v-if="formData.storeType === null">
+            <el-radio-group v-model="formData.storeType" size="medium" v-if="storeType === null">
               <el-radio-button v-for="(item, index) in storeTypeOptions" :key="index" :label="item.value"
                 :disabled="item.disabled">{{item.label}}</el-radio-button>
             </el-radio-group>
-                      <el-radio-group v-model="formData.storeType" size="medium" v-if="formData.storeType === 1 || formData.storeType === 3">
+                      <el-radio-group v-model="formData.storeType" size="medium" v-if="storeType === 1 || storeType === 3">
               <el-radio-button v-for="(item, index) in storeTypeOptions1" :key="index" :label="item.value"
                 :disabled="item.disabled">{{item.label}}</el-radio-button>
             </el-radio-group>
-                      <el-radio-group v-model="formData.storeType" size="medium" v-if="formData.storeType === 2">
+                      <el-radio-group v-model="formData.storeType" size="medium" v-if="storeType === 2">
               <el-radio-button v-for="(item, index) in storeTypeOptions2" :key="index" :label="item.value"
                 :disabled="item.disabled">{{item.label}}</el-radio-button>
             </el-radio-group>
@@ -411,6 +411,7 @@ export default {
       // 应用列表数据加载状态
       appListOptions: [],
       appListLoading: false,
+      storeType: null,
         // 用户下拉查询参数
       userQueryParams: {
         pageNum: 1,
@@ -678,7 +679,8 @@ export default {
     // 从路由query初始化商店类型（默认1）
     const sType = this.$route && this.$route.query ? parseInt(this.$route.query.storeType) : NaN
     if (!Number.isNaN(sType)) {
-      this.formData.storeType =  sType === 3 ? 1 : sType
+      this.storeType = sType
+      this.formData.storeType = sType === 3 ? 1 : sType
     }
     
     
@@ -808,7 +810,7 @@ export default {
         
         // 处理表单数据，转换为API需要的格式
         const submitData = this.processFormData()
-        console.log('提交数据:', submitData)
+        // console.log('提交数据:', submitData)
         
         // 调用创建订单API
         this.createOrder(submitData)
@@ -964,7 +966,12 @@ export default {
         createPromotionOrder(data).then(response => {
           loading.close()
           this.$message.success('订单创建成功！')
-          console.log('订单创建响应:', response)
+          if(this.formData.storeType === 1) {
+          this.$router.push('/order/apple?storeType=1')
+          } else{
+          this.$router.push('/order/google?storeType=2')
+          }
+          
           
           // 可以在这里跳转到订单列表页面或执行其他操作
           // this.$router.push('/promotion/orderList')
@@ -1260,7 +1267,6 @@ export default {
     loadCountryOptions() {
       this.countryLoading = true;
       getCountryOptions().then(response => {
-        // 假设服务端返回的数据格式为 { data: [{ value: '09:00', label: '09:00' }, ...] }
         const countries = response.rows || [];
         this.countryOptions = countries.map(country => ({
           label: country.areaName,

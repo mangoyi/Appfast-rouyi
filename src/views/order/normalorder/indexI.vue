@@ -129,7 +129,7 @@
 
       <el-table-column label="下单时间" align="center" prop="beginDate" width="180">
         <template slot-scope="scope">
-          <span>{{ parseTime(scope.row.orderTime, '{y}-{m}-{d} {hh}-{mm}-{s} ') }}</span>
+          <span>{{ parseTime(scope.row.orderTime, '{y}-{m}-{d} {h}:{i}:{s} ') }}</span>
         </template>
       </el-table-column>
       <!-- <el-table-column label="国家地区" align="center" prop="area" /> -->
