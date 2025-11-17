@@ -559,8 +559,16 @@ export default {
         }
         
         // 根据订单类型处理地区配置数据
-        if (orderData.orderAreaKeywords && orderData.orderAreaKeywords.length > 0) {
-          this.formData.orderAreaKeywords = orderData.orderAreaKeywords.map(areaConfig => {
+        const areaSource = (() => {
+          if (orderData.orderType === 1) return orderData.orderAreaKeywords || []
+          if (orderData.orderType === 2) return orderData.orderAreaDownloads || []
+          if (orderData.orderType === 3 || orderData.orderType === 4) return orderData.orderAreaScores || []
+          if (orderData.orderType === 5 || orderData.orderType === 6) return orderData.orderKeywordRanks || []
+          return []
+        })()
+
+        if (areaSource.length > 0) {
+          this.formData.orderAreaKeywords = areaSource.map(areaConfig => {
             if (orderData.orderType === 1) {
               // 关键词安装类型
               return {
@@ -571,38 +579,35 @@ export default {
               // 下载量类型
               return {
                 area: areaConfig.area,
-                downloadCount: areaConfig.downloadAmount || 0
+                downloadCount: areaConfig.downloadAmount ?? areaConfig.downloadCount ?? 0
               }
-            } else if (orderData.orderType === 3) {
-              // 评分类型
+            } else if (orderData.orderType === 3 || orderData.orderType === 4) {
+              // 评分&评论类型（均使用star5/star4字段）
               return {
                 area: areaConfig.area,
-                star5Amount: areaConfig.star5Amount || '',
-                star4Amount: areaConfig.star4Amount || ''
-              }
-            } else if (orderData.orderType === 4) {
-              // 评论类型
-              return {
-                area: areaConfig.area,
-                star5Amount: areaConfig.star5Amount || '',
-                star4Amount: areaConfig.star4Amount || ''
+                star5Amount: areaConfig.star5Amount ?? '',
+                star4Amount: areaConfig.star4Amount ?? ''
               }
             } else if (orderData.orderType === 5) {
               // 关键词保排名
               return {
                 area: areaConfig.area,
-                keepRankList: areaConfig.keywordRankList || []
+                keepRankList: areaConfig.keywordRankList || areaConfig.keepRankList || []
               }
             } else if (orderData.orderType === 6) {
               // 关键词覆盖服务
               return {
                 area: areaConfig.area,
-                coverList: areaConfig.keywordRankList || []
+                coverList: areaConfig.keywordRankList || areaConfig.coverList || []
               }
             }
             return areaConfig
           })
+        } else {
+          this.formData.orderAreaKeywords = []
+          this.initFirstAreaConfig()
         }
+        
       }).catch(error => {
         console.error('获取订单详情失败:', error)
         this.$message.error('获取订单详情失败')
@@ -840,7 +845,6 @@ export default {
     // 更新订单
     updateOrder(data) {
       const { isReOrder } = this.$route.query;
-
 
       this.$confirm('确认保存订单吗？', '提示', {
         confirmButtonText: '确定',
