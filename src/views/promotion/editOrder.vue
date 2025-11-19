@@ -380,7 +380,7 @@ export default {
         endDate: null,             // 订单结束日期
         orderAreaKeywords: [],     // 地区和关键词安装列表
         orderKeywordRanks: [],     // 关键词保排名列表
-        orderType: 1,              // 关键词安装类型
+        orderType: undefined,              // 关键词安装类型
         storeType: 1,              // 应用商店
         executionHour: undefined,  // 可执行小时
         communicateNumber: '',     // 联系方式号码
@@ -492,6 +492,7 @@ export default {
       ],
       uploadUrl: process.env.VUE_APP_BASE_API + '/normal/order/import/keyword  ',
       uploadHeaders: { Authorization: 'Bearer ' + getToken() },
+      useMockOrderDetail: true,
     }
   },
   computed: {
@@ -514,7 +515,7 @@ export default {
   watch: {
     // 监听订单类型变化，重新初始化地区配置
     'formData.orderType'(newType, oldType) {
-      if (newType !== oldType) {
+      if (newType !== oldType && typeof oldType !== 'undefined') {
         // 清空现有配置
         this.formData.orderAreaKeywords = []
       }
@@ -538,14 +539,70 @@ export default {
   },
   mounted() {},
   methods: {
+    initFirstAreaConfig() {
+      if (this.formData.orderAreaKeywords.length === 0) {
+        if (this.formData.orderType === 1) {
+          // 关键词安装类型
+          this.formData.orderAreaKeywords.push({
+            area: '',
+            keywordList: [{
+              keyword: '',
+              count: '',
+              totalQuantity: 0,
+              ranking: '-'
+            }]
+          });
+        } else if (this.formData.orderType === 2) {
+          // 下载量类型
+          this.formData.orderAreaKeywords.push({
+            area: '',
+            downloadCount: ''
+          });
+        } else if (this.formData.orderType === 3) {
+          // 评分类型
+          this.formData.orderAreaKeywords.push({
+            area: '',
+            star5Amount: '',
+            star4Amount: '',
+          });
+        } else if (this.formData.orderType === 4) {
+          // 评论类型
+          this.formData.orderAreaKeywords.push({
+            area: '',
+            star5Amount: '',
+            star4Amount: '',
+          });
+        } else if (this.formData.orderType === 5) {
+          // 关键词保排名
+          this.formData.orderAreaKeywords.push({
+            area: '',
+            keepRankList: [{
+              keyword: '',
+              targetRank: 'top1'
+            }]
+          });
+        } else if (this.formData.orderType === 6) {
+          // 关键词覆盖服务
+          this.formData.orderAreaKeywords.push({
+            area: '',
+            coverList: [{
+              keyword: '',
+              currentRank: '-'
+            }]
+          });
+        }
+      }
+    },
     // 加载订单数据
     loadOrderData(id) {
-      getPromotionOrder(id).then(response => {
+      const requestPromise = getPromotionOrder(id)
+
+      requestPromise.then(response => {
         console.log('订单详情响应:', response)
         const orderData = response.data || response
         
         // 将API数据映射到表单数据
-        this.formData = {
+        const detailData = {
           id: orderData.id,
           customerAppId: orderData.customerAppId,
           beginDate: orderData.beginDate,
@@ -555,9 +612,9 @@ export default {
           executionHour: orderData.executionHour,
           communicateNumber: orderData.communicateNumber || '',
           communicateType: orderData.communicateType || 1,
-          orderDate: orderData.orderType == 1 ? orderData.beginDate : [orderData.beginDate, orderData.endDate]
+          orderDate: orderData.orderType == 1 ? orderData.beginDate : [orderData.beginDate, orderData.endDate],
         }
-        
+
         // 根据订单类型处理地区配置数据
         const areaSource = (() => {
           if (orderData.orderType === 1) return orderData.orderAreaKeywords || []
@@ -567,8 +624,7 @@ export default {
           return []
         })()
 
-        if (areaSource.length > 0) {
-          this.formData.orderAreaKeywords = areaSource.map(areaConfig => {
+        const orderAreaKeywords = areaSource.map(areaConfig => {
             if (orderData.orderType === 1) {
               // 关键词安装类型
               return {
@@ -602,12 +658,15 @@ export default {
               }
             }
             return areaConfig
-          })
-        } else {
-          this.formData.orderAreaKeywords = []
-          this.initFirstAreaConfig()
-        }
+        })
+
+        console.log('areaSource:', areaSource, 'orderData.orderType', orderData.orderType)
+        Object.assign(this.formData, detailData)
+        this.initFirstAreaConfig();
         
+        orderAreaKeywords.forEach((areaConfig, index) => {
+          this.formData.orderAreaKeywords.push(areaConfig)
+        })
       }).catch(error => {
         console.error('获取订单详情失败:', error)
         this.$message.error('获取订单详情失败')
@@ -1067,7 +1126,7 @@ export default {
       getExecuteHourOptions().then(response => {
         console.log('执行小时选项响应:', response);
         // 假设服务端返回的数据格式为 { data: [{ value: '09:00', label: '09:00' }, ...] }
-        const hours = response.data || response.rows || [];
+        const hours = response?.data || response?.rows || [];
         this.executeHourOptions = hours.map(hour => ({
           label: hour.dictLabel,
           value: hour.dictValue
