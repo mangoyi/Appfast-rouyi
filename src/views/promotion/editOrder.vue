@@ -1,42 +1,55 @@
 <template>
-  <div>
+  <div class="page-container">
     <el-form ref="elForm" :model="formData" :rules="rules" size="medium" label-width="300px">
       <el-form-item label-width="100px" label="订单类型" prop="orderType">
         <el-radio-group v-model="formData.orderType" size="medium">
           <el-radio-button v-for="(item, index) in orderTypeOptions" :key="index" :label="item.value"
-            :disabled="item.disabled" border>{{item.label}}</el-radio-button>
+            :disabled="item.disabled" border>{{ item.label }}</el-radio-button>
         </el-radio-group>
       </el-form-item>
     </el-form>
 
-    <el-row :gutter="15">
+    <el-row :gutter="10">
       <el-form ref="elForm" :model="formData" :rules="rules" size="medium" label-width="100px">
         <el-col :span="20">
           <el-form-item label="应用商店" prop="storeType">
-            <el-radio-group v-model="formData.storeType" size="medium">
+            <el-radio-group v-model="formData.storeType" size="medium" v-if="formData.storeType === null">
               <el-radio-button v-for="(item, index) in storeTypeOptions" :key="index" :label="item.value"
-                :disabled="item.disabled">{{item.label}}</el-radio-button>
+                :disabled="item.disabled">{{ item.label }}</el-radio-button>
+            </el-radio-group>
+            <el-radio-group v-model="formData.storeType" size="medium"
+              v-if="formData.storeType === 1 || formData.storeType === 3">
+              <el-radio-button v-for="(item, index) in storeTypeOptions1" :key="index" :label="item.value"
+                :disabled="item.disabled">{{ item.label }}</el-radio-button>
+            </el-radio-group>
+            <el-radio-group v-model="formData.storeType" size="medium" v-if="formData.storeType === 2">
+              <el-radio-button v-for="(item, index) in storeTypeOptions2" :key="index" :label="item.value"
+                :disabled="item.disabled">{{ item.label }}</el-radio-button>
             </el-radio-group>
           </el-form-item>
         </el-col>
         <el-col :span="24">
           <el-form-item label="应用" prop="customerAppId">
-            <el-select v-model="formData.customerAppId" filterable placeholder="请选择应用" :style="{width: '30%'}" :loading="appListLoading">
-              <el-option v-for="app in appListOptions" :key="app.value" :label="app.label" :value="app.value"></el-option>
+            <el-select v-model="formData.customerAppId" filterable placeholder="请选择应用" :style="{ width: '30%' }"
+              :loading="appListLoading">
+              <el-option v-for="app in appListOptions" :key="app.value" :label="app.label"
+                :value="app.value"></el-option>
             </el-select>
           </el-form-item>
         </el-col>
         <el-col :span="24">
           <el-form-item label="订单时间" prop="orderDate">
             <template v-if="formData.orderType == 1">
-              <el-date-picker type="date" v-model="formData.orderDate" format="yyyy-MM-dd"
-                value-format="yyyy-MM-dd" :style="{width: '30%'}" placeholder="请选择日期" clearable></el-date-picker>
+              <el-date-picker type="date" v-model="formData.orderDate" format="yyyy-MM-dd" value-format="yyyy-MM-dd"
+                :style="{ width: '30%' }" placeholder="请选择日期" clearable></el-date-picker>
             </template>
             <template v-else>
-            <el-date-picker type="daterange" v-model="formData.orderDate" format="yyyy-MM-dd"
-              value-format="yyyy-MM-dd" :style="{width: '50%'}" start-placeholder="开始日期"
-              end-placeholder="结束日期" range-separator="至" clearable></el-date-picker>
-            </template>
+              <el-date-picker type="daterange" v-model="formData.orderDate" format="yyyy-MM-dd"
+                value-format="yyyy-MM-dd" :style="{ width: '50%' }" start-placeholder="开始日期" end-placeholder="结束日期"
+                range-separator="至" clearable></el-date-picker>
+            </template><span style="margin-left: 30px; color: blue;">System Time (UCT+8) :<span id="currentTime"
+                style="margin-left: 10px;">{{ currentTime }}</span></span>
+            <!-- 文本框，显示当前系统时间 -->
           </el-form-item>
         </el-col>
         <el-col :span="24">
@@ -44,16 +57,11 @@
         </el-col>
         <el-col :span="24" v-if="formData.orderType == 1">
           <el-form-item label="执行小时" prop="executionHour">
-          <el-select v-model="formData.executionHour" placeholder="请选择执行小时" filterable clearable>
-            <el-option
-              v-for="item in executeHourOptions"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            >
-            </el-option>
-          </el-select>
-        </el-form-item>
+            <el-select v-model="formData.executionHour" placeholder="请选择执行小时" filterable clearable>
+              <el-option v-for="item in executeHourOptions" :key="item.value" :label="item.label" :value="item.value">
+              </el-option>
+            </el-select>
+          </el-form-item>
         </el-col>
         <el-col :span="24">
           <!-- 关键词安装 -->
@@ -63,25 +71,27 @@
                 下载模版
               </el-button>
 
-              <el-upload
-                :action="uploadUrl"
-                :headers="uploadHeaders"
-                :show-file-list="false"
-                accept=".xls,.xlsx,.csv"
-                :on-success="handleImportSuccess"
-                :on-error="handleImportError"
-                style="display: inline-block; margin-left: 10px;"
-              >
+              <el-upload :action="uploadUrl" :headers="uploadHeaders" :show-file-list="false" accept=".xls,.xlsx,.csv"
+                :on-success="handleImportSuccess" :on-error="handleImportError"
+                style="display: inline-block; margin-left: 10px;">
                 <el-button type="success" size="small" icon="el-icon-upload2">批量导入</el-button>
               </el-upload>
             </div>
 
-            <div v-for="(areaConfig, areaIndex) in formData.orderAreaKeywords" :key="areaIndex" style="margin-bottom: 20px; border: 1px solid #dcdfe6; padding: 15px; border-radius: 4px;">
+            <div v-for="(areaConfig, areaIndex) in formData.orderAreaKeywords" :key="areaIndex"
+              class="area-config-section">
               <el-row :gutter="15">
                 <el-col :span="6">
                   <el-form-item :label="`国家/地区`">
-                    <el-select v-model="areaConfig.area" placeholder="请选择国家/地区" filterable clearable style="width: 100px">
-                      <el-option v-for="country in countryOptions" :key="country.value" :label="country.label" :value="country.value"></el-option>
+                    <el-select v-model="areaConfig.area" placeholder="请选择国家/地区" filterable clearable
+                      style="width: 100px">
+                      <el-option v-for="country in countryOptions" :key="country.value" :label="country.label"
+                        :value="country.value">
+                        <span style="display: inline-flex; align-items: center;">
+                          <img :src="country.image" style="width: 16px; height: 16px; margin-right: 8px;">{{
+                            country.label }}
+                        </span>
+                      </el-option>
                     </el-select>
                   </el-form-item>
                 </el-col>
@@ -91,17 +101,20 @@
                   </el-form-item>
                 </el-col>
               </el-row>
-              
-              <el-table :data="areaConfig.keywordList" border style="width: 100%; margin-top: 10px;">
-                <el-table-column prop="keyword" label="关键词" width="200">
+
+              <el-table :data="areaConfig.keywordList" border class="area-config-table"
+                style="width: 100%; margin-top: 5px;">
+                <el-table-column prop="keyword" label="关键词" width="200" style="padding: 5px 0 !important;">
                   <template slot-scope="scope">
-                    <el-input v-if="scope.$index === 0" v-model="scope.row.keyword" placeholder="请输入关键词" @keyup.enter.native="handleKeywordEnter(scope.row, areaIndex)"></el-input>
+                    <el-input v-if="scope.$index === 0" v-model="scope.row.keyword" placeholder="请输入关键词"
+                      @keyup.enter.native="handleKeywordEnter(scope.row, areaIndex)"></el-input>
                     <span v-else>{{ scope.row.keyword }}</span>
                   </template>
                 </el-table-column>
                 <el-table-column prop="count" label="每日数量" width="150">
                   <template slot-scope="scope">
-                    <el-input v-model="scope.row.count" placeholder="请输入每日数量" @keyup.enter.native="handleKeywordEnter(scope.row, areaIndex)"></el-input>
+                    <el-input v-model="scope.row.count" placeholder="请输入每日数量"
+                      @keyup.enter.native="handleKeywordEnter(scope.row, areaIndex)"></el-input>
                   </template>
                 </el-table-column>
                 <!-- <el-table-column prop="ranking" label="排名" width="120">
@@ -111,52 +124,67 @@
                 </el-table-column> -->
                 <el-table-column label="操作" width="120">
                   <template slot-scope="scope">
-                    <el-button v-if="scope.$index > 0" type="text" @click="removeKeywordRow(scope.$index, areaIndex)">删除</el-button>
+                    <el-button v-if="scope.$index > 0" type="text"
+                      @click="removeKeywordRow(scope.$index, areaIndex)">删除</el-button>
                   </template>
                 </el-table-column>
               </el-table>
             </div>
-            
+
+            <div style="margin-top: 8px;">
+              <el-button type="primary" size="small" @click="addAreaConfig">添加地区配置</el-button>
+            </div>
+          </el-form-item>
+          <!-- 下载量 -->
+          <el-form-item label="地区下载量配置" prop="orderAreaKeywords" v-if="formData.orderType == 2">
+            <div v-for="(areaConfig, areaIndex) in formData.orderAreaKeywords" :key="areaIndex"
+              style="margin-bottom: 20px; border: 1px solid #dcdfe6; padding: 15px; border-radius: 4px;">
+              <el-row :gutter="15">
+                <el-col :span="6">
+                  <el-form-item :label="`国家/地区`">
+                    <el-select v-model="areaConfig.area" placeholder="国家/地区" filterable clearable style="width: 100px">
+                      <el-option v-for="country in countryOptions" :key="country.value" :label="country.label"
+                        :value="country.value">
+                        <span style="display: inline-flex; align-items: center;">
+                          <img :src="country.image" style="width: 16px; height: 16px; margin-right: 8px;">{{
+                            country.label }}
+                        </span>
+                      </el-option>
+                    </el-select>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="6">
+                  <el-form-item label="安装量">
+                    <el-input v-model="areaConfig.downloadCount" placeholder="安装量" style="width: 100px"></el-input>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="2">
+                  <el-form-item label="操作">
+                    <el-button type="danger" size="small" @click="removeAreaConfig(areaIndex)">删除地区</el-button>
+                  </el-form-item>
+                </el-col>
+              </el-row>
+            </div>
+
             <div style="margin-top: 10px;">
               <el-button type="primary" size="small" @click="addAreaConfig">添加地区配置</el-button>
             </div>
           </el-form-item>
-           <!-- 下载量 -->
-           <el-form-item label="地区下载量配置" prop="orderAreaKeywords" v-if="formData.orderType == 2">
-             <div v-for="(areaConfig, areaIndex) in formData.orderAreaKeywords" :key="areaIndex" style="margin-bottom: 20px; border: 1px solid #dcdfe6; padding: 15px; border-radius: 4px;">
-               <el-row :gutter="15">
-                 <el-col :span="6">
-                   <el-form-item :label="`国家/地区`">
-                     <el-select v-model="areaConfig.area" placeholder="国家/地区" filterable clearable style="width: 100px">
-                       <el-option v-for="country in countryOptions" :key="country.value" :label="country.label" :value="country.value"></el-option>
-                     </el-select>
-                   </el-form-item>
-                 </el-col>
-                 <el-col :span="6">
-                   <el-form-item label="安装量">
-                     <el-input v-model="areaConfig.downloadCount" placeholder="安装量" style="width: 100px"></el-input>
-                   </el-form-item>
-                 </el-col>
-                 <el-col :span="2">
-                   <el-form-item label="操作">
-                     <el-button type="danger" size="small" @click="removeAreaConfig(areaIndex)">删除地区</el-button>
-                   </el-form-item>
-                 </el-col>
-               </el-row>
-             </div>
-             
-             <div style="margin-top: 10px;">
-               <el-button type="primary" size="small" @click="addAreaConfig">添加地区配置</el-button>
-             </div>
-           </el-form-item>
-          <!-- 评分 --> 
+          <!-- 评分 -->
           <el-form-item label="地区评分配置" prop="orderAreaKeywords" v-if="formData.orderType == 3">
-            <div v-for="(areaConfig, areaIndex) in formData.orderAreaKeywords" :key="areaIndex" style="margin-bottom: 20px; border: 1px solid #dcdfe6; padding: 15px; border-radius: 4px;">
+            <div v-for="(areaConfig, areaIndex) in formData.orderAreaKeywords" :key="areaIndex"
+              style="margin-bottom: 20px; border: 1px solid #dcdfe6; padding: 15px; border-radius: 4px;">
               <el-row :gutter="24">
                 <el-col :span="6">
                   <el-form-item :label="`国家/地区`">
                     <el-select v-model="areaConfig.area" placeholder="国家/地区" filterable clearable style="width: 100px">
-                      <el-option v-for="country in countryOptions" :key="country.value" :label="country.label" :value="country.value"></el-option>
+                      <el-option v-for="country in countryOptions" :key="country.value" :label="country.label"
+                        :value="country.value">
+                        <span style="display: inline-flex; align-items: center;">
+                          <img :src="country.image" style="width: 16px; height: 16px; margin-right: 8px;">{{
+                            country.label }}
+                        </span>
+                      </el-option>
                     </el-select>
                   </el-form-item>
                 </el-col>
@@ -170,30 +198,39 @@
                 <el-col :span="8">
                   <el-form-item label="5星评分">
                     <el-input v-model="areaConfig.star5Amount" placeholder="评分数" style="width: 150px"></el-input>
-                    <el-input :value="areaConfig.star5Amount * orderDaysDiff" placeholder="总分" style="width: 100px" disabled></el-input>
+                    <el-input :value="areaConfig.star5Amount * orderDaysDiff" placeholder="总分" style="width: 100px"
+                      disabled></el-input>
                   </el-form-item>
                 </el-col>
                 <el-col :span="8">
                   <el-form-item label="4星评分">
                     <el-input v-model="areaConfig.star4Amount" placeholder="评分数" style="width: 150px"></el-input>
-                    <el-input :value="areaConfig.star4Amount * orderDaysDiff" placeholder="总分" style="width: 100px" disabled></el-input>
+                    <el-input :value="areaConfig.star4Amount * orderDaysDiff" placeholder="总分" style="width: 100px"
+                      disabled></el-input>
                   </el-form-item>
                 </el-col>
               </el-row>
             </div>
-            
+
             <div style="margin-top: 10px;">
               <el-button type="primary" size="small" @click="addAreaConfig">添加地区配置</el-button>
             </div>
           </el-form-item>
           <!-- 评论 -->
           <el-form-item label="地区评分配置" prop="orderAreaKeywords" v-if="formData.orderType == 4">
-            <div v-for="(areaConfig, areaIndex) in formData.orderAreaKeywords" :key="areaIndex" style="margin-bottom: 20px; border: 1px solid #dcdfe6; padding: 15px; border-radius: 4px;">
+            <div v-for="(areaConfig, areaIndex) in formData.orderAreaKeywords" :key="areaIndex"
+              style="margin-bottom: 20px; border: 1px solid #dcdfe6; padding: 15px; border-radius: 4px;">
               <el-row :gutter="24">
                 <el-col :span="6">
                   <el-form-item :label="`国家/地区`">
                     <el-select v-model="areaConfig.area" placeholder="国家/地区" filterable clearable style="width: 100px">
-                      <el-option v-for="country in countryOptions" :key="country.value" :label="country.label" :value="country.value"></el-option>
+                      <el-option v-for="country in countryOptions" :key="country.value" :label="country.label"
+                        :value="country.value">
+                        <span style="display: inline-flex; align-items: center;">
+                          <img :src="country.image" style="width: 16px; height: 16px; margin-right: 8px;">{{
+                            country.label }}
+                        </span>
+                      </el-option>
                     </el-select>
                   </el-form-item>
                 </el-col>
@@ -207,107 +244,128 @@
                 <el-col :span="8">
                   <el-form-item label="5星评分">
                     <el-input v-model="areaConfig.star5Amount" placeholder="评分数" style="width: 150px"></el-input>
-                    <el-input :value="areaConfig.star5Amount * orderDaysDiff" placeholder="总分" style="width: 100px" disabled></el-input>
+                    <el-input :value="areaConfig.star5Amount * orderDaysDiff" placeholder="总分" style="width: 100px"
+                      disabled></el-input>
                   </el-form-item>
                 </el-col>
                 <el-col :span="8">
                   <el-form-item label="4星评分">
                     <el-input v-model="areaConfig.star4Amount" placeholder="评分数" style="width: 150px"></el-input>
-                    <el-input :value="areaConfig.star4Amount * orderDaysDiff" placeholder="总分" style="width: 100px" disabled></el-input>
+                    <el-input :value="areaConfig.star4Amount * orderDaysDiff" placeholder="总分" style="width: 100px"
+                      disabled></el-input>
                   </el-form-item>
                 </el-col>
               </el-row>
             </div>
-            
+
             <div style="margin-top: 10px;">
               <el-button type="primary" size="small" @click="addAreaConfig">添加地区配置</el-button>
             </div>
           </el-form-item>
-           <!-- 关键词保排名 -->
-           <el-form-item label="关键词保排名配置" prop="orderAreaKeywords" v-if="formData.orderType == 5">             
-             <div v-for="(areaConfig, areaIndex) in formData.orderAreaKeywords" :key="areaIndex" style="margin-bottom: 20px; border: 1px solid #dcdfe6; padding: 15px; border-radius: 4px;">
-               <el-row :gutter="24">
-                 <el-col :span="6">
-                   <el-form-item :label="`国家/地区`">
-                     <el-select v-model="areaConfig.area" placeholder="国家/地区" filterable clearable style="width: 100px">
-                       <el-option v-for="country in countryOptions" :key="country.value" :label="country.label" :value="country.value"></el-option>
-                     </el-select>
-                   </el-form-item>
-                 </el-col>
-                 <el-col :span="2">
-                   <el-form-item label="操作">
-                     <el-button type="danger" size="small" @click="removeAreaConfig(areaIndex)">删除地区</el-button>
-                   </el-form-item>
-                 </el-col>
-               </el-row>
-               
-               <el-table :data="areaConfig.keepRankList" border style="width: 100%; margin-top: 10px;">
-                 <el-table-column prop="keyword" label="关键词" width="200">
-                   <template slot-scope="scope">
-                     <el-input v-if="scope.$index === 0" v-model="scope.row.keyword" placeholder="请输入关键词" @keyup.enter.native="handleKeepRankEnter(scope.row, areaIndex)"></el-input>
-                     <span v-else>{{ scope.row.keyword }}</span>
-                   </template>
-                 </el-table-column>
-                 <el-table-column prop="targetRank" label="目标排名" width="180">
-                   <template slot-scope="scope">
-                     <el-select v-model="scope.row.targetRank" placeholder="目标排名" style="width: 120px">
-                       <el-option v-for="opt in targetRankOptions" :key="opt.value" :label="opt.label" :value="opt.value"></el-option>
-                     </el-select>
-                   </template>
-                 </el-table-column>
-                 <el-table-column label="操作" width="120">
-                   <template slot-scope="scope">
-                     <el-button v-if="scope.$index > 0" type="text" @click="removeKeepRankRow(scope.$index, areaIndex)">删除</el-button>
-                   </template>
-                 </el-table-column>
-               </el-table>
-             </div>
-             
-             <div style="margin-top: 10px;">
-               <el-button type="primary" size="small" @click="addAreaConfig">添加地区配置</el-button>
-             </div>
-           </el-form-item>
-           <!-- 关键词覆盖服务 -->
-           <el-form-item label="关键词覆盖服务配置" prop="orderAreaKeywords" v-if="formData.orderType == 6">
-             <div v-for="(areaConfig, areaIndex) in formData.orderAreaKeywords" :key="areaIndex" style="margin-bottom: 20px; border: 1px solid #dcdfe6; padding: 15px; border-radius: 4px;">
-               <el-row :gutter="24">
-                 <el-col :span="6">
-                   <el-form-item :label="`国家/地区`">
-                     <el-select v-model="areaConfig.area" placeholder="国家/地区" filterable clearable style="width: 100px">
-                       <el-option v-for="country in countryOptions" :key="country.value" :label="country.label" :value="country.value"></el-option>
-                     </el-select>
-                   </el-form-item>
-                 </el-col>
-                 <el-col :span="2">
-                   <el-form-item label="操作">
-                     <el-button type="danger" size="small" @click="removeAreaConfig(areaIndex)">删除地区</el-button>
-                   </el-form-item>
-                 </el-col>
-               </el-row>
-               
-               <el-table :data="areaConfig.coverList" border style="width: 100%; margin-top: 10px;">
-                 <el-table-column prop="keyword" label="关键词" width="200">
-                   <template slot-scope="scope">
-                     <el-input v-if="scope.$index === 0" v-model="scope.row.keyword" placeholder="请输入关键词" @keyup.enter.native="handleCoverEnter(scope.row, areaIndex)"></el-input>
-                     <span v-else>{{ scope.row.keyword }}</span>
-                   </template>
-                 </el-table-column>
-                 <el-table-column prop="currentRank" label="当前排名" width="180">
-                   <template slot-scope="scope">
-                     <span>{{ scope.row.currentRank || '-' }}</span>
-                   </template>
-                 </el-table-column>
-                 <el-table-column label="操作" width="120">
-                   <template slot-scope="scope">
-                     <el-button v-if="scope.$index > 0" type="text" @click="removeCoverRow(scope.$index, areaIndex)">删除</el-button>
-                   </template>
-                 </el-table-column>
-               </el-table>
-             </div>
-             
-             <div style="margin-top: 10px;">
-               <el-button type="primary" size="small" @click="addAreaConfig">添加地区配置</el-button>
-             </div>
+          <!-- 关键词保排名 -->
+          <el-form-item label="关键词保排名配置" prop="orderAreaKeywords" v-if="formData.orderType == 5">
+            <div v-for="(areaConfig, areaIndex) in formData.orderAreaKeywords" :key="areaIndex"
+              style="margin-bottom: 20px; border: 1px solid #dcdfe6; padding: 15px; border-radius: 4px;">
+              <el-row :gutter="24">
+                <el-col :span="6">
+                  <el-form-item :label="`国家/地区`">
+                    <el-select v-model="areaConfig.area" placeholder="国家/地区" filterable clearable style="width: 100px">
+                      <el-option v-for="country in countryOptions" :key="country.value" :label="country.label"
+                        :value="country.value">
+                        <span style="display: inline-flex; align-items: center;">
+                          <img :src="country.image" style="width: 16px; height: 16px; margin-right: 8px;">{{
+                            country.label }}
+                        </span>
+                      </el-option>
+                    </el-select>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="2">
+                  <el-form-item label="操作">
+                    <el-button type="danger" size="small" @click="removeAreaConfig(areaIndex)">删除地区</el-button>
+                  </el-form-item>
+                </el-col>
+              </el-row>
+
+              <el-table :data="areaConfig.keepRankList" border style="width: 100%; margin-top: 10px;">
+                <el-table-column prop="keyword" label="关键词" width="200">
+                  <template slot-scope="scope">
+                    <el-input v-if="scope.$index === 0" v-model="scope.row.keyword" placeholder="请输入关键词"
+                      @keyup.enter.native="handleKeepRankEnter(scope.row, areaIndex)"></el-input>
+                    <span v-else>{{ scope.row.keyword }}</span>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="targetRank" label="目标排名" width="180">
+                  <template slot-scope="scope">
+                    <el-select v-model="scope.row.targetRank" placeholder="目标排名" style="width: 120px">
+                      <el-option v-for="opt in targetRankOptions" :key="opt.value" :label="opt.label"
+                        :value="opt.value"></el-option>
+                    </el-select>
+                  </template>
+                </el-table-column>
+                <el-table-column label="操作" width="120">
+                  <template slot-scope="scope">
+                    <el-button v-if="scope.$index > 0" type="text"
+                      @click="removeKeepRankRow(scope.$index, areaIndex)">删除</el-button>
+                  </template>
+                </el-table-column>
+              </el-table>
+            </div>
+
+            <div style="margin-top: 10px;">
+              <el-button type="primary" size="small" @click="addAreaConfig">添加地区配置</el-button>
+            </div>
+          </el-form-item>
+          <!-- 关键词覆盖服务 -->
+          <el-form-item label="关键词覆盖服务配置" prop="orderAreaKeywords" v-if="formData.orderType == 6">
+            <div v-for="(areaConfig, areaIndex) in formData.orderAreaKeywords" :key="areaIndex"
+              style="margin-bottom: 20px; border: 1px solid #dcdfe6; padding: 15px; border-radius: 4px;">
+              <el-row :gutter="24">
+                <el-col :span="6">
+                  <el-form-item :label="`国家/地区`">
+                    <el-select v-model="areaConfig.area" placeholder="国家/地区" filterable clearable style="width: 100px">
+                      <el-option v-for="country in countryOptions" :key="country.value" :label="country.label"
+                        :value="country.value">
+                        <span style="display: inline-flex; align-items: center;">
+                          <img :src="country.image" style="width: 16px; height: 16px; margin-right: 8px;">{{
+                            country.label }}
+                        </span>
+                      </el-option>
+                    </el-select>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="2">
+                  <el-form-item label="操作">
+                    <el-button type="danger" size="small" @click="removeAreaConfig(areaIndex)">删除地区</el-button>
+                  </el-form-item>
+                </el-col>
+              </el-row>
+
+              <el-table :data="areaConfig.coverList" border style="width: 100%; margin-top: 10px;">
+                <el-table-column prop="keyword" label="关键词" width="200">
+                  <template slot-scope="scope">
+                    <el-input v-if="scope.$index === 0" v-model="scope.row.keyword" placeholder="请输入关键词"
+                      @keyup.enter.native="handleCoverEnter(scope.row, areaIndex)"></el-input>
+                    <span v-else>{{ scope.row.keyword }}</span>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="currentRank" label="当前排名" width="180">
+                  <template slot-scope="scope">
+                    <span>{{ scope.row.currentRank || '-' }}</span>
+                  </template>
+                </el-table-column>
+                <el-table-column label="操作" width="120">
+                  <template slot-scope="scope">
+                    <el-button v-if="scope.$index > 0" type="text"
+                      @click="removeCoverRow(scope.$index, areaIndex)">删除</el-button>
+                  </template>
+                </el-table-column>
+              </el-table>
+            </div>
+
+            <div style="margin-top: 10px;">
+              <el-button type="primary" size="small" @click="addAreaConfig">添加地区配置</el-button>
+            </div>
           </el-form-item>
 
           <!-- 联系方式配置 -->
@@ -316,20 +374,62 @@
               <el-form-item label="联系方式">
                 <el-col :span="4">
                   <el-select v-model="formData.communicateType" placeholder="请选择联系方式类型" style="width: 120px">
-                    <el-option v-for="type in communicateTypeOptions" :key="type.value" :label="type.label" :value="type.value"></el-option>
+                    <el-option v-for="type in communicateTypeOptions" :key="type.value" :label="type.label"
+                      :value="type.value"></el-option>
                   </el-select>
                 </el-col>
                 <el-col :span="8">
-                  <el-input v-model="formData.communicateNumber" placeholder="请输入联系方式号码" style="width: 200px"></el-input>
+                  <el-input v-model="formData.communicateNumber" placeholder="请输入联系方式号码"
+                    style="width: 200px"></el-input>
                 </el-col>
               </el-form-item>
             </el-col>
           </el-row>
         </el-col>
-        <el-col :span="24">
+        <!-- <el-col :span="24">
           <el-form-item size="large">
             <el-button type="primary" @click="submitForm">保存</el-button>
             <el-button @click="goBack">返回</el-button>
+          </el-form-item>
+        </el-col> -->
+        <el-col :span="24">
+          <el-form-item size="large">
+            <div class="form-footer">
+              <div v-if="formData.id" class="total-amount">
+                订单金额: <span class="amount">${{ totalAmount }}</span>
+              </div>
+              <!-- With this code -->
+              <div class="total-amount detail-popover" style="margin-right: 20px;"
+                v-if="formData.orderType === 1 || formData.orderType === 2 || formData.orderType === 3 || formData.orderType === 4">
+                <el-popover placement="top" width="150" trigger="hover">
+                  <div class="popover-content">
+                    <div class="item">
+                      <span class="label">单价：</span>
+                      <span class="value">${{ unitPrice.toFixed(2) }}</span>
+                    </div>
+                    <div class="item">
+                      <span class="label">日量：</span>
+                      <span class="value">{{ dayQuantity }}</span>
+                    </div>
+                    <div class="item">
+                      <span class="label">天数：</span>
+                      <span class="value">{{ orderDaysDiff }} 天</span>
+                    </div>
+                    <div class="item">
+                      <span class="label">总量：</span>
+                      <span class="value">{{ totalQuantity }} </span>
+                    </div>
+                  </div>
+                  <div slot="reference" class="detail-trigger">
+                    明细
+                  </div>
+                </el-popover>
+              </div>
+              <div class="buttons">
+                <el-button type="primary" @click="submitForm">提交</el-button>
+                <el-button @click="goBack">返回</el-button>
+              </div>
+            </div>
           </el-form-item>
         </el-col>
       </el-form>
@@ -344,17 +444,17 @@ import { queryUserList } from "@/api/system/user"
 // 2. 导入获取执行小时选项的API
 import { getExecuteHourOptions } from "@/api/promotion/executeHour"
 // 3. 导入应用列表API
-import { listApp, getSimpleAppList  } from "@/api/appkeyword/app"
+import { listApp, getSimpleAppList } from "@/api/appkeyword/app"
 // 4. 导入订单API
 import { getPromotionOrder, updatePromotionOrder, createPromotionOrder } from "@/api/promotion/order"
 import { getToken } from '@/utils/auth'
 // 5. 导入国家选项的API
-import { getCountryOptions,getTime } from "@/api/promotion/country"
+import { getCountryOptions, getTime } from "@/api/promotion/country"
 
 export default {
   components: {},
   props: [],
-  dicts: ['execution_hours'],
+  dicts: ['execution_hours', 'unit_price'],
   data() {
     return {
       // 用户列表数据加载状态
@@ -367,12 +467,13 @@ export default {
       // 应用列表数据加载状态
       appListOptions: [],
       appListLoading: false,
-        // 用户下拉查询参数
+      // 用户下拉查询参数
       userQueryParams: {
         pageNum: 1,
         pageSize: 10,
         idOrName: null,
       },
+      currentTime: null,
       formData: {
         // API字段映射
         customerAppId: undefined,           // 应用ID
@@ -385,7 +486,8 @@ export default {
         executionHour: undefined,  // 可执行小时
         communicateNumber: '',     // 联系方式号码
         communicateType: 1,        // 联系方式类型
-        
+        orderPrice: 0.00,             // 订单价格
+
         // 内部使用字段（用于日期范围选择器）
         orderDate: null,
       },
@@ -464,6 +566,14 @@ export default {
         "label": "Google Play",
         "value": 2
       }],
+      storeTypeOptions1: [{
+        "label": "AppStore",
+        "value": 1
+      }],
+      storeTypeOptions2: [{
+        "label": "Google Play",
+        "value": 2
+      }],
       countryOptions: [
         { label: "美国", value: "us" },
         { label: "中国", value: "cn" },
@@ -510,7 +620,151 @@ export default {
         return diffDays
       }
       return 1 // 默认返回1
-    }
+    },
+    getUnitPriceByType() {
+      // Access the dictionary data
+      const dictData = this.dict.type.unit_price || [];
+      // alert(dictData);
+      // Return a function that accepts orderType parameter
+      return (orderType) => {
+        if (!dictData.length) return 0;
+
+        // Find the matching dictionary entry
+        const dictEntry = dictData.find(item =>
+          item.label === orderType.toString()
+        );
+
+        // Return the price value or 0 if not found
+        return dictEntry ? parseFloat(dictEntry.value) || 0 : 0;
+      };
+    },
+    // 计算总金额
+    totalAmount() {
+      // 这里只是一个示例计算逻辑，你需要根据实际业务需求调整
+      let total = 0;
+      const unitPrice = this.getUnitPriceByType(this.formData.orderType);
+      // 根据不同的订单类型计算总金额
+      if (this.formData.orderType === 1) {
+
+        // 关键词安装
+        this.formData.orderAreaKeywords.forEach(areaConfig => {
+          if (areaConfig.keywordList) {
+            areaConfig.keywordList.forEach(keyword => {
+              if (keyword.count) {
+                // 示例：每个关键词每天1元
+                total += parseInt(keyword.count) * unitPrice || 0;
+              }
+            });
+          }
+        });
+      } else if (this.formData.orderType === 2) {
+        // 下载量
+        this.formData.orderAreaKeywords.forEach(areaConfig => {
+          if (areaConfig.downloadCount) {
+            // 示例：每个下载量1元
+            total += parseInt(areaConfig.downloadCount) * unitPrice || 0;
+          }
+        });
+      } else if (this.formData.orderType === 3 || this.formData.orderType === 4) {
+        // 评分或评论
+        this.formData.orderAreaKeywords.forEach(areaConfig => {
+          if (areaConfig.star5Amount) {
+            // 示例：每个5星评分2元
+            total += (parseInt(areaConfig.star5Amount) || 0) * unitPrice;
+          }
+          if (areaConfig.star4Amount) {
+            // 示例：每个4星评分1.5元
+            total += (parseInt(areaConfig.star4Amount) || 0) * unitPrice;
+          }
+        });
+      } else if (this.formData.orderType === 5) {
+        // 关键词保排名
+        this.formData.orderAreaKeywords.forEach(areaConfig => {
+          if (areaConfig.keepRankList) {
+            areaConfig.keepRankList.forEach(rank => {
+              // 示例：每个保排名关键词5元
+              total += 500;
+            });
+          }
+        });
+      } else if (this.formData.orderType === 6) {
+        // 关键词覆盖服务
+        this.formData.orderAreaKeywords.forEach(areaConfig => {
+          if (areaConfig.coverList) {
+            areaConfig.coverList.forEach(cover => {
+              // 示例：每个覆盖关键词3元
+              total += 300;
+            });
+          }
+        });
+      }
+
+      // 乘以天数
+      if (this.formData.orderType !== 1) {
+        total *= this.orderDaysDiff;
+      }
+
+      // this.formData.orderPrice = total.toFixed(2);
+
+      return total.toFixed(2);
+    },
+    unitPrice() {
+      return this.getUnitPriceByType(this.formData.orderType);
+    },
+
+    dayQuantity() {
+      let total = 0;
+
+      // Calculate total quantity based on order type
+      if (this.formData.orderType === 1) {
+        // 关键词安装
+        this.formData.orderAreaKeywords.forEach(areaConfig => {
+          if (areaConfig.keywordList) {
+            areaConfig.keywordList.forEach(keyword => {
+              if (keyword.count) {
+                total += parseInt(keyword.count) || 0;
+              }
+            });
+          }
+        });
+      } else if (this.formData.orderType === 2) {
+        // 下载量
+        this.formData.orderAreaKeywords.forEach(areaConfig => {
+          if (areaConfig.downloadCount) {
+            total += parseInt(areaConfig.downloadCount) || 0;
+          }
+        });
+      } else if (this.formData.orderType === 3 || this.formData.orderType === 4) {
+        // 评分或评论
+        this.formData.orderAreaKeywords.forEach(areaConfig => {
+          if (areaConfig.star5Amount) {
+            total += parseInt(areaConfig.star5Amount) || 0;
+          }
+          if (areaConfig.star4Amount) {
+            total += parseInt(areaConfig.star4Amount) || 0;
+          }
+        });
+      } else if (this.formData.orderType === 5) {
+        // 关键词保排名
+        this.formData.orderAreaKeywords.forEach(areaConfig => {
+          if (areaConfig.keepRankList) {
+            total += areaConfig.keepRankList.length || 0;
+          }
+        });
+      } else if (this.formData.orderType === 6) {
+        // 关键词覆盖服务
+        this.formData.orderAreaKeywords.forEach(areaConfig => {
+          if (areaConfig.coverList) {
+            total += areaConfig.coverList.length || 0;
+          }
+        });
+      }
+
+      return total;
+    },
+    totalQuantity() { 
+      return this.dayQuantity * this.orderDaysDiff
+    },
   },
   watch: {
     // 监听订单类型变化，重新初始化地区配置
@@ -533,11 +787,14 @@ export default {
     this.loadExecuteHourOptions()
     // 加载应用列表数据
     this.loadAppListOptions()
-    
+
     // 加载国家选项数据
     this.loadCountryOptions()
   },
-  mounted() {},
+  mounted() {
+    this.fetchSystemTime();
+    this.timer = setInterval(this.fetchSystemTime, 5000);
+  },
   methods: {
     initFirstAreaConfig() {
       if (this.formData.orderAreaKeywords.length === 0) {
@@ -600,7 +857,7 @@ export default {
       requestPromise.then(response => {
         console.log('订单详情响应:', response)
         const orderData = response.data || response
-        
+
         // 将API数据映射到表单数据
         const detailData = {
           id: orderData.id,
@@ -613,6 +870,7 @@ export default {
           communicateNumber: orderData.communicateNumber || '',
           communicateType: orderData.communicateType || 1,
           orderDate: orderData.orderType == 1 ? orderData.beginDate : [orderData.beginDate, orderData.endDate],
+          orderPrice: orderData.orderPrice,
         }
 
         // 根据订单类型处理地区配置数据
@@ -625,52 +883,64 @@ export default {
         })()
 
         const orderAreaKeywords = areaSource.map(areaConfig => {
-            if (orderData.orderType === 1) {
-              // 关键词安装类型
-              return {
-                area: areaConfig.area,
-                keywordList: areaConfig.keywordList || []
-              }
-            } else if (orderData.orderType === 2) {
-              // 下载量类型
-              return {
-                area: areaConfig.area,
-                downloadCount: areaConfig.downloadAmount ?? areaConfig.downloadCount ?? 0
-              }
-            } else if (orderData.orderType === 3 || orderData.orderType === 4) {
-              // 评分&评论类型（均使用star5/star4字段）
-              return {
-                area: areaConfig.area,
-                star5Amount: areaConfig.star5Amount ?? '',
-                star4Amount: areaConfig.star4Amount ?? ''
-              }
-            } else if (orderData.orderType === 5) {
-              // 关键词保排名
-              return {
-                area: areaConfig.area,
-                keepRankList: areaConfig.keywordRankList || areaConfig.keepRankList || []
-              }
-            } else if (orderData.orderType === 6) {
-              // 关键词覆盖服务
-              return {
-                area: areaConfig.area,
-                coverList: areaConfig.keywordRankList || areaConfig.coverList || []
-              }
+          if (orderData.orderType === 1) {
+            // 关键词安装类型
+            return {
+              area: areaConfig.area,
+              keywordList: areaConfig.keywordList || []
             }
-            return areaConfig
+          } else if (orderData.orderType === 2) {
+            // 下载量类型
+            return {
+              area: areaConfig.area,
+              downloadCount: areaConfig.downloadAmount ?? areaConfig.downloadCount ?? 0
+            }
+          } else if (orderData.orderType === 3 || orderData.orderType === 4) {
+            // 评分&评论类型（均使用star5/star4字段）
+            return {
+              area: areaConfig.area,
+              star5Amount: areaConfig.star5Amount ?? '',
+              star4Amount: areaConfig.star4Amount ?? ''
+            }
+          } else if (orderData.orderType === 5) {
+            // 关键词保排名
+            return {
+              area: areaConfig.area,
+              keepRankList: areaConfig.keywordRankList || areaConfig.keepRankList || []
+            }
+          } else if (orderData.orderType === 6) {
+            // 关键词覆盖服务
+            return {
+              area: areaConfig.area,
+              coverList: areaConfig.keywordRankList || areaConfig.coverList || []
+            }
+          }
+          return areaConfig
         })
 
         console.log('areaSource:', areaSource, 'orderData.orderType', orderData.orderType)
         Object.assign(this.formData, detailData)
-        this.initFirstAreaConfig();
-        
+        // this.initFirstAreaConfig();
+
         orderAreaKeywords.forEach((areaConfig, index) => {
           this.formData.orderAreaKeywords.push(areaConfig)
         })
+
       }).catch(error => {
         console.error('获取订单详情失败:', error)
         this.$message.error('获取订单详情失败')
       })
+    },
+    fetchSystemTime() {
+      try {
+        getTime().then(response => {
+          this.currentTime = response.msg;
+        });
+      } catch (error) {
+        console.error('Failed to fetch system time:', error);
+        // Fallback to client time if API fails
+        this.currentTime = new Date().toLocaleString();
+      }
     },
     downloadTemplate() {
       this.download('/normal/order/keyword/importTemplate', {}, '订单导入模板.xlsx')
@@ -745,7 +1015,7 @@ export default {
           });
 
           this.formData.orderAreaKeywords = merged;
-        } catch(err) {
+        } catch (err) {
           console.log(err)
         }
 
@@ -758,11 +1028,11 @@ export default {
     submitForm() {
       this.$refs['elForm'].validate(valid => {
         if (!valid) return
-        
+
         // 处理表单数据，转换为API需要的格式
         const submitData = this.processFormData()
         console.log('提交数据:', submitData)
-        
+
         // 调用更新订单API
         this.updateOrder(submitData)
       })
@@ -783,12 +1053,12 @@ export default {
           endDate = this.formData.orderDate[1]
         }
       }
-      
+
       // 处理地区配置数据，根据订单类型构建不同的数据结构
       const areaData = this.formData.orderAreaKeywords.map(areaConfig => {
         // 过滤掉空的地区配置
         if (!areaConfig.area) return null
-        
+
         if (this.formData.orderType === 1) {
           // 关键词安装类型 - orderAreaKeywords
           const keywordList = areaConfig.keywordList
@@ -797,7 +1067,7 @@ export default {
               keyword: keyword.keyword.trim(),
               count: parseInt(keyword.count) || 0
             }))
-          
+
           return {
             area: areaConfig.area,
             keywordList: keywordList
@@ -830,7 +1100,7 @@ export default {
               keyword: item.keyword.trim(),
               targetRank: parseInt(item.targetRank) || 1
             }))
-          
+
           return {
             area: areaConfig.area,
             keywordRankList: keywordRankList
@@ -842,13 +1112,13 @@ export default {
             .map(item => ({
               keyword: item.keyword.trim()
             }))
-          
+
           return {
             area: areaConfig.area,
             keywordRankList: keywordRankList
           }
         }
-        
+
         return null
       }).filter(item => {
         if (item === null) return false
@@ -867,7 +1137,7 @@ export default {
         }
         return false
       })
-      
+
       // 构建API数据格式
       const apiData = {
         customerAppId: this.formData.customerAppId,
@@ -877,7 +1147,7 @@ export default {
         storeType: this.formData.storeType,
         executionHour: this.formData.executionHour
       }
-      
+
       // 根据订单类型添加对应的数据字段
       if (this.formData.orderType === 1) {
         apiData.orderAreaKeywords = areaData
@@ -890,7 +1160,7 @@ export default {
       } else if (this.formData.orderType === 5 || this.formData.orderType === 6) {
         apiData.orderKeywordRanks = areaData
       }
-      
+
       // 如果是关键词保排名，添加联系方式字段
       if (this.formData.orderType === 5 || this.formData.orderType === 6) {
         apiData.communicateNumber = this.formData.communicateNumber
@@ -898,14 +1168,14 @@ export default {
       }
 
       apiData.id = this.formData.id
-      
+
       return apiData
     },
     // 更新订单
     updateOrder(data) {
       const { isReOrder } = this.$route.query;
 
-      this.$confirm('确认保存订单吗？', '提示', {
+      this.$confirm('确认提交订单吗？', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
@@ -913,28 +1183,28 @@ export default {
         // 显示加载状态
         const loading = this.$loading({
           lock: true,
-          text: '正在保存订单...',
+          text: '正在提交订单...',
           spinner: 'el-icon-loading',
           background: 'rgba(0, 0, 0, 0.7)'
         })
 
         const updateOrReOrder = isReOrder ? createPromotionOrder : updatePromotionOrder;
-        
+
         if (isReOrder) {
           delete data.id;
         }
 
         updateOrReOrder(data).then(response => {
           loading.close()
-          this.$message.success('订单保存成功！')
-          console.log('订单保存响应:', response)
-          
+          this.$message.success('订单提交成功！')
+          console.log('订单提交响应:', response)
+
           // 保存成功后跳转回列表页面
           this.$router.go(-1)
         }).catch(error => {
           loading.close()
-          console.error('订单保存失败:', error)
-          this.$message.error('订单保存失败，请重试')
+          console.error('订单提交失败:', error)
+          this.$message.error('订单提交失败，请重试')
         })
       }).catch(() => {
         // 用户取消操作
@@ -949,13 +1219,13 @@ export default {
       // 重新初始化第一个地区配置
       this.formData.orderAreaKeywords = []
     },
-        handleUserSearch(query) {
+    handleUserSearch(query) {
       // console.log('用户搜索...',query);
       // 清除之前的定时器
       if (this.searchTimer) {
         clearTimeout(this.searchTimer);
       }
-      
+
       // 设置防抖，300毫秒后执行搜索
       this.searchTimer = setTimeout(() => {
         this.loadUserListOptions(query);
@@ -965,7 +1235,7 @@ export default {
     loadUserListOptions(inputParam) {
       // console.log('加载用户列表选项...',inputParam);
       this.userListLoading = true;
-      
+
       // 构建查询参数，根据是否有输入值决定传参
       const queryParams = {};
       if (inputParam) {
@@ -974,7 +1244,7 @@ export default {
         queryParams.pageNum = 1;
         queryParams.pageSize = 100; // 一次获取足够多的选项
       }
-      
+
       // 调用用户列表API
       queryUserList(queryParams).then(response => {
         // console.log('用户列表参数:', queryParams);
@@ -1000,9 +1270,7 @@ export default {
           area: '',
           keywordList: [{
             keyword: '',
-            count: '',
-            totalQuantity: 0,
-            ranking: '-'
+            count: ''
           }]
         });
       } else if (this.formData.orderType === 2) {
@@ -1067,7 +1335,7 @@ export default {
           totalQuantity: row.totalQuantity,
           ranking: row.ranking
         });
-        
+
         // 清空第一行的输入内容，保持第一行作为输入项
         row.keyword = '';
         row.count = '';
@@ -1084,7 +1352,7 @@ export default {
           keyword: row.keyword,
           targetRank: row.targetRank || 'top1'
         });
-        
+
         // 清空第一行的输入内容，保持第一行作为输入项
         row.keyword = '';
         row.targetRank = 'top1';
@@ -1099,7 +1367,7 @@ export default {
           keyword: row.keyword,
           currentRank: row.currentRank || '-'
         });
-        
+
         // 清空第一行的输入内容，保持第一行作为输入项
         row.keyword = '';
         row.currentRank = '-';
@@ -1122,25 +1390,25 @@ export default {
     // 加载执行小时选项
     loadExecuteHourOptions() {
       this.executeHourLoading = true;
-      
+
       getExecuteHourOptions().then(response => {
         console.log('执行小时选项响应:', response);
         // 假设服务端返回的数据格式为 { data: [{ value: '09:00', label: '09:00' }, ...] }
         const hours = response?.data || response?.rows || [];
         this.executeHourOptions = hours.map(hour => ({
           label: hour.dictLabel,
-          value: hour.dictValue
+          value: parseInt(hour.dictValue)
         }));
       }).catch(error => {
         console.error('获取执行小时选项失败:', error);
         this.executeHourOptions = [];
         // 如果API调用失败，提供默认选项
         this.executeHourOptions = [
-        { label: '1 hour', value: 1 },
-        { label: '2 hours', value: 2 },
-        { label: '3 hours', value: 3 },
-        { label: '4 hours', value: 4 },
-      ];
+          { label: '1 hour', value: 1 },
+          { label: '2 hours', value: 2 },
+          { label: '3 hours', value: 3 },
+          { label: '4 hours', value: 4 },
+        ];
       }).finally(() => {
         this.executeHourLoading = false;
       });
@@ -1185,5 +1453,235 @@ export default {
 }
 
 </script>
-<style>
+<style scoped>
+.page-container {
+  margin: 20px;
+}
+
+.form-footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  width: 100%;
+  padding: 15px 0;
+}
+
+.total-amount {
+  font-size: 16px;
+  font-weight: bold;
+  margin-right: 20px;
+}
+
+.total-amount .amount {
+  color: #ff4949;
+  font-size: 18px;
+}
+
+.buttons {
+  display: flex;
+  gap: 10px;
+  margin-right: 50px;
+}
+
+/* Reduce spacing between form items */
+.el-form-item {
+  margin-bottom: 15px;
+}
+
+/* Compact table layouts */
+.el-table {
+  font-size: 13px;
+}
+
+/* Reduce table row height - corrected */
+.el-table .el-table__row td {
+  padding: 2px 0 !important;
+  height: 25px !important;
+}
+
+/* For area configuration tables specifically */
+.area-config-table .el-table__row td {
+  padding: 1px 0 !important;
+  height: 22px !important;
+}
+
+.area-config-table .el-table__row th {
+  padding: 1px 0 !important;
+  height: 22px !important;
+}
+
+/* Compact input fields in tables */
+.area-config-table .el-input__inner {
+  height: 22px !important;
+  line-height: 22px !important;
+  padding: 0 6px !important;
+}
+
+/* Compact buttons in tables */
+.area-config-table .el-button--text {
+  padding: 2px 6px !important;
+  font-size: 12px !important;
+}
+
+/* Reduce table header height */
+.el-table th {
+  padding: 2px 0 !important;
+  height: 25px !important;
+}
+
+/* For the area configuration tables specifically */
+.area-config-table th {
+  padding: 1px 0 !important;
+  height: 22px !important;
+  font-size: 12px !important;
+}
+
+/* Reduce font size in table cells */
+.area-config-table td {
+  font-size: 12px !important;
+}
+
+/* Reduce padding in table header cells */
+.el-table th .cell {
+  padding: 0 5px !important;
+  white-space: nowrap;
+}
+
+/* Compact table header for area configurations */
+.area-config-table th .cell {
+  padding: 0 3px !important;
+  font-weight: 500;
+}
+
+/* Reduce spacing in area configuration sections */
+.area-config-section {
+  margin-bottom: 12px;
+  border: 1px solid #dcdfe6;
+  padding: 8px;
+  border-radius: 4px;
+}
+
+/* Compact area configuration tables */
+.area-config-table {
+  font-size: 12px;
+  margin-top: 5px;
+}
+
+/* Compact form items within area configurations */
+.area-config-section .el-form-item {
+  margin-bottom: 8px;
+}
+
+/* Adjust button spacing */
+.el-button--small {
+  padding: 7px 12px;
+}
+
+/* Reduce divider margin */
+.el-divider--horizontal {
+  margin: 10px 0;
+}
+
+/* Optimize keyword list table */
+.keyword-table {
+  margin-top: 8px;
+}
+
+/* Compact form item labels */
+.el-form-item__label {
+  padding-bottom: 0;
+}
+
+/* Reduce spacing in form footer */
+.form-footer {
+  padding: 12px 0;
+}
+
+/* Adjust upload button spacing */
+.el-upload {
+  margin-left: 8px;
+}
+
+/* Reduce margin for action buttons */
+.el-button[type="danger"] {
+  margin-left: 5px;
+}
+
+/* Compact select and input fields */
+.el-select .el-input__inner,
+.el-input .el-input__inner {
+  height: 32px;
+  line-height: 32px;
+}
+
+/* Reduce margin for form rows */
+.el-row {
+  margin-bottom: 10px;
+}
+
+/* Override auto-generated styles with more specific selectors */
+.el-table.el-table--medium td.el-table__cell,
+.el-table.el-table--medium th.el-table__cell {
+  padding: 2px 0 !important;
+}
+
+.area-config-table.el-table--medium td.el-table__cell,
+.area-config-table.el-table--medium th.el-table__cell {
+  padding: 1px 0 !important;
+}
+
+/* Adjust table column padding */
+.el-table .cell {
+  padding: 0 5px !important;
+}
+
+/* Compact action buttons */
+.el-button--small {
+  padding: 6px 10px;
+}
+
+/* Detail popover styles */
+.detail-popover {
+  position: relative;
+}
+
+.detail-trigger {
+  cursor: pointer;
+  border-bottom: 1px dashed #409EFF;
+  display: inline-block;
+}
+
+.detail-trigger:hover {
+  color: #409EFF;
+}
+
+/* Popover content styling */
+.el-popover {
+  padding: 12px !important;
+}
+
+.popover-content {
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.popover-content .item {
+  margin-bottom: 8px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.popover-content .item:last-child { 
+  margin-bottom: 0;
+}
+
+.popover-content .label {
+  font-weight: bold;
+  color: #606266;
+}
+
+.popover-content .value {
+  color: #333;
+  text-align: right;
+}
 </style>

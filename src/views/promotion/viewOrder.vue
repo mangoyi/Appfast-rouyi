@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="page-container">
     <el-form ref="elForm" :model="formData" size="medium" label-width="300px">
       <el-form-item label-width="100px" label="订单类型">
         <span>{{ orderTypeLabel }}</span>
@@ -39,22 +39,22 @@
         <el-col :span="24">
           <!-- 关键词安装 -->
           <el-form-item label="地区关键字配置" v-if="formData.orderType == 1">
-            <div v-for="(areaConfig, areaIndex) in formData.orderAreaKeywords" :key="areaIndex" style="margin-bottom: 20px; border: 1px solid #dcdfe6; padding: 15px; border-radius: 4px;">
-              <el-row :gutter="15">
-                <el-col :span="6">
+            <div v-for="(areaConfig, areaIndex) in formData.orderAreaKeywords" :key="areaIndex" style="margin-bottom: 3px; border: 1px solid #dcdfe6; padding: 5px; border-radius: 4px;">
+              <el-row :gutter="5">
+                <el-col :span="2">
                   <el-form-item label="国家/地区">
                     <span>{{ getCountryLabel(areaConfig.area) }}</span>
                   </el-form-item>
                 </el-col>
               </el-row>
               
-              <el-table :data="areaConfig.keywordList" border style="width: 100%; margin-top: 10px;">
-                <el-table-column prop="keyword" label="关键词" width="200">
+              <el-table :data="areaConfig.keywordList" border style="width: 100%; margin-top: 1px;">
+                <el-table-column prop="keyword" label="关键词" width="200" heiht="30">
                   <template slot-scope="scope">
                     <span>{{ scope.row.keyword }}</span>
                   </template>
                 </el-table-column>
-                <el-table-column prop="count" label="每日数量" width="150">
+                <el-table-column prop="count" label="每日数量" width="150" heiht="30">
                   <template slot-scope="scope">
                     <span>{{ scope.row.count }}</span>
                   </template>
@@ -65,8 +65,8 @@
            <!-- 下载量 -->
            <el-form-item label="地区下载量配置" v-if="formData.orderType == 2">
              <div v-for="(areaConfig, areaIndex) in formData.orderAreaDownloads" :key="areaIndex" style="margin-bottom: 20px; border: 1px solid #dcdfe6; padding: 15px; border-radius: 4px;">
-               <el-row :gutter="15">
-                 <el-col :span="6">
+               <el-row :gutter="10">
+                 <el-col :span="3">
                    <el-form-item label="国家/地区">
                      <span>{{ getCountryLabel(areaConfig.area) }}</span>
                    </el-form-item>
@@ -337,7 +337,8 @@ export default {
     },
     // 执行小时标签
     executionHourLabel() {
-      return this.formData.executionHour || '未设置'
+      const sufixHour =  this.formData.executionHour === 1 ? ' hour' : ' hours'
+      return this.formData.executionHour  + sufixHour|| '未设置'
     }
   },
   created() {
@@ -566,5 +567,241 @@ export default {
 }
 
 </script>
-<style>
+<style scoped>
+.page-container {
+  margin: 20px;
+}
+
+.form-footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  width: 100%;
+  padding: 15px 0;
+}
+
+.total-amount {
+  font-size: 16px;
+  font-weight: bold;
+  margin-right: 20px;
+}
+
+.total-amount .amount {
+  color: #ff4949;
+  font-size: 18px;
+}
+
+.buttons {
+  display: flex;
+  gap: 10px;
+  margin-right: 50px;
+}
+
+/* Reduce spacing between form items */
+.el-form-item {
+  margin-bottom: 15px;
+}
+
+/* Compact table layouts */
+.el-table {
+  font-size: 13px;
+}
+
+/* Reduce table row height - corrected */
+.el-table .el-table__row td {
+  padding: 2px 0 !important;
+  height: 25px !important;
+}
+
+/* For area configuration tables specifically */
+.area-config-table .el-table__row td {
+  padding: 1px 0 !important;
+  height: 22px !important;
+}
+
+.area-config-table .el-table__row th {
+  padding: 1px 0 !important;
+  height: 22px !important;
+}
+
+/* Compact input fields in tables */
+.area-config-table .el-input__inner {
+  height: 22px !important;
+  line-height: 22px !important;
+  padding: 0 6px !important;
+}
+
+/* Compact buttons in tables */
+.area-config-table .el-button--text {
+  padding: 2px 6px !important;
+  font-size: 12px !important;
+}
+
+/* Reduce table header height */
+.el-table th {
+  padding: 2px 0 !important;
+  height: 25px !important;
+}
+
+/* For the area configuration tables specifically */
+.area-config-table th {
+  padding: 1px 0 !important;
+  height: 22px !important;
+  font-size: 12px !important;
+}
+
+/* Reduce font size in table cells */
+.area-config-table td {
+  font-size: 12px !important;
+}
+
+/* Reduce padding in table header cells */
+.el-table th .cell {
+  padding: 0 5px !important;
+  white-space: nowrap;
+}
+
+/* Compact table header for area configurations */
+.area-config-table th .cell {
+  padding: 0 3px !important;
+  font-weight: 500;
+}
+
+/* Override specific table header with multiple classes */
+.el-table_1_column_1.is-leaf.el-table__cell {
+  padding: 1px 0 !important;
+  height: 22px !important;
+  font-size: 12px !important;
+}
+
+/* More specific targeting for the cell content */
+.el-table_1_column_1.is-leaf.el-table__cell .cell {
+  padding: 0 3px !important;
+  line-height: 22px !important;
+}
+
+/* Target other specific column classes as well */
+.el-table_1_column_2.is-leaf.el-table__cell,
+.el-table_1_column_3.is-leaf.el-table__cell {
+  padding: 1px 0 !important;
+  height: 22px !important;
+  font-size: 12px !important;
+}
+
+.el-table_1_column_2.is-leaf.el-table__cell .cell,
+.el-table_1_column_3.is-leaf.el-table__cell .cell {
+  padding: 0 3px !important;
+  line-height: 22px !important;
+}
+
+/* Reduce spacing in area configuration sections */
+.area-config-section {
+  margin-bottom: 12px;
+  border: 1px solid #dcdfe6;
+  padding: 8px;
+  border-radius: 4px;
+}
+
+/* Compact area configuration tables */
+.area-config-table {
+  font-size: 12px;
+  margin-top: 5px;
+}
+
+/* Compact form items within area configurations */
+.area-config-section .el-form-item {
+  margin-bottom: 8px;
+}
+
+/* Adjust button spacing */
+.el-button--small {
+  padding: 7px 12px;
+}
+
+/* Reduce divider margin */
+.el-divider--horizontal {
+  margin: 10px 0;
+}
+
+/* Optimize keyword list table */
+.keyword-table {
+  margin-top: 8px;
+}
+
+/* Compact form item labels */
+.el-form-item__label {
+  padding-bottom: 0;
+}
+
+/* Reduce spacing in form footer */
+.form-footer {
+  padding: 12px 0;
+}
+
+/* Adjust upload button spacing */
+.el-upload {
+  margin-left: 8px;
+}
+
+/* Reduce margin for action buttons */
+.el-button[type="danger"] {
+  margin-left: 5px;
+}
+
+/* Compact select and input fields */
+.el-select .el-input__inner,
+.el-input .el-input__inner {
+  height: 32px;
+  line-height: 32px;
+}
+
+/* Reduce margin for form rows */
+.el-row {
+  margin-bottom: 10px;
+}
+
+/* Override auto-generated styles with more specific selectors */
+.el-table.el-table--medium td.el-table__cell,
+.el-table.el-table--medium th.el-table__cell {
+  padding: 2px 0 !important;
+}
+
+.area-config-table.el-table--medium td.el-table__cell,
+.area-config-table.el-table--medium th.el-table__cell {
+  padding: 1px 0 !important;
+}
+
+/* Adjust table column padding */
+.el-table .cell {
+  padding: 0 5px !important;
+}
+
+/* Compact action buttons */
+.el-button--small {
+  padding: 6px 10px;
+}
+
+/* Add this to your style section */
+.el-table.el-table--medium .el-table__cell {
+  padding: 2px 0 !important;
+  height: 25px !important;
+}
+
+.area-config-table.el-table--medium .el-table__cell {
+  padding: 1px 0 !important;
+  height: 22px !important;
+}
+
+.el-row {
+  height: 20px;
+}
+
+.el-col-2 {
+  height: 30px;
+}
+
+.el-table--medium.el-table__cell {
+  padding: 5px 0 !important;
+  height: 25px !important;
+}
 </style>
