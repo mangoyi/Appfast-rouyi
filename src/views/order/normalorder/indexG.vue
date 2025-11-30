@@ -488,6 +488,9 @@ export default {
       // 跳转到编辑页面
       this.$router.push(`/promotion/editOrder/${row.id}`)
     },
+    handleReOrder(row) {
+      this.$router.push(`/promotion/editOrder/${row.id}?isReOrder=1`)
+    },
     /** 修改按钮操作 */
     handleUpdate(row) {
       this.reset()

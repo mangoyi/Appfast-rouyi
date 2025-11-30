@@ -38,7 +38,7 @@
         </el-col>
         <el-col :span="24">
           <!-- 关键词安装 -->
-          <el-form-item label="地区关键字配置" v-if="formData.orderType == 1">
+          <el-form-item label="地区关键词" v-if="formData.orderType == 1">
             <div v-for="(areaConfig, areaIndex) in formData.orderAreaKeywords" :key="areaIndex" style="margin-bottom: 3px; border: 1px solid #dcdfe6; padding: 5px; border-radius: 4px;">
               <el-row :gutter="5">
                 <el-col :span="2">
@@ -63,7 +63,7 @@
             </div>
           </el-form-item>
            <!-- 下载量 -->
-           <el-form-item label="地区下载量配置" v-if="formData.orderType == 2">
+           <el-form-item label="地区下载量" v-if="formData.orderType == 2">
              <div v-for="(areaConfig, areaIndex) in formData.orderAreaDownloads" :key="areaIndex" style="margin-bottom: 20px; border: 1px solid #dcdfe6; padding: 15px; border-radius: 4px;">
                <el-row :gutter="10">
                  <el-col :span="3">
@@ -80,7 +80,7 @@
              </div>
            </el-form-item>
           <!-- 评分 --> 
-          <el-form-item label="地区评分配置" v-if="formData.orderType == 3">
+          <el-form-item label="地区评分" v-if="formData.orderType == 3">
             <div v-for="(areaConfig, areaIndex) in formData.orderAreaScores" :key="areaIndex" style="margin-bottom: 20px; border: 1px solid #dcdfe6; padding: 15px; border-radius: 4px;">
               <el-row :gutter="24">
                 <el-col :span="6">
@@ -104,7 +104,7 @@
             </div>
           </el-form-item>
           <!-- 评论 -->
-          <el-form-item label="地区评论配置" v-if="formData.orderType == 4">
+          <el-form-item label="地区评论" v-if="formData.orderType == 4">
             <div v-for="(areaConfig, areaIndex) in formData.orderAreaScores" :key="areaIndex" style="margin-bottom: 20px; border: 1px solid #dcdfe6; padding: 15px; border-radius: 4px;">
               <el-row :gutter="24">
                 <el-col :span="6">
@@ -133,7 +133,7 @@
             </div>
           </el-form-item>
            <!-- 关键词保排名 -->
-           <el-form-item label="关键词保排名配置" v-if="formData.orderType == 5">             
+           <el-form-item label="关键词保排名服务" v-if="formData.orderType == 5">             
              <div v-for="(areaConfig, areaIndex) in formData.orderKeywordRanks" :key="areaIndex" style="margin-bottom: 20px; border: 1px solid #dcdfe6; padding: 15px; border-radius: 4px;">
                <el-row :gutter="24">
                  <el-col :span="6">
@@ -158,7 +158,7 @@
              </div>
            </el-form-item>
            <!-- 关键词覆盖服务 -->
-           <el-form-item label="关键词覆盖服务配置" v-if="formData.orderType == 6">
+           <el-form-item label="关键词覆盖服务" v-if="formData.orderType == 6">
              <div v-for="(areaConfig, areaIndex) in formData.orderKeywordRanks" :key="areaIndex" style="margin-bottom: 20px; border: 1px solid #dcdfe6; padding: 15px; border-radius: 4px;">
                <el-row :gutter="24">
                  <el-col :span="6">

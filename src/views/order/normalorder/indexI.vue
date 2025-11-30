@@ -488,6 +488,9 @@ export default {
       // 跳转到编辑页面
       this.$router.push(`/promotion/editOrder/${row.id}`)
     },
+    handleReOrder(row) {
+      this.$router.push(`/promotion/editOrder/${row.id}?isReOrder=1`)
+    },
     /** 修改按钮操作 */
     handleUpdate(row) {
       this.reset()
@@ -495,7 +498,7 @@ export default {
       getOrder(id).then(response => {
         this.form = response.data
         this.open = true
-        this.title = "修改客户普通订单记录"
+        this.title = "修改订单记录"
       })
     },
     /** 提交按钮 */
