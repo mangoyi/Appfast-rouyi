@@ -1036,7 +1036,7 @@ export default {
         orderType: this.formData.orderType,
         storeType: this.formData.storeType,
         executionHour: this.formData.executionHour,
-        orderPrice: totalAmount()
+        orderPrice: this.totalAmount
       }
 
       // 根据订单类型添加对应的数据字段
