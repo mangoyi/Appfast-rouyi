@@ -628,11 +628,11 @@ export default {
 
         // Find the matching dictionary entry
         const dictEntry = dictData.find(item =>
-          item.label === orderType.toString()
+          item.value === orderType.toString()
         );
 
         // Return the price value or 0 if not found
-        return dictEntry ? parseFloat(dictEntry.value) || 0 : 0;
+        return dictEntry ? parseFloat(dictEntry.label) || 0 : 0;
       };
     },
     // 计算总金额
