@@ -41,7 +41,7 @@
           <el-form-item label="订单时间" prop="orderDate">
             <template v-if="formData.orderType == 1">
               <el-date-picker type="date" v-model="formData.orderDate" format="yyyy-MM-dd" value-format="yyyy-MM-dd"
-                :style="{ width: '30%' }" placeholder="请选择日期" clearable></el-date-picker>
+                :style="{ width: '15%' }" placeholder="请选择日期" clearable></el-date-picker>
             </template>
             <template v-else>
               <el-date-picker type="daterange" v-model="formData.orderDate" format="yyyy-MM-dd"
@@ -198,14 +198,14 @@
                 <el-col :span="8">
                   <el-form-item label="5星评分">
                     <el-input v-model="areaConfig.star5Amount" placeholder="评分数" style="width: 150px"></el-input>
-                    <el-input :value="areaConfig.star5Amount * orderDaysDiff" placeholder="总分" style="width: 100px"
+                    <el-input :value="areaConfig.star5Amount * orderDaysDiff" placeholder="总数" style="width: 100px"
                       disabled></el-input>
                   </el-form-item>
                 </el-col>
                 <el-col :span="8">
                   <el-form-item label="4星评分">
                     <el-input v-model="areaConfig.star4Amount" placeholder="评分数" style="width: 150px"></el-input>
-                    <el-input :value="areaConfig.star4Amount * orderDaysDiff" placeholder="总分" style="width: 100px"
+                    <el-input :value="areaConfig.star4Amount * orderDaysDiff" placeholder="总数" style="width: 100px"
                       disabled></el-input>
                   </el-form-item>
                 </el-col>
@@ -242,16 +242,16 @@
               </el-row>
               <el-row :gutter="24">
                 <el-col :span="8">
-                  <el-form-item label="5星评分">
-                    <el-input v-model="areaConfig.star5Amount" placeholder="评分数" style="width: 150px"></el-input>
-                    <el-input :value="areaConfig.star5Amount * orderDaysDiff" placeholder="总分" style="width: 100px"
+                  <el-form-item label="5星评论">
+                    <el-input v-model="areaConfig.star5Amount" placeholder="评论数" style="width: 150px"></el-input>
+                    <el-input :value="areaConfig.star5Amount * orderDaysDiff" placeholder="总数" style="width: 100px"
                       disabled></el-input>
                   </el-form-item>
                 </el-col>
                 <el-col :span="8">
-                  <el-form-item label="4星评分">
-                    <el-input v-model="areaConfig.star4Amount" placeholder="评分数" style="width: 150px"></el-input>
-                    <el-input :value="areaConfig.star4Amount * orderDaysDiff" placeholder="总分" style="width: 100px"
+                  <el-form-item label="4星评论">
+                    <el-input v-model="areaConfig.star4Amount" placeholder="评论数" style="width: 150px"></el-input>
+                    <el-input :value="areaConfig.star4Amount * orderDaysDiff" placeholder="总数" style="width: 100px"
                       disabled></el-input>
                   </el-form-item>
                 </el-col>
