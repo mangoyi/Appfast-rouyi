@@ -112,20 +112,18 @@
                     <span>{{ getCountryLabel(areaConfig.area) }}</span>
                   </el-form-item>
                 </el-col>
-              </el-row>
-              <el-row :gutter="24">
-                <el-col :span="8">
+                <el-col :span="4">
                   <el-form-item label="5星评论">
                     <span>{{ areaConfig.star5Amount || 0 }}</span> 分
                   </el-form-item>
                 </el-col>
-                <el-col :span="8">
+                <el-col :span="4">
                   <el-form-item label="4星评论">
                     <span>{{ areaConfig.star4Amount || 0 }}</span> 分
                   </el-form-item>
                 </el-col>
-                <el-col :span="8">
-                  <el-form-item label="评论附件">
+                <el-col :span="4">
+                  <el-form-item label="评论附件" v-if="areaConfig.fileName">
                     <span>{{ areaConfig.fileName }}</span>
                   </el-form-item>
                 </el-col>

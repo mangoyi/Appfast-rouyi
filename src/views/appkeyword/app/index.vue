@@ -22,20 +22,29 @@
         />
       </el-form-item>
       <el-form-item label="商店" prop="storeType">
-        <el-select v-model="queryParams.storeType" placeholder="全部" clearable>
-          <el-option
-            v-for="dict in dict.type.store_type"
-            :key="dict.value"
-            :label="dict.label"
-            :value="dict.value"
-          >
-          <!-- 在选项文本前添加图标 -->
-          <span>
-            <img :src="getStoreIcon(dict.value)" style="width: 16px; height: 16px; margin-right: 8px;">
-            {{ dict.label }}
-          </span>
-          </el-option>
-        </el-select>
+        <el-select 
+            v-model="queryParams.storeType" 
+            placeholder="全部" 
+            clearable
+            :class="{'with-icon': queryParams.storeType}"
+            style="width: 220px">
+            <el-option
+              v-for="dict in dict.type.store_type"
+              :key="dict.value"
+              :value="dict.value"
+              :label="dict.label">
+              <span style="display: inline-flex; align-items: center;">
+                <img :src="getStoreIcon(dict.value)" style="width: 16px; height: 16px; margin-right: 8px;">
+                {{ dict.label }}
+              </span>
+            </el-option>
+            <template slot="prefix" v-if="queryParams.storeType">
+              <img 
+                :src="getStoreIcon(queryParams.storeType)" 
+                style="width: 16px; height: 16px; vertical-align: middle; margin-top: -3px;"
+              />
+            </template>
+          </el-select>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
@@ -208,29 +217,55 @@
             </el-select>
         </el-form-item>
         <el-form-item label="商店" prop="storeType">
-          <el-select v-model="form.storeType" placeholder="请选择" clearable>
+          <el-select 
+            v-model="form.storeType" 
+            placeholder="请选择" 
+            clearable
+            :class="{'with-icon': form.storeType}"
+            style="width: 220px">
             <el-option
               v-for="dict in dict.type.store_type"
               :key="dict.value"
               :value="dict.value"
-              :label="dict.label"
-            >
+              :label="dict.label">
               <span style="display: inline-flex; align-items: center;">
                 <img :src="getStoreIcon(dict.value)" style="width: 16px; height: 16px; margin-right: 8px;">
                 {{ dict.label }}
               </span>
             </el-option>
+            <template slot="prefix" v-if="form.storeType">
+              <img 
+                :src="getStoreIcon(form.storeType)" 
+                style="width: 16px; height: 16px; vertical-align: middle; margin-top: -3px;"
+              />
+            </template>
           </el-select>
         </el-form-item>
         <el-form-item label="地区" prop="area">
-         <el-select v-model="form.area" placeholder="area" filterable clearable style="width: 22    0px">
-            <el-option v-for="country in countryOptions" :key="country.value" :label="country.label" :value="country.value">
-                <span style="display: inline-flex; align-items: center;">
-                  <img :src="country.image" style="width: 16px; height: 16px; margin-right: 8px;">{{ country.label }}
-                </span>
-            </el-option>
-          </el-select>
-      </el-form-item>
+  <el-select 
+    v-model="form.area" 
+    placeholder="请选择" 
+    clearable
+    :class="{'with-icon': form.area}"
+    style="width: 220px">
+    <el-option
+      v-for="country in countryOptions"
+      :key="country.value"
+      :value="country.value"
+      :label="country.label">
+      <span style="display: inline-flex; align-items: center;">
+        <img :src="country.image" style="width: 16px; height: 16px; margin-right: 8px;">
+        {{ country.label }}
+      </span>
+    </el-option>
+    <template slot="prefix" v-if="form.area">
+      <img 
+        :src="getCountryIcon(form.area)" 
+        style="width: 16px; height: 16px; vertical-align: middle; margin-top: -3px;"
+      />
+    </template>
+  </el-select>
+</el-form-item>
         <el-form-item label="应用ID" prop="appId">
           <el-input v-model="form.appId" :placeholder="getAppIdPlaceholder()" />
           <el-button type="primary" icon="el-icon-search" @click="searchAppInfo" style="margin-left: 10px">搜索</el-button>
@@ -338,13 +373,14 @@ export default {
   },
   created() {
     this.getList()
-         // 组件创建时加载用户列表数据
+    // 组件创建时加载用户列表数据
     // 用户没有权限时，不执行获取用户列表数据
     if (auth.hasPermi('system:user:list')) {
     this.loadUserListOptions()
-       // 加载国家选项数据
-    this.loadCountryOptions()
     }
+
+    // 加载国家选项数据
+    this.loadCountryOptions()
   },
   methods: {
 
@@ -410,11 +446,18 @@ export default {
       }
       return iconMap[value] || 'el-icon-help'  // 默认图标
     },
+  
      // 获取商店类型对应的标签文本
     getStoreLabel(value) {
       const dict = this.dict.type.store_type.find(item => item.value === value);
       return dict ? dict.label : '';
     },
+      // 获取国家图标
+  getCountryIcon(code) {
+    // 根据国家代码查找对应的图标
+    const country = this.countryOptions.find(c => c.value === code);
+    return country ? country.image : null;
+  },
     /** 查询客户APP记录列表 */
     getList() {
       this.loading = true
@@ -625,5 +668,8 @@ export default {
 .create-order-btn:hover {
   transform: scale(1.1);
   background-color: lightblue;
+}
+.with-icon >>> .el-input__inner {
+  padding-left: 30px !important;
 }
 </style>

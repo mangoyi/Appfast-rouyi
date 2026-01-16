@@ -29,21 +29,40 @@
         </el-col>
         <el-col :span="24">
           <el-form-item label="应用" prop="customerAppId">
-            <el-select v-model="formData.customerAppId" filterable placeholder="请选择应用" :style="{ width: '30%' }"
-              :loading="appListLoading">
-              <el-option v-for="app in appListOptions" :key="app.value" :label="app.label"
-                :value="app.value"></el-option>
-            </el-select>
+            <el-select 
+            v-model="formData.customerAppId" 
+            placeholder="请选择应用" 
+            clearable
+            :loading="appListLoading"
+            :class="{'with-icon': formData.customerAppId}"
+            :style="{ width: '30%' }">
+            <el-option
+              v-for="app in appListOptions"
+              :key="app.value"
+              :value="app.value"
+              :label="app.label">
+              <span style="display: inline-flex; align-items: center;">
+                <img :src="app.image" style="width: 16px; height: 16px; margin-right: 8px;">
+                {{ app.label }}
+              </span>
+            </el-option>
+            <template slot="prefix" v-if="formData.customerAppId">
+              <img 
+                :src="getAppIcon(formData.customerAppId)" 
+                style="width: 16px; height: 16px; vertical-align: middle; margin-top: -3px;"
+              />
+            </template>
+          </el-select>
           </el-form-item>
         </el-col>
         <el-col :span="24">
           <el-form-item label="订单时间" prop="orderDate">
             <template v-if="formData.orderType == 1">
-              <el-date-picker type="date" v-model="formData.orderDate" format="yyyy-MM-dd" value-format="yyyy-MM-dd"
-                :style="{ width: '15%' }" placeholder="请选择日期" clearable></el-date-picker>
+              <el-date-picker :key="'date-single-' + formData.orderType" type="date" v-model="formData.orderDate" format="yyyy-MM-dd" value-format="yyyy-MM-dd"
+                :style="{ width: '15%' }" :picker-options="datePickerOptions" placeholder="请选择日期" clearable></el-date-picker>
             </template>
             <template v-else>
-              <el-date-picker type="daterange" v-model="formData.orderDate" format="yyyy-MM-dd"
+              <el-date-picker :key="'date-range-' + formData.orderType" type="daterange" v-model="formData.orderDate" :picker-options="datePickerOptions" format="yyyy-MM-dd"
                 value-format="yyyy-MM-dd" :style="{ width: '50%' }" start-placeholder="开始日期" end-placeholder="结束日期"
                 range-separator="至" clearable></el-date-picker>
             </template> <span style="margin-left: 30px; color: blue;">System Time (UCT+8) :<span id="currentTime"
@@ -85,16 +104,29 @@
               <el-row :gutter="15">
                 <el-col :span="6">
                   <el-form-item :label="`国家/地区`">
-                    <el-select v-model="areaConfig.area" placeholder="请选择国家/地区" filterable clearable
-                      style="width: 200px">
-                      <el-option v-for="country in countryOptions" :key="country.value" :label="country.label"
-                        :value="country.value">
-                        <span style="display: inline-flex; align-items: center;">
-                          <img :src="country.image" style="width: 16px; height: 16px; margin-right: 8px;">{{
-                            country.label }}
-                        </span>
-                      </el-option>
-                    </el-select>
+                     <el-select 
+                        v-model="areaConfig.area" 
+                        placeholder="请选择国家/地区" 
+                        clearable
+                        :class="{'with-icon': areaConfig.area}"
+                        style="width: 220px">
+                        <el-option
+                          v-for="country in countryOptions"
+                          :key="country.value"
+                          :value="country.value"
+                          :label="country.label">
+                          <span style="display: inline-flex; align-items: center;">
+                            <img :src="country.image" style="width: 16px; height: 16px; margin-right: 8px;">
+                            {{ country.label }}
+                          </span>
+                        </el-option>
+                        <template slot="prefix" v-if="areaConfig.area">
+                          <img 
+                            :src="getCountryIcon(areaConfig.area)" 
+                            style="width: 16px; height: 16px; vertical-align: middle; margin-top: -3px;"
+                          />
+                        </template>
+                      </el-select>
                   </el-form-item>
                 </el-col>
                 <el-col :span="2">
@@ -141,18 +173,31 @@
             <div v-for="(areaConfig, areaIndex) in formData.orderAreaKeywords" :key="areaIndex"
               style="margin-bottom: 20px; border: 1px solid #dcdfe6; padding: 15px; border-radius: 4px;">
               <el-row :gutter="15">
-                <el-col :span="6">
+                <el-col :span="7">
                   <el-form-item :label="`国家/地区`">
-                    <el-select v-model="areaConfig.area" placeholder="请选择国家/地区" filterable clearable
-                      style="width: 200px">
-                      <el-option v-for="country in countryOptions" :key="country.value" :label="country.label"
-                        :value="country.value">
-                        <span style="display: inline-flex; align-items: center;">
-                          <img :src="country.image" style="width: 16px; height: 16px; margin-right: 8px;">{{
-                            country.label }}
-                        </span>
-                      </el-option>
-                    </el-select>
+                     <el-select 
+                        v-model="areaConfig.area" 
+                        placeholder="请选择国家/地区" 
+                        clearable
+                        :class="{'with-icon': areaConfig.area}"
+                        style="width: 220px">
+                        <el-option
+                          v-for="country in countryOptions"
+                          :key="country.value"
+                          :value="country.value"
+                          :label="country.label">
+                          <span style="display: inline-flex; align-items: center;">
+                            <img :src="country.image" style="width: 16px; height: 16px; margin-right: 8px;">
+                            {{ country.label }}
+                          </span>
+                        </el-option>
+                        <template slot="prefix" v-if="areaConfig.area">
+                          <img 
+                            :src="getCountryIcon(areaConfig.area)" 
+                            style="width: 16px; height: 16px; vertical-align: middle; margin-top: -3px;"
+                          />
+                        </template>
+                      </el-select>
                   </el-form-item>
                 </el-col>
                 <el-col :span="6">
@@ -179,16 +224,29 @@
               <el-row :gutter="24">
                 <el-col :span="6">
                   <el-form-item :label="`国家/地区`">
-                    <el-select v-model="areaConfig.area" placeholder="请选择国家/地区" filterable clearable
-                      style="width: 200px">
-                      <el-option v-for="country in countryOptions" :key="country.value" :label="country.label"
-                        :value="country.value">
-                        <span style="display: inline-flex; align-items: center;">
-                          <img :src="country.image" style="width: 16px; height: 16px; margin-right: 8px;">{{
-                            country.label }}
-                        </span>
-                      </el-option>
-                    </el-select>
+                     <el-select 
+                        v-model="areaConfig.area" 
+                        placeholder="请选择国家/地区" 
+                        clearable
+                        :class="{'with-icon': areaConfig.area}"
+                        style="width: 220px">
+                        <el-option
+                          v-for="country in countryOptions"
+                          :key="country.value"
+                          :value="country.value"
+                          :label="country.label">
+                          <span style="display: inline-flex; align-items: center;">
+                            <img :src="country.image" style="width: 16px; height: 16px; margin-right: 8px;">
+                            {{ country.label }}
+                          </span>
+                        </el-option>
+                        <template slot="prefix" v-if="areaConfig.area">
+                          <img 
+                            :src="getCountryIcon(areaConfig.area)" 
+                            style="width: 16px; height: 16px; vertical-align: middle; margin-top: -3px;"
+                          />
+                        </template>
+                      </el-select>
                   </el-form-item>
                 </el-col>
                 <el-col :span="2">
@@ -226,16 +284,29 @@
               <el-row :gutter="24">
                 <el-col :span="6">
                   <el-form-item :label="`国家/地区`">
-                    <el-select v-model="areaConfig.area" placeholder="请选择国家/地区" filterable clearable
-                      style="width: 200px">
-                      <el-option v-for="country in countryOptions" :key="country.value" :label="country.label"
-                        :value="country.value">
-                        <span style="display: inline-flex; align-items: center;">
-                          <img :src="country.image" style="width: 16px; height: 16px; margin-right: 8px;">{{
-                            country.label }}
-                        </span>
-                      </el-option>
-                    </el-select>
+                     <el-select 
+                        v-model="areaConfig.area" 
+                        placeholder="请选择国家/地区" 
+                        clearable
+                        :class="{'with-icon': areaConfig.area}"
+                        style="width: 220px">
+                        <el-option
+                          v-for="country in countryOptions"
+                          :key="country.value"
+                          :value="country.value"
+                          :label="country.label">
+                          <span style="display: inline-flex; align-items: center;">
+                            <img :src="country.image" style="width: 16px; height: 16px; margin-right: 8px;">
+                            {{ country.label }}
+                          </span>
+                        </el-option>
+                        <template slot="prefix" v-if="areaConfig.area">
+                          <img 
+                            :src="getCountryIcon(areaConfig.area)" 
+                            style="width: 16px; height: 16px; vertical-align: middle; margin-top: -3px;"
+                          />
+                        </template>
+                      </el-select>
                   </el-form-item>
                 </el-col>
                 <el-col :span="2">
@@ -273,16 +344,29 @@
               <el-row :gutter="24">
                 <el-col :span="6">
                   <el-form-item :label="`国家/地区`">
-                    <el-select v-model="areaConfig.area" placeholder="请选择国家/地区" filterable clearable
-                      style="width: 200px">
-                      <el-option v-for="country in countryOptions" :key="country.value" :label="country.label"
-                        :value="country.value">
-                        <span style="display: inline-flex; align-items: center;">
-                          <img :src="country.image" style="width: 16px; height: 16px; margin-right: 8px;">{{
-                            country.label }}
-                        </span>
-                      </el-option>
-                    </el-select>
+                     <el-select 
+                        v-model="areaConfig.area" 
+                        placeholder="请选择国家/地区" 
+                        clearable
+                        :class="{'with-icon': areaConfig.area}"
+                        style="width: 220px">
+                        <el-option
+                          v-for="country in countryOptions"
+                          :key="country.value"
+                          :value="country.value"
+                          :label="country.label">
+                          <span style="display: inline-flex; align-items: center;">
+                            <img :src="country.image" style="width: 16px; height: 16px; margin-right: 8px;">
+                            {{ country.label }}
+                          </span>
+                        </el-option>
+                        <template slot="prefix" v-if="areaConfig.area">
+                          <img 
+                            :src="getCountryIcon(areaConfig.area)" 
+                            style="width: 16px; height: 16px; vertical-align: middle; margin-top: -3px;"
+                          />
+                        </template>
+                      </el-select>
                   </el-form-item>
                 </el-col>
                 <el-col :span="2">
@@ -328,15 +412,29 @@
               <el-row :gutter="24">
                 <el-col :span="6">
                   <el-form-item :label="`国家/地区`">
-                    <el-select v-model="areaConfig.area" placeholder="国家/地区" filterable clearable style="width: 200px">
-                      <el-option v-for="country in countryOptions" :key="country.value" :label="country.label"
-                        :value="country.value">
-                        <span style="display: inline-flex; align-items: center;">
-                          <img :src="country.image" style="width: 16px; height: 16px; margin-right: 8px;">{{
-                            country.label }}
-                        </span>
-                      </el-option>
-                    </el-select>
+                     <el-select 
+                        v-model="areaConfig.area" 
+                        placeholder="请选择国家/地区" 
+                        clearable
+                        :class="{'with-icon': areaConfig.area}"
+                        style="width: 220px">
+                        <el-option
+                          v-for="country in countryOptions"
+                          :key="country.value"
+                          :value="country.value"
+                          :label="country.label">
+                          <span style="display: inline-flex; align-items: center;">
+                            <img :src="country.image" style="width: 16px; height: 16px; margin-right: 8px;">
+                            {{ country.label }}
+                          </span>
+                        </el-option>
+                        <template slot="prefix" v-if="areaConfig.area">
+                          <img 
+                            :src="getCountryIcon(areaConfig.area)" 
+                            style="width: 16px; height: 16px; vertical-align: middle; margin-top: -3px;"
+                          />
+                        </template>
+                      </el-select>
                   </el-form-item>
                 </el-col>
                 <el-col :span="2">
@@ -600,6 +698,11 @@ export default {
       ],
       uploadUrl: process.env.VUE_APP_BASE_API + '/normal/order/import/keyword  ',
       uploadHeaders: { Authorization: 'Bearer ' + getToken() },
+      datePickerOptions: {
+        disabledDate(time) {
+          return time.getTime() < Date.now() - 86400000;
+        }
+      }
     }
   },
   computed: {
@@ -770,6 +873,16 @@ export default {
         this.formData.orderAreaKeywords = []
         // 重新初始化
         this.initFirstAreaConfig()
+        // 重置订单日期
+        this.formData.orderDate = null
+
+          // 延迟更新日期选择器，防止定位错误
+      this.$nextTick(() => {
+        // 强制刷新页面以修复日期选择器定位
+        if (this.$refs.elForm) {
+          this.$refs.elForm.clearValidate(['orderDate'])
+        }
+      })
       }
     },
     // 监听订单类型变化，重新初始化地区配置
@@ -834,6 +947,18 @@ export default {
     },
     downloadTemplate() {
       this.download('/normal/order/keyword/importTemplate', {}, '订单导入模板.xlsx')
+    },
+    // 获取国家图标
+    getCountryIcon(code) {
+      // 根据国家代码查找对应的图标
+      const country = this.countryOptions.find(c => c.value === code);
+      return country ? country.image : null;
+    },
+      // 获取app图标
+    getAppIcon(id) {
+      // 根据国家代码查找对应的图标
+      const app = this.appListOptions.find(c => c.id === id);
+      return app ? app.image : null;
     },
     handleImportSuccess(response) {
       // 如需刷新数据/回显，可在此处追加逻辑
@@ -1365,8 +1490,10 @@ export default {
         console.log('应用列表响应:', response);
         const apps = response.rows || response.data || [];
         this.appListOptions = apps.map(app => ({
+          id: app.customerAppId,
           label: app.appName || app.name || app.customerAppId,
-          value: app.customerAppId
+          value: app.customerAppId,
+          image: app.iconImage
         }));
       }).catch(error => {
         console.error('获取应用列表失败:', error);
