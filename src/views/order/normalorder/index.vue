@@ -481,12 +481,13 @@ export default {
         const userApps = response.rows || response.data || [];
         // 转换为select组件需要的格式
         this.userAppListOptions = userApps.map(app => ({
-          label: app.appName + " " + app.customerAppId,
+          label: app.appName,
           value: app.customerAppId
         }));
       }).catch(error => {
         console.error('获取用户应用列表失败:', error);
-        this.userAppListOptions = [];
+        this.userAppListOptions = [];        
+        this.userAppListLoading = false;
       }).finally(() => {
         this.userAppListLoading = false;
       });
@@ -510,6 +511,10 @@ export default {
     getList() {
       this.loading = true
       this.queryParams.storeType = 1
+        //结束时间不为空的情况下，将结束时间加1天
+      if (this.queryParams.endDate) {
+        this.queryParams.endDate = this.queryParams.endDate + " 23:59:59"
+      }
       // Removed the problematic line that was causing issues
       listOrder(this.queryParams).then(response => {
         this.orderList = response.rows

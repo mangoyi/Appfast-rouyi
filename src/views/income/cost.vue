@@ -12,7 +12,7 @@
       >导出</el-button>
     </div>
     <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
-      <el-form-item label="类型" prop="incomeType">
+      <!-- <el-form-item label="类型" prop="incomeType">
         <el-select
           v-model="queryParams.incomeType"
           placeholder="全部"
@@ -26,17 +26,22 @@
             :value="dict.value"
           />
         </el-select>
-      </el-form-item>
-      <el-form-item label="时间">
-        <el-date-picker
-          v-model="queryParams.dateRange"
-          style="width: 240px"
+      </el-form-item> -->
+      <el-form-item label="开始日期" prop="beginDate">
+        <el-date-picker clearable
+          v-model="queryParams.beginDate"
+          type="date"
           value-format="yyyy-MM-dd"
-          type="daterange"
-          range-separator="-"
-          start-placeholder="开始日期"
-          end-placeholder="结束日期"
-        ></el-date-picker>
+          placeholder="请选择开始日期">
+        </el-date-picker>
+      </el-form-item>
+      <el-form-item label="结束日期" prop="endDate">
+        <el-date-picker clearable
+          v-model="queryParams.endDate"
+          type="date"
+          value-format="yyyy-MM-dd"
+          placeholder="请选择结束日期">
+        </el-date-picker>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
@@ -178,6 +183,10 @@ export default {
     /** 查询收入支出记录列表 */
     getCostList() {
       this.loading = true
+      //结束时间不为空的情况下，将结束时间加1天
+      if (this.queryParams.endDate) {
+        this.queryParams.endDate = this.queryParams.endDate + " 23:59:59"
+      }
       costListOrder(this.queryParams).then(response => {
         this.costList = response.rows
         this.total = response.total
