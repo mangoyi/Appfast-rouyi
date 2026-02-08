@@ -178,8 +178,8 @@ export default {
       //结束时间不为空的情况下，将结束时间加1天
       if (this.queryParams.endDate) {
         // Only append time if it hasn't been appended already
-        if (!params.endDate.includes("23:59:59")) {
-          params.endDate = params.endDate + " 23:59:59";
+        if (!this.queryParams.endDate.includes("23:59:59")) {
+          this.queryParams.endDate = this.queryParams.endDate + " 23:59:59";
         }
       }
       listIncome(this.queryParams).then(response => {
