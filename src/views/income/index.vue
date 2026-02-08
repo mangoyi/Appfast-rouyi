@@ -175,9 +175,12 @@ export default {
     /** 查询收入支出记录列表 */
     getList() {
       this.loading = true
-            //结束时间不为空的情况下，将结束时间加1天
+      //结束时间不为空的情况下，将结束时间加1天
       if (this.queryParams.endDate) {
-        this.queryParams.endDate = this.queryParams.endDate + " 23:59:59"
+        // Only append time if it hasn't been appended already
+        if (!params.endDate.includes("23:59:59")) {
+          params.endDate = params.endDate + " 23:59:59";
+        }
       }
       listIncome(this.queryParams).then(response => {
         this.incomeList = response.rows

@@ -2,14 +2,8 @@
   <div class="app-container">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
       <h2>消费记录</h2>
-      <el-button
-        type="warning"
-        plain
-        icon="el-icon-download"
-        size="mini"
-        @click="handleExport"
-        v-hasPermi="['income:export']"
-      >导出</el-button>
+      <el-button type="warning" plain icon="el-icon-download" size="mini" @click="handleExport"
+        v-hasPermi="['income:export']">导出</el-button>
     </div>
     <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
       <!-- <el-form-item label="类型" prop="incomeType">
@@ -28,18 +22,12 @@
         </el-select>
       </el-form-item> -->
       <el-form-item label="开始日期" prop="beginDate">
-        <el-date-picker clearable
-          v-model="queryParams.beginDate"
-          type="date"
-          value-format="yyyy-MM-dd"
+        <el-date-picker clearable v-model="queryParams.beginDate" type="date" value-format="yyyy-MM-dd"
           placeholder="请选择开始日期">
         </el-date-picker>
       </el-form-item>
       <el-form-item label="结束日期" prop="endDate">
-        <el-date-picker clearable
-          v-model="queryParams.endDate"
-          type="date"
-          value-format="yyyy-MM-dd"
+        <el-date-picker clearable v-model="queryParams.endDate" type="date" value-format="yyyy-MM-dd"
           placeholder="请选择结束日期">
         </el-date-picker>
       </el-form-item>
@@ -51,11 +39,11 @@
 
     <el-table v-loading="loading" :data="costList" @selection-change="handleSelectionChange">
 
-      <el-table-column label="订单编号 " align="center" prop="orderNo" width="200"/>
+      <el-table-column label="订单编号 " align="center" prop="orderNo" width="200" />
       <el-table-column label="应用名称 " align="center" prop="appName" />
       <el-table-column label="订单类型" align="center" prop="orderType">
         <template slot-scope="scope">
-          <dict-tag :options="dict.type.order_type" :value="scope.row.orderType"/>
+          <dict-tag :options="dict.type.order_type" :value="scope.row.orderType" />
         </template>
       </el-table-column>
       <!-- <el-table-column label="商店类型" align="center" prop="storeType">
@@ -63,7 +51,7 @@
           <dict-tag :options="dict.type.store_type" :value="scope.row.storeType"/>
         </template>
       </el-table-column> -->
-      
+
       <el-table-column label="消费前金额" align="center" prop="oldBalance" />
       <el-table-column label="订单金额" align="center" prop="orderPrice" />
       <el-table-column label="消费后金额" align="center" prop="newBalance" />
@@ -76,13 +64,8 @@
       <el-table-column label="备注" align="center" prop="remark" />
     </el-table>
 
-    <pagination
-      v-show="total>0"
-      :total="total"
-      :page.sync="queryParams.pageNum"
-      :limit.sync="queryParams.pageSize"
-      @pagination="getList"
-    />
+    <pagination v-show="total > 0" :total="total" :page.sync="queryParams.pageNum" :limit.sync="queryParams.pageSize"
+      @pagination="getList" />
 
     <!-- 添加或修改收入支出记录对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
@@ -120,7 +103,7 @@ import { costListOrder } from "@/api/order/normalorder"
 
 export default {
   name: "Income",
-  dicts: [ 'income_type', 'order_type', 'store_type'],
+  dicts: ['income_type', 'order_type', 'store_type'],
 
   data() {
     return {
@@ -185,7 +168,10 @@ export default {
       this.loading = true
       //结束时间不为空的情况下，将结束时间加1天
       if (this.queryParams.endDate) {
-        this.queryParams.endDate = this.queryParams.endDate + " 23:59:59"
+        // Only append time if it hasn't been appended already
+        if (!params.endDate.includes("23:59:59")) {
+          params.endDate = params.endDate + " 23:59:59";
+        }
       }
       costListOrder(this.queryParams).then(response => {
         this.costList = response.rows
@@ -228,7 +214,7 @@ export default {
     // 多选框选中数据
     handleSelectionChange(selection) {
       this.ids = selection.map(item => item.id)
-      this.single = selection.length!==1
+      this.single = selection.length !== 1
       this.multiple = !selection.length
     },
     /** 新增按钮操作 */
@@ -270,12 +256,12 @@ export default {
     /** 删除按钮操作 */
     handleDelete(row) {
       const ids = row.id || this.ids
-      this.$modal.confirm('是否确认删除收入支出记录编号为"' + ids + '"的数据项？').then(function() {
+      this.$modal.confirm('是否确认删除收入支出记录编号为"' + ids + '"的数据项？').then(function () {
         return delIncome(ids)
       }).then(() => {
         this.getCostList()
         this.$modal.msgSuccess("删除成功")
-      }).catch(() => {})
+      }).catch(() => { })
     },
     /** 导出按钮操作 */
     handleExport() {

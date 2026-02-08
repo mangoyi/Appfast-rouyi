@@ -421,6 +421,12 @@ export default {
     /** 查询客户普通订单记录列表 */
     getList() {
       this.loading = true
+      if (this.queryParams.endDate) {
+        // Only append time if it hasn't been appended already
+        if (!params.endDate.includes("23:59:59")) {
+          params.endDate = params.endDate + " 23:59:59";
+        }
+      }
       this.queryParams.storeType = 3
       listOrder(this.queryParams).then(response => {
         this.orderList = response.rows
