@@ -698,14 +698,14 @@ export default {
         { label: 'top1', value: 'top1' },
         { label: 'top2', value: 'top2' },
         { label: 'top3', value: 'top3' },
-        { label: 'top4', value: 'top4' }
+        { label: 'top5', value: 'top5' },
+        { label: 'top10', value: 'top10' }
       ],
       // 联系方式类型选项
       communicateTypeOptions: [
-        { label: '手机号', value: 1 },
-        { label: '微信号', value: 2 },
-        { label: 'QQ号', value: 3 },
-        { label: '邮箱', value: 4 }
+        { label: 'WeChat', value: 1 },
+        { label: 'Telegram', value: 2 },
+        { label: 'WhatsApp', value: 3 }
       ],
       uploadUrl: process.env.VUE_APP_BASE_API + '/normal/order/import/keyword  ',
       uploadHeaders: { Authorization: 'Bearer ' + getToken() },

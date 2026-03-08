@@ -697,7 +697,8 @@ export default {
         { label: 'top1', value: 'top1' },
         { label: 'top2', value: 'top2' },
         { label: 'top3', value: 'top3' },
-        { label: 'top5', value: 'top5' }
+        { label: 'top5', value: 'top5' },
+        { label: 'top10', value: 'top10' }
       ],
       // 联系方式类型选项
       communicateTypeOptions: [
