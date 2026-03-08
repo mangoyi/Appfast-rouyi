@@ -39,18 +39,22 @@
         />
       </el-form-item> -->
       <el-form-item label="开始日期" prop="beginDate">
-        <el-date-picker clearable
+        <el-date-picker ref="beginDate" clearable
           v-model="queryParams.beginDate"
           type="date"
           value-format="yyyy-MM-dd"
+          :append-to-body="true"
+          @visible-change="handleDatePickerVisibleChange"
           placeholder="请选择订单开始日期">
         </el-date-picker>
       </el-form-item>
       <el-form-item label="结束日期" prop="endDate">
-        <el-date-picker clearable
+        <el-date-picker ref="endDate" clearable
           v-model="queryParams.endDate"
           type="date"
           value-format="yyyy-MM-dd"
+          :append-to-body="true"
+          @visible-change="handleDatePickerVisibleChange"
           placeholder="请选择订单结束日期">
         </el-date-picker>
       </el-form-item>
@@ -272,18 +276,22 @@
           <el-input v-model="form.area" placeholder="请输入国家地区" />
         </el-form-item>
         <el-form-item label="订单开始日期" prop="beginDate">
-          <el-date-picker clearable
+          <el-date-picker ref="dialogBeginDate" clearable
             v-model="form.beginDate"
             type="date"
             value-format="yyyy-MM-dd"
+            :append-to-body="true"
+            @visible-change="handleDatePickerVisibleChange"
             placeholder="请选择订单开始日期">
           </el-date-picker>
         </el-form-item>
         <el-form-item label="订单结束日期" prop="endDate">
-          <el-date-picker clearable
+          <el-date-picker ref="dialogEndDate" clearable
             v-model="form.endDate"
             type="date"
             value-format="yyyy-MM-dd"
+            :append-to-body="true"
+            @visible-change="handleDatePickerVisibleChange"
             placeholder="请选择订单结束日期">
           </el-date-picker>
         </el-form-item>
@@ -567,20 +575,50 @@ export default {
         this.outsideClickListener = null;
       }
     },
-    // 强制关闭所有下拉框
+    // 处理日期选择器可见性变化
+    handleDatePickerVisibleChange(visible) {
+      if (visible) {
+        // 日期选择器打开时，绑定全局点击事件监听器
+        this.bindOutsideClickHandler();
+      } else {
+        // 日期选择器隐藏时，移除全局点击事件监听器
+        this.unbindOutsideClickHandler();
+      }
+    },
+    // 强制关闭所有下拉框和日期选择器
     forceCloseAllSelects() {
       // 通过 ref 遍历所有下拉框并关闭
       const selectRefs = ['userSelect', 'appSelect', 'statusSelect', 'storeTypeSelect', 'orderTypeSelect'];
       selectRefs.forEach(refName => {
-        if (this.$refs[refName] && this.$refs[refName].visible) {
-          // 直接设置下拉框的可见性为 false
-          this.$refs[refName].visible = false;
-          // 触发 blur 事件以确保下拉框完全关闭
-          if (this.$refs[refName].$el) {
-            const input = this.$refs[refName].$el.querySelector('input');
-            if (input) {
-              input.blur();
+        const selectRef = this.$refs[refName];
+        if (selectRef && selectRef.visible) {
+          selectRef.visible = false;
+          if (selectRef.$el) {
+            const input = selectRef.$el.querySelector('input');
+            if (input) input.blur();
+          }
+        }
+      });
+
+      // 通过 ref 遍历所有日期选择器并关闭
+      const datePickerRefs = ['beginDate', 'endDate', 'dialogBeginDate', 'dialogEndDate'];
+      datePickerRefs.forEach(refName => {
+        const datePickerRef = this.$refs[refName];
+        if (datePickerRef) {
+          try {
+            // 严格遵循Element UI最佳实践：优先设置pickerVisible
+            datePickerRef.pickerVisible = false;
+            
+            // 确保调用picker.hide()方法
+            if (datePickerRef.picker && typeof datePickerRef.picker.hide === 'function') {
+              datePickerRef.picker.hide();
             }
+            
+            // 触发blur事件作为补充保障
+            const input = datePickerRef.$el.querySelector('input');
+            if (input) input.blur();
+          } catch (error) {
+            console.error(`关闭日期选择器 ${refName} 时出错:`, error);
           }
         }
       });
