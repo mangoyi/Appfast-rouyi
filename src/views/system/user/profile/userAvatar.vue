@@ -1,12 +1,12 @@
 <template>
   <div>
-    <div class="user-info-head" @click="editCropper()"><img v-bind:src="options.img" title="点击上传头像" class="img-circle img-lg" /></div>
+    <div class="user-info-head"><img v-bind:src="userIcon" title="点击上传头像" class="img-circle img-lg" /></div>
     <el-dialog :title="title" :visible.sync="open" width="800px" append-to-body @opened="modalOpened"  @close="closeDialog">
       <el-row>
         <el-col :xs="24" :md="12" :style="{height: '350px'}">
           <vue-cropper
             ref="cropper"
-            :img="options.img"
+            :img="userIcon"
             :info="true"
             :autoCrop="options.autoCrop"
             :autoCropWidth="options.autoCropWidth"
@@ -58,6 +58,8 @@ import store from "@/store"
 import { VueCropper } from "vue-cropper"
 import { uploadAvatar } from "@/api/system/user"
 import { debounce } from '@/utils'
+
+import userIcon from '@/assets/logo/user.jpeg'
 
 export default {
   components: { VueCropper },

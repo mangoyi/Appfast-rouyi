@@ -2,13 +2,15 @@
   <div class="app-container">
     <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
       <el-form-item label="用户名" prop="userId" v-hasPermi="['system:user:list']">
-        <el-select v-model="queryParams.userId" placeholder="请输入或选择用户"
+        <el-select ref="userSelect" v-model="queryParams.userId" placeholder="请输入或选择用户"
                   filterable
                   remote
                   :remote-method="handleUserSearch"
                   :loading="userListLoading"
                   clearable
-                  :style="{width: '100%'}">
+                  :style="{width: '100%'}"
+                  :popper-append-to-body="true"
+                  @visible-change="handleUserSelectVisibleChange">
           <el-option v-for="item in userListOptions" :key="item.value" :label="item.label"
                     :value="item.value"></el-option>
         </el-select>
@@ -23,11 +25,14 @@
       </el-form-item>
       <el-form-item label="商店" prop="storeType">
         <el-select 
+            ref="storeTypeSelect"
             v-model="queryParams.storeType" 
             placeholder="全部" 
             clearable
             :class="{'with-icon': queryParams.storeType}"
-            style="width: 220px">
+            style="width: 220px"
+            :popper-append-to-body="true"
+            @visible-change="handleStoreTypeSelectVisibleChange">
             <el-option
               v-for="dict in dict.type.store_type"
               :key="dict.value"
@@ -85,8 +90,7 @@
           @click="handleExport"
           v-hasPermi="['customer:app:export']"
         >导出</el-button>
-      </el-form-item>
-    </el-form>
+      </el-form-item></el-form>
 
     <!-- <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
@@ -205,24 +209,29 @@
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
         <el-form-item label="用户名" prop="userId"  v-hasPermi="['system:user:list']">
-            <el-select v-model="form.userId" placeholder="请输入或选择用户"
+            <el-select ref="dialogUserSelect" v-model="form.userId" placeholder="请输入或选择用户"
                 filterable
                 remote
                 :remote-method="handleUserSearch"
                 :loading="userListLoading"
                 clearable
-                :style="{width: '100%'}">
+                :style="{width: '100%'}"
+                :popper-append-to-body="true"
+                @visible-change="handleDialogUserSelectVisibleChange">
               <el-option v-for="item in userListOptions" :key="item.value" :label="item.label"
                   :value="item.value"></el-option>
             </el-select>
         </el-form-item>
         <el-form-item label="商店" prop="storeType">
           <el-select 
+            ref="dialogStoreTypeSelect"
             v-model="form.storeType" 
             placeholder="请选择" 
             clearable
             :class="{'with-icon': form.storeType}"
-            style="width: 220px">
+            style="width: 220px"
+            :popper-append-to-body="true"
+            @visible-change="handleDialogStoreTypeSelectVisibleChange">
             <el-option
               v-for="dict in dict.type.store_type"
               :key="dict.value"
@@ -243,11 +252,14 @@
         </el-form-item>
         <el-form-item label="地区" prop="area">
   <el-select 
+    ref="dialogAreaSelect"
     v-model="form.area" 
     placeholder="请选择" 
     clearable
     :class="{'with-icon': form.area}"
-    style="width: 220px">
+    style="width: 220px"
+    :popper-append-to-body="true"
+    @visible-change="handleDialogAreaSelectVisibleChange">
     <el-option
       v-for="country in countryOptions"
       :key="country.value"
@@ -338,6 +350,8 @@ export default {
       countryLoading: false,
       // 是否显示弹出层
       open: false,
+      // 外部点击监听器
+      outsideClickListener: null,
       // 查询参数
       queryParams: {
         pageNum: 1,
@@ -381,6 +395,11 @@ export default {
 
     // 加载国家选项数据
     this.loadCountryOptions()
+    
+    // 检查路由参数，如果包含openAdd=true则打开新增弹窗
+    if (this.$route.query.openAdd === 'true') {
+      this.handleAdd()
+    }
   },
   methods: {
 
@@ -600,12 +619,83 @@ export default {
         this.$modal.msgError("query failed，please check appId or bundle.id");
       });
     },
-      // 添加跳转到新建订单页面的方法
-      goToCreateOrder() {
-        //  alert('点击了卡片')
-        this.$router.push('/promotion/createOrder')
-      },
-       // 地区列表
+    // 处理用户选择下拉框的可见性变化
+    handleUserSelectVisibleChange(visible) {
+      this.handleSelectVisibleChange(visible, 'userSelect');
+    },
+    // 处理商店类型下拉框的可见性变化
+    handleStoreTypeSelectVisibleChange(visible) {
+      this.handleSelectVisibleChange(visible, 'storeTypeSelect');
+    },
+    // 处理对话框中用户下拉框的可见性变化
+    handleDialogUserSelectVisibleChange(visible) {
+      this.handleSelectVisibleChange(visible, 'dialogUserSelect');
+    },
+    // 处理对话框中商店类型下拉框的可见性变化
+    handleDialogStoreTypeSelectVisibleChange(visible) {
+      this.handleSelectVisibleChange(visible, 'dialogStoreTypeSelect');
+    },
+    // 处理对话框中地区下拉框的可见性变化
+    handleDialogAreaSelectVisibleChange(visible) {
+      this.handleSelectVisibleChange(visible, 'dialogAreaSelect');
+    },
+    // 统一处理下拉框的可见性变化
+    handleSelectVisibleChange(visible, selectRef) {
+      if (visible) {
+        // 下拉框打开时，绑定全局点击事件监听器
+        this.bindOutsideClickHandler(selectRef);
+      } else {
+        // 下拉框关闭时，解绑全局点击事件监听器
+        this.unbindOutsideClickHandler();
+      }
+    },
+    // 绑定外部点击处理器
+    bindOutsideClickHandler(currentSelectRef) {
+      // 防止重复绑定
+      if (!this.outsideClickListener) {
+        this.outsideClickListener = (event) => {
+          const target = event.target;
+          
+          // 检查点击的元素是否是当前下拉框或其子元素
+          const currentSelect = this.$refs[currentSelectRef];
+          if (currentSelect && currentSelect.$el.contains(target)) {
+            return;
+          }
+          
+          // 检查是否点击了其他下拉框
+          const allSelectRefs = ['userSelect', 'storeTypeSelect', 'dialogUserSelect', 'dialogStoreTypeSelect', 'dialogAreaSelect'];
+          for (const selectRef of allSelectRefs) {
+            const select = this.$refs[selectRef];
+            if (select && select.$el.contains(target)) {
+              return;
+            }
+          }
+          
+          // 如果点击的是空白区域，关闭当前下拉框
+          this.$nextTick(() => {
+            if (this.$refs[currentSelectRef]) {
+              this.$refs[currentSelectRef].$refs.reference.focus();
+              this.$refs[currentSelectRef].visible = false;
+            }
+          });
+        };
+        
+        document.addEventListener('click', this.outsideClickListener, true);
+      }
+    },
+    // 解绑外部点击处理器
+    unbindOutsideClickHandler() {
+      if (this.outsideClickListener) {
+        document.removeEventListener('click', this.outsideClickListener, true);
+        this.outsideClickListener = null;
+      }
+    },
+    // 添加跳转到新建订单页面的方法
+    goToCreateOrder() {
+      //  alert('点击了卡片')
+      this.$router.push('/promotion/createOrder')
+    },
+     // 地区列表
     loadCountryOptions() {
       this.countryLoading = true;
       getCountryOptions().then(response => {
@@ -624,6 +714,18 @@ export default {
         this.countryLoading = false;
       });
     },
+  },
+  // 组件销毁时清理资源
+  beforeDestroy() {
+    if (this.searchTimer) {
+      clearTimeout(this.searchTimer);
+    }
+    
+    // 移除事件监听器
+    if (this.outsideClickListener) {
+      document.removeEventListener('click', this.outsideClickListener, true);
+      this.outsideClickListener = null;
+    }
   }
 }
 </script>

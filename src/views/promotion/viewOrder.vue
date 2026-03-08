@@ -114,12 +114,12 @@
                 </el-col>
                 <el-col :span="4">
                   <el-form-item label="5星评论">
-                    <span>{{ areaConfig.star5Amount || 0 }}</span> 分
+                    <span>{{ areaConfig.star5Amount || 0 }}</span> 个
                   </el-form-item>
                 </el-col>
                 <el-col :span="4">
                   <el-form-item label="4星评论">
-                    <span>{{ areaConfig.star4Amount || 0 }}</span> 分
+                    <span>{{ areaConfig.star4Amount || 0 }}</span> 个
                   </el-form-item>
                 </el-col>
                 <el-col :span="4">

@@ -33,7 +33,7 @@
 
       <el-dropdown class="avatar-container right-menu-item hover-effect" trigger="hover">
         <div class="avatar-wrapper">
-          <img :src="avatar" class="user-avatar">
+          <img :src="userIcon" class="user-avatar">
           <span class="user-nickname"> {{ nickName }} </span>
         </div>
         <el-dropdown-menu slot="dropdown">
@@ -61,6 +61,7 @@ import RuoYiGit from '@/components/RuoYi/Git'
 import RuoYiDoc from '@/components/RuoYi/Doc'
 import mePic from '@/assets/promo/me.jpg'
 import { getUserFinancialSummary } from '@/api/income/income'
+import userIcon from '@/assets/logo/user.jpeg'
 
 export default {
   emits: ['setLayout'],
@@ -68,7 +69,8 @@ export default {
     return {
       financialSummary: null,
       rechargeDialogVisible: false,
-      mePic: mePic
+      mePic: mePic,
+      userIcon: userIcon
     }
   },
   components: {

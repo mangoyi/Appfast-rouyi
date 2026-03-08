@@ -30,29 +30,36 @@
         <el-col :span="24">
           <el-form-item label="应用" prop="customerAppId">
             <el-select 
-            v-model="formData.customerAppId" 
-            placeholder="请选择应用" 
-            clearable
-            :loading="appListLoading"
-            :class="{'with-icon': formData.customerAppId}"
-            :style="{ width: '30%' }">
-            <el-option
-              v-for="app in appListOptions"
-              :key="app.value"
-              :value="app.value"
-              :label="app.label">
-              <span style="display: inline-flex; align-items: center;">
-                <img :src="app.image" style="width: 16px; height: 16px; margin-right: 8px;">
-                {{ app.label }}
-              </span>
-            </el-option>
-            <template slot="prefix" v-if="formData.customerAppId">
-              <img 
-                :src="getAppIcon(formData.customerAppId)" 
-                style="width: 16px; height: 16px; vertical-align: middle; margin-top: -3px;"
-              />
-            </template>
-          </el-select>
+              v-model="formData.customerAppId" 
+              placeholder="请选择应用" 
+              clearable
+              :loading="appListLoading"
+              :class="{'with-icon': formData.customerAppId}"
+              :style="{ width: '30%' }">
+              <el-option
+                v-for="app in appListOptions"
+                :key="app.value"
+                :value="app.value"
+                :label="app.label">
+                <span style="display: inline-flex; align-items: center;">
+                  <img :src="app.image" style="width: 16px; height: 16px; margin-right: 8px;">
+                  {{ app.label }}
+                </span>
+              </el-option>
+              <template slot="prefix" v-if="formData.customerAppId">
+                <img 
+                  :src="getAppIcon(formData.customerAppId)" 
+                  style="width: 16px; height: 16px; vertical-align: middle; margin-top: -3px;"
+                />
+              </template>
+            </el-select>
+            <el-link 
+              type="primary" 
+              :underline="true" 
+              @click="goToAppPage" 
+              style="margin-left: 10px; cursor: pointer;">
+              管理应用 <i class="el-icon-external-link"></i>
+            </el-link>
           </el-form-item>
         </el-col>
         <el-col :span="24">
@@ -544,6 +551,7 @@ import { createPromotionOrder } from "@/api/promotion/order"
 import { getToken } from '@/utils/auth'
 // 5. 导入国家选项的API
 import { getCountryOptions, getTime } from "@/api/promotion/country"
+import { time } from "echarts"
 
 export default {
   components: {},
@@ -569,6 +577,8 @@ export default {
         idOrName: null,
       },
       currentTime: null,
+      serverTimestamp: null,
+      timer: null,
       formData: {
         // API字段映射
         customerAppId: undefined,           // 应用ID
@@ -687,14 +697,13 @@ export default {
         { label: 'top1', value: 'top1' },
         { label: 'top2', value: 'top2' },
         { label: 'top3', value: 'top3' },
-        { label: 'top4', value: 'top4' }
+        { label: 'top5', value: 'top5' }
       ],
       // 联系方式类型选项
       communicateTypeOptions: [
-        { label: '手机号', value: 1 },
-        { label: '微信号', value: 2 },
-        { label: 'QQ号', value: 3 },
-        { label: '邮箱', value: 4 }
+        { label: 'WeChat', value: 1 },
+        { label: 'Telegram', value: 2 },
+        { label: 'WhatsApp', value: 3 }
       ],
       uploadUrl: process.env.VUE_APP_BASE_API + '/normal/order/import/keyword  ',
       uploadHeaders: { Authorization: 'Bearer ' + getToken() },
@@ -923,7 +932,7 @@ export default {
     // Fetch initial time
     this.fetchSystemTime();
     // Update time every second
-    this.timer = setInterval(this.fetchSystemTime, 5000);
+    this.timer = setInterval(this.updateLocalTime, 1000);
   },
   methods: {
     resetStoreTypeOptions(selectedStoreType) {
@@ -934,17 +943,40 @@ export default {
         }
       })
     },
-    fetchSystemTime() {
-      try {
-        getTime().then(response => {
-          this.currentTime = response.msg;
-        });
-      } catch (error) {
-        console.error('Failed to fetch system time:', error);
-        // Fallback to client time if API fails
-        this.currentTime = new Date().toLocaleString();
-      }
-    },
+    // Add to methods section
+goToAppPage() {
+  // Pass a query parameter to indicate that the modal should be opened
+  this.$router.push({
+    path: '/appkeyword/app',
+    query: { openAdd: 'true' }
+  });
+},
+// Fetch server time only once
+fetchSystemTime() {
+  try {
+    getTime().then(response => {
+      this.currentTime = response.msg;
+      // Store the server timestamp for local calculation
+      this.serverTimestamp = Date.now();
+    });
+  } catch (error) {
+    console.error('Failed to fetch system time:', error);
+    // Fallback to client time if API fails
+    this.currentTime = new Date().toLocaleString();
+    this.serverTimestamp = Date.now();
+  }
+},
+// Update time locally without API calls
+updateLocalTime() {
+  if (this.serverTimestamp) {
+    // Calculate current time based on initial server timestamp
+    const now = new Date();
+    this.currentTime = now.toLocaleString();
+  } else {
+    // Fallback if server time was never fetched
+    this.currentTime = new Date().toLocaleString();
+  }
+},
     downloadTemplate() {
       this.download('/normal/order/keyword/importTemplate', {}, '订单导入模板.xlsx')
     },
@@ -1245,6 +1277,13 @@ export default {
         this.loadUserListOptions(query);
       }, 300);
     },
+    beforeDestroy() {
+  // Clear the timer to prevent memory leaks
+  if (this.timer) {
+    clearInterval(this.timer);
+    this.timer = null;
+  }
+},
     // 加载用户列表选项
     loadUserListOptions(inputParam) {
       // console.log('加载用户列表选项...',inputParam);

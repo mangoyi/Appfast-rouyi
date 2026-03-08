@@ -502,7 +502,7 @@ export default {
     /** 查询客户普通订单记录列表 */
     getList() {
       this.loading = true
-      this.queryParams.orderStatus = 4
+      this.queryParams.orderStatus = 5
       // Removed the problematic line that was causing issues
       listOrder(this.queryParams).then(response => {
         this.orderList = response.rows

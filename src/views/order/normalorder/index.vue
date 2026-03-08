@@ -2,25 +2,29 @@
   <div class="app-container">
     <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
       <el-form-item label="用户名" prop="userId" v-hasPermi="['system:user:list']">
-        <el-select v-model="queryParams.userId" placeholder="请输入或选择用户"
+        <el-select ref="userSelect" v-model="queryParams.userId" placeholder="请输入或选择用户"
                   filterable
                   remote
                   :remote-method="handleUserSearch"
                   :loading="userListLoading"
                   clearable
-                  :style="{width: '100%'}">
+                  :style="{width: '100%'}"
+                  :popper-append-to-body="true"
+                  @visible-change="handleSelectVisibleChange">
           <el-option v-for="item in userListOptions" :key="item.value" :label="item.label"
                     :value="item.value"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="应用" prop="customerAppId">
-          <el-select v-model="queryParams.customerAppId" placeholder="请输入或选择应用"
+          <el-select ref="appSelect" v-model="queryParams.customerAppId" placeholder="请输入或选择应用"
               filterable
               remote
               :remote-method="handleAppSearch"
               :loading="userAppListLoading"
               clearable
-              :style="{width: '100%'}">
+              :style="{width: '100%'}"
+              :popper-append-to-body="true"
+              @visible-change="handleSelectVisibleChange">
             <el-option v-for="item in userAppListOptions" :key="item.value" :label="item.label"
                 :value="item.value"></el-option>
           </el-select>
@@ -59,7 +63,9 @@
         />
       </el-form-item> -->
       <el-form-item label="订单状态" prop="score">
-        <el-select v-model="queryParams.orderStatus" clearable>
+        <el-select ref="statusSelect" v-model="queryParams.orderStatus" clearable
+          :popper-append-to-body="true"
+          @visible-change="handleSelectVisibleChange">
           <el-option
             v-for="dict in dict.type.order_status"
             :key="dict.value"
@@ -226,7 +232,9 @@
           <el-input v-model="form.userId" placeholder="请输入用户id" />
         </el-form-item>
         <el-form-item label="商店" prop="storeType">
-          <el-select v-model="form.storeType" placeholder="全部" clearable>
+          <el-select ref="storeTypeSelect" v-model="form.storeType" placeholder="全部" clearable
+            :popper-append-to-body="true"
+            @visible-change="handleSelectVisibleChange">
             <el-option
               v-for="dict in dict.type.store_type"
               :key="dict.value"
@@ -245,7 +253,9 @@
           <el-input v-model="form.customerAppId" placeholder="请输入订单关联的应用id" />
         </el-form-item>
         <el-form-item label="任务类型" prop="orderType">
-          <el-select v-model="form.orderType" placeholder="全部" clearable>
+          <el-select ref="orderTypeSelect" v-model="form.orderType" placeholder="全部" clearable
+            :popper-append-to-body="true"
+            @visible-change="handleSelectVisibleChange">
             <el-option
               v-for="dict in dict.type.normal_order_type"
               :key="dict.value"
@@ -335,6 +345,8 @@ export default {
       title: "",
       // 是否显示弹出层
       open: false,
+      // 外部点击监听器
+      outsideClickListener: null,
       // 查询参数
       queryParams: {
         pageNum: 1,
@@ -507,6 +519,72 @@ export default {
       const dict = this.dict.type.store_type.find(item => item.value === value);
       return dict ? dict.label : '';
     },
+    // 处理下拉框可见性变化
+    handleSelectVisibleChange(visible, event) {
+      // 当下拉框显示时，绑定全局点击事件监听器
+      if (visible) {
+        this.bindOutsideClickHandler();
+      } else {
+        // 当下拉框隐藏时，移除全局点击事件监听器
+        this.unbindOutsideClickHandler();
+      }
+    },
+    // 绑定外部点击处理器
+    bindOutsideClickHandler() {
+      // 防止重复绑定
+      if (!this.outsideClickListener) {
+        this.outsideClickListener = (event) => {
+          // 使用 nextTick 确保 DOM 已经更新
+          this.$nextTick(() => {
+            // 检查点击的目标元素是否在当前组件内部
+            const clickedInsideComponent = this.$el.contains(event.target);
+            
+            // 如果点击的不是组件内部，也不是下拉框本身，就关闭所有下拉框
+            if (!clickedInsideComponent) {
+              this.forceCloseAllSelects();
+            } else {
+              // 如果点击在组件内部，但是不在下拉框内部，则关闭所有下拉框
+              const clickedInsideSelect = event.target.closest('.el-select-dropdown');
+              if (!clickedInsideSelect) {
+                // 检查是否点击在 el-select 元素内部
+                const clickedSelectElement = event.target.closest('.el-select');
+                // 如果点击不在任何 select 元素内部，则关闭所有下拉框
+                if (!clickedSelectElement) {
+                  this.forceCloseAllSelects();
+                }
+              }
+            }
+          });
+        };
+        // 使用捕获阶段监听，确保能够拦截到所有点击事件
+        document.addEventListener('click', this.outsideClickListener, true);
+      }
+    },
+    // 解绑外部点击处理器
+    unbindOutsideClickHandler() {
+      if (this.outsideClickListener) {
+        document.removeEventListener('click', this.outsideClickListener, true);
+        this.outsideClickListener = null;
+      }
+    },
+    // 强制关闭所有下拉框
+    forceCloseAllSelects() {
+      // 通过 ref 遍历所有下拉框并关闭
+      const selectRefs = ['userSelect', 'appSelect', 'statusSelect', 'storeTypeSelect', 'orderTypeSelect'];
+      selectRefs.forEach(refName => {
+        if (this.$refs[refName] && this.$refs[refName].visible) {
+          // 直接设置下拉框的可见性为 false
+          this.$refs[refName].visible = false;
+          // 触发 blur 事件以确保下拉框完全关闭
+          if (this.$refs[refName].$el) {
+            const input = this.$refs[refName].$el.querySelector('input');
+            if (input) {
+              input.blur();
+            }
+          }
+        }
+      });
+    },
     /** 查询客户普通订单记录列表 */
     getList() {
       this.loading = true
@@ -637,12 +715,20 @@ export default {
     // 添加跳转到新建订单页面的方法
     goToCreateOrder() {
       this.$router.push('/promotion/createOrder?storeType=1')
-    }
+    },
+    // 移除之前不需要的处理全局点击事件方法，因为我们现在使用更好的方式处理
+
   },
   // 组件销毁时清理资源
   beforeDestroy() {
     if (this.searchTimer) {
       clearTimeout(this.searchTimer);
+    }
+    
+    // 移除事件监听器
+    if (this.outsideClickListener) {
+      document.removeEventListener('click', this.outsideClickListener, true);
+      this.outsideClickListener = null;
     }
   }
 }

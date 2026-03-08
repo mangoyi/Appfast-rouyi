@@ -10,8 +10,8 @@ const CompressionPlugin = require('compression-webpack-plugin')
 const name = process.env.VUE_APP_TITLE || '广告投放系统' // 网页标题
 
 // const baseUrl = 'http://43.165.65.33:8080' // 后端接口
-// const baseUrl = 'http://localhost:8080' // 后端接口
-const baseUrl = 'http://www.isis.cc' // 后端接口
+const baseUrl = 'http://localhost:8080' // 后端接口
+// const baseUrl = 'http://www.isis.cc' // 后端接口
 
 
 const port = process.env.port || process.env.npm_config_port || 80 // 端口

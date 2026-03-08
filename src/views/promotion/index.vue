@@ -84,20 +84,21 @@ export default {
         },
         {
           type: 3,
-          title: '用户评价',
-          description: '高质量用户评价可以提升应用可信度，增加下载转化率。',
-          image: p3Pic,
-          badge: '6折',
-          badgeType: 'popular'
-        },
-        {
-          type: 4,
           title: '星级评分',
           description: '提升应用星级评分，改善应用在市场中的整体形象。',
           image: p4Pic,
           badge: '7折',
           badgeType: 'normal'
         },
+        {
+          type: 4,
+          title: '用户评价',
+          description: '高质量用户评价可以提升应用可信度，增加下载转化率。',
+          image: p3Pic,
+          badge: '6折',
+          badgeType: 'popular'
+        },
+  
         {
           type: 5,
           title: '推荐位',

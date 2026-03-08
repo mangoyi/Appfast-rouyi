@@ -7,9 +7,9 @@
             <span>个人信息</span>
           </div>
           <div>
-            <div class="text-center">
-              <userAvatar />
-            </div>
+          <div class="text-center">
+        <img :src="userIcon" alt="User Avatar" class="img-circle img-lg" style="width: 120px; height: 120px;" />
+      </div>
             <ul class="list-group list-group-striped">
               <li class="list-group-item">
                 <svg-icon icon-class="email" />Account
@@ -51,6 +51,7 @@ import userAvatar from "./userAvatar"
 import userInfo from "./userInfo"
 import resetPwd from "./resetPwd"
 import { getUserProfile } from "@/api/system/user"
+import userIcon from '@/assets/logo/user.jpeg'
 
 export default {
   name: "Profile",
@@ -60,7 +61,8 @@ export default {
       user: {},
       roleGroup: {},
       postGroup: {},
-      selectedTab: "userinfo"
+      selectedTab: "userinfo",
+      userIcon: userIcon
     }
   },
   created() {
