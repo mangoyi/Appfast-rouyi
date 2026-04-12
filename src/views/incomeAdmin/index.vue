@@ -18,7 +18,7 @@
           v-model="queryParams.incomeType"
           placeholder="全部"
           clearable
-          style="width: 240px"
+          style="width: 150px"
         >
           <el-option
             v-for="dict in dict.type.income_type"
@@ -30,7 +30,7 @@
       </el-form-item>
       <el-form-item label="时间">
         <el-date-picker
-          v-model="dateRange"
+          v-model="queryParams.dateRange"
           style="width: 240px"
           value-format="yyyy-MM-dd"
           type="daterange"
@@ -39,23 +39,25 @@
           end-placeholder="结束日期"
         ></el-date-picker>
       </el-form-item>
-      <el-form-item label="金额" prop="amount">
-        <el-input
-          v-model="queryParams.amount"
-          placeholder="请输入金额"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
+      <el-form-item label="金额区间">
+        <div style="display: flex; align-items: center;">
+          <el-input-number
+            v-model="amountMinValue"
+            :controls="false"
+            placeholder="最小金额"
+            clearable
+            style="width: 120px;"
+          />
+          <span style="margin: 0 10px;">-</span>
+          <el-input-number
+            v-model="amountMaxValue"
+            :controls="false"
+            placeholder="最大金额"
+            clearable
+            style="width: 120px;"
+          />
+        </div>
       </el-form-item>
-      <el-form-item label="余额" prop="balance">
-        <el-input
-          v-model="queryParams.balance"
-          placeholder="请输入余额"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-
       <el-form-item label="备注" prop="remark">
         <el-input
           v-model="queryParams.remark"
@@ -253,8 +255,11 @@ export default {
         pageNum: 1,
         pageSize: 10,
         userId: null,
-        amount: null,
-        balance: null,
+        amountMin: null,
+        amountMax: null,
+        dateRange: null,
+        beginDate: null,
+        endDate: null,        
         incomeType: null,
         remark: null,
       },
@@ -280,6 +285,24 @@ export default {
       }
     }
   },
+  computed: {
+    amountMinValue: {
+      get() {
+        return this.queryParams.amountMin || undefined;
+      },
+      set(value) {
+        this.queryParams.amountMin = value || null;
+      }
+    },
+    amountMaxValue: {
+      get() {
+        return this.queryParams.amountMax || undefined;
+      },
+      set(value) {
+        this.queryParams.amountMax = value || null;
+      }
+    }
+  },
   created() {
     this.getList()
     this.loadUserListOptions()
@@ -288,6 +311,10 @@ export default {
     /** 查询收入支出记录列表 */
     getList() {
       this.loading = true
+      if (this.queryParams.dateRange) {
+        this.queryParams.beginDate = this.queryParams.dateRange[0]
+        this.queryParams.endDate = this.queryParams.dateRange[1]
+      }
       listIncome(this.queryParams).then(response => {
         this.incomeList = response.rows
         this.total = response.total
@@ -304,15 +331,15 @@ export default {
       this.form = {
         id: null,
         userId: null,
-        amount: null,
-        balance: null,
+        amountMin: null,
+        amountMinValue: null,
+        amountMax: null,
+        amountMaxValue: null,
+        dateRange: null,
+        beginDate: null,
+        endDate: null,  
         incomeType: null,
         remark: null,
-        delFlag: null,
-        createBy: null,
-        createTime: null,
-        updateBy: null,
-        updateTime: null
       }
       this.resetForm("form")
     },
@@ -323,8 +350,12 @@ export default {
     },
     /** 重置按钮操作 */
     resetQuery() {
-      this.resetForm("queryForm")
-      this.handleQuery()
+      this.resetForm("queryForm");
+      // Manually clear date range and amount fields to ensure they are properly reset
+      this.queryParams.dateRange = [];
+      this.queryParams.amountMin = null;
+      this.queryParams.amountMax = null;
+      this.handleQuery();
     },
     // 多选框选中数据
     handleSelectionChange(selection) {

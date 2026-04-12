@@ -27,6 +27,22 @@
             </el-radio-group>
           </el-form-item>
         </el-col>
+        <el-col :span="20" v-if="$auth.hasPermi('system:user:list')">
+          <el-form-item label="用户名" prop="userId" style="width: 500px;">
+              <el-select ref="dialogUserSelect" v-model="formData.userId" placeholder="请输入或选择用户"
+                  filterable
+                  remote
+                  :remote-method="handleUserSearch"
+                  :loading="userListLoading"
+                  clearable
+                  :style="{width: '100%'}"
+                  :popper-append-to-body="true"
+                  @visible-change="handleDialogUserSelectVisibleChange">
+                <el-option v-for="item in userListOptions" :key="item.value" :label="item.label"
+                    :value="item.value"></el-option>
+              </el-select>
+          </el-form-item>
+        </el-col>
         <el-col :span="24">
           <el-form-item label="应用" prop="customerAppId">
             <el-select 
@@ -53,13 +69,13 @@
                 />
               </template>
             </el-select>
-            <el-link 
+            <el-button 
               type="primary" 
-              :underline="true" 
+              size="small"
               @click="goToAppPage" 
-              style="margin-left: 10px; cursor: pointer;">
-              管理应用 <i class="el-icon-external-link"></i>
-            </el-link>
+              style="margin-left: 10px;">
+              添加应用 <i class="el-icon-external-link"></i>
+            </el-button>
           </el-form-item>
         </el-col>
         <el-col :span="24">
@@ -549,6 +565,7 @@ import { listApp, getSimpleAppList } from "@/api/appkeyword/app"
 // 4. 导入订单API
 import { createPromotionOrder } from "@/api/promotion/order"
 import { getToken } from '@/utils/auth'
+import auth from '@/plugins/auth'
 // 5. 导入国家选项的API
 import { getCountryOptions, getTime } from "@/api/promotion/country"
 import { time } from "echarts"
@@ -582,6 +599,7 @@ export default {
       formData: {
         // API字段映射
         customerAppId: undefined,           // 应用ID
+        userId: undefined,                // 用户ID（管理员可选）
         beginDate: null,           // 订单开始日期
         endDate: null,             // 订单结束日期
         orderAreaKeywords: [],     // 地区和关键词安装列表
@@ -904,7 +922,12 @@ export default {
         this.loadAppListOptions()
       }
     },
-
+    'formData.userId'(newVal, oldVal) {
+      if (newVal !== oldVal) {
+        this.formData.appListOptions = [];
+        this.loadAppListOptions();
+      }
+    },
   },
   created() {
     // 从路由query初始化订单类型（默认1）
@@ -915,6 +938,11 @@ export default {
     if (!Number.isNaN(sType)) {
       this.storeType = sType
       this.formData.storeType = sType === 3 ? 1 : sType
+    }
+
+    // 用户没有权限时，不执行获取用户列表数据
+    if (auth.hasPermi('system:user:list')) {
+      this.loadUserListOptions()
     }
 
 
@@ -943,6 +971,51 @@ export default {
           disabled: option.value !== selectedStoreType
         }
       })
+    },
+    // 处理用户搜索
+    handleUserSearch(query) {
+      // console.log('用户搜索...',query);
+      // 清除之前的定时器
+      if (this.searchTimer) {
+        clearTimeout(this.searchTimer);
+      }
+
+      // 设置防抖，300毫秒后执行搜索
+      this.searchTimer = setTimeout(() => {
+        this.loadUserListOptions(query);
+      }, 300);
+    },
+
+    // 加载用户列表选项
+    loadUserListOptions(inputParam) {
+      // console.log('加载用户列表选项...',inputParam);
+      this.userListLoading = true;
+
+      // 构建查询参数，根据是否有输入值决定传参
+      const queryParams = {};
+      if (inputParam) {
+        // 有输入值时，传递搜索参数（根据实际API调整字段名）
+        queryParams.idOrName = inputParam;
+        queryParams.pageNum = 1;
+        queryParams.pageSize = 100; // 一次获取足够多的选项
+      }
+
+      // 调用用户列表API
+      queryUserList(queryParams).then(response => {
+        // console.log('用户列表参数:', queryParams);
+        // console.log('用户列表响应:', response); // 添加日志以便调试
+        const users = response.rows || response.data || [];
+        // 转换为select组件需要的格式
+        this.userListOptions = users.map(user => ({
+          label: user.nickName || user.userName || user.userId,
+          value: user.userId
+        }));
+      }).catch(error => {
+        console.error('获取用户列表失败:', error);
+        this.userListOptions = [];
+      }).finally(() => {
+        this.userListLoading = false;
+      });
     },
     // Add to methods section
 goToAppPage() {
@@ -1196,7 +1269,8 @@ updateLocalTime() {
         orderType: this.formData.orderType,
         storeType: this.formData.storeType,
         executionHour: this.formData.executionHour,
-        orderPrice: this.totalAmount
+        orderPrice: this.totalAmount,
+        userId: this.formData.userId
       }
 
       // 根据订单类型添加对应的数据字段
@@ -1531,7 +1605,12 @@ updateLocalTime() {
       // Clear the currently selected application
       this.formData.customerAppId = undefined;
 
-      const query = { page: 1, limit: 100, storeType: this.formData.storeType };
+      const query = { 
+        page: 1, 
+        limit: 100, 
+        storeType: this.formData.storeType,
+        userId: this.formData.userId 
+      };
       getSimpleAppList(query).then(response => {
         // console.log('应用列表响应:', response);
         const apps = response.rows || response.data || [];
@@ -1540,6 +1619,25 @@ updateLocalTime() {
           label: app.appName || app.name || app.customerAppId,
           value: app.customerAppId,
           image: app.iconImage
+        }));
+      }).catch(error => {
+        console.error('获取应用列表失败:', error);
+        this.appListOptions = [];
+      }).finally(() => {
+        this.appListLoading = false;
+      });
+    },
+
+    // 加载国家选项数据
+    loadCountryOptions() {
+      this.countryLoading = true;
+      getCountryOptions().then(response => {
+        // console.log('国家选项响应:', response);
+        const countries = response.rows || response.data || [];
+        this.countryOptions = countries.map(country => ({
+          label: country.name,
+          value: country.code,
+          image: country.flagImage
         }));
       }).catch(error => {
         console.error('获取应用列表失败:', error);
@@ -1565,6 +1663,77 @@ updateLocalTime() {
       }).finally(() => {
         this.countryLoading = false;
       });
+    },
+    // 处理用户选择下拉框的可见性变化
+    handleUserSelectVisibleChange(visible) {
+      this.handleSelectVisibleChange(visible, 'userSelect');
+    },
+    // 处理商店类型下拉框的可见性变化
+    handleStoreTypeSelectVisibleChange(visible) {
+      this.handleSelectVisibleChange(visible, 'storeTypeSelect');
+    },
+    // 处理对话框中用户下拉框的可见性变化
+    handleDialogUserSelectVisibleChange(visible) {
+      this.handleSelectVisibleChange(visible, 'dialogUserSelect');
+    },
+    // 处理对话框中商店类型下拉框的可见性变化
+    handleDialogStoreTypeSelectVisibleChange(visible) {
+      this.handleSelectVisibleChange(visible, 'dialogStoreTypeSelect');
+    },
+    // 处理对话框中地区下拉框的可见性变化
+    handleDialogAreaSelectVisibleChange(visible) {
+      this.handleSelectVisibleChange(visible, 'dialogAreaSelect');
+    },
+    // 统一处理下拉框的可见性变化
+    handleSelectVisibleChange(visible, selectRef) {
+      if (visible) {
+        // 下拉框打开时，绑定全局点击事件监听器
+        this.bindOutsideClickHandler(selectRef);
+      } else {
+        // 下拉框关闭时，解绑全局点击事件监听器
+        this.unbindOutsideClickHandler();
+      }
+    },
+    // 绑定外部点击处理器
+    bindOutsideClickHandler(currentSelectRef) {
+      // 防止重复绑定
+      if (!this.outsideClickListener) {
+        this.outsideClickListener = (event) => {
+          const target = event.target;
+          
+          // 检查点击的元素是否是当前下拉框或其子元素
+          const currentSelect = this.$refs[currentSelectRef];
+          if (currentSelect && currentSelect.$el.contains(target)) {
+            return;
+          }
+          
+          // 检查是否点击了其他下拉框
+          const allSelectRefs = ['userSelect', 'storeTypeSelect', 'dialogUserSelect', 'dialogStoreTypeSelect', 'dialogAreaSelect'];
+          for (const selectRef of allSelectRefs) {
+            const select = this.$refs[selectRef];
+            if (select && select.$el.contains(target)) {
+              return;
+            }
+          }
+          
+          // 如果点击的是空白区域，关闭当前下拉框
+          this.$nextTick(() => {
+            if (this.$refs[currentSelectRef]) {
+              this.$refs[currentSelectRef].$refs.reference.focus();
+              this.$refs[currentSelectRef].visible = false;
+            }
+          });
+        };
+        
+        document.addEventListener('click', this.outsideClickListener, true);
+      }
+    },
+    // 解绑外部点击处理器
+    unbindOutsideClickHandler() {
+      if (this.outsideClickListener) {
+        document.removeEventListener('click', this.outsideClickListener, true);
+        this.outsideClickListener = null;
+      }
     },
   }
 }

@@ -158,21 +158,21 @@
           <el-button
             v-if="scope.row.orderStatus != 1"
             size="mini"
-            type="text"
+            type="primary"
             icon="el-icon-view"
             @click="handleView(scope.row)"
             v-hasPermi="['normal:order:query']"
           >查看</el-button>
           <el-button v-if="scope.row.orderStatus == 1"
             size="mini"
-            type="text"
+            type="warning"
             icon="el-icon-edit"
             @click="handleEdit(scope.row)"
             v-hasPermi="['normal:order:edit']"
           >编辑</el-button>
           <el-button v-if="scope.row.orderStatus != 1"
             size="mini"
-            type="text"
+            type="success"
             icon="el-icon-edit"
             @click="handleReOrder(scope.row)"
             v-hasPermi="['normal:order:edit']"
@@ -285,7 +285,7 @@ export default {
       // 用户列表数据加载状态
       userListOptions: [],
       userListLoading: false,
-            // 用户应用列表数据加载状态
+      // 用户应用列表数据加载状态
       userAppListOptions: [],
       userAppListLoading: false,
       searchTimer: null,
@@ -355,6 +355,16 @@ export default {
         score: [
           { required: true, message: "订单状态不能为空", trigger: "blur" }
         ]
+      }
+    }
+  },
+  watch: {
+    'queryParams.userId': {
+      handler(newUserId) {
+        // Clear the current app selection when user changes
+        this.queryParams.customerAppId = null;
+        // Reload app list based on the selected user
+        this.loadUserAppListOptions();
       }
     }
   },
@@ -437,7 +447,8 @@ export default {
       const queryParams = {
         pageNum: 1,
         pageSize: 100,
-        storeType: 2
+        storeType: 2,
+        userId: this.queryParams.userId, // 关联用户ID，确保只获取该用户的应用列表
       };
       
       if (inputParam) {

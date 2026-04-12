@@ -150,18 +150,18 @@
         </template>
       </el-table-column > -->
 
-      <el-table-column label="下单时间" align="center" prop="beginDate" width="180">
+      <el-table-column label="下单时间" align="center" prop="beginDate" width="150">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.orderTime, '{y}-{m}-{d} {h}:{i}:{s} ') }}</span>
         </template>
       </el-table-column>
       <!-- <el-table-column label="国家地区" align="center" prop="area" /> -->
-      <el-table-column label="开始日期" align="center" prop="beginDate" width="180">
+      <el-table-column label="开始日期" align="center" prop="beginDate" width="100">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.beginDate, '{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="结束日期" align="center" prop="endDate" width="180">
+      <el-table-column label="结束日期" align="center" prop="endDate" width="100">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.endDate, '{y}-{m}-{d}') }}</span>
         </template>
@@ -172,26 +172,26 @@
           <dict-tag :options="dict.type.order_status" :value="scope.row.orderStatus"/>
         </template>
       </el-table-column >
-      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
+      <el-table-column label="操作" align="left" class-name="small-padding" width="200">
         <template slot-scope="scope">
           <el-button
             v-if="scope.row.orderStatus != 1"
             size="mini"
-            type="text"
+            type="primary"
             icon="el-icon-view"
             @click="handleView(scope.row)"
             v-hasPermi="['normal:order:query']"
           >查看</el-button>
           <el-button v-if="scope.row.orderStatus == 1"
             size="mini"
-            type="text"
+            type="warning"
             icon="el-icon-edit"
             @click="handleEdit(scope.row)"
             v-hasPermi="['normal:order:edit']"
           >编辑</el-button>
           <el-button v-if="scope.row.orderStatus != 1"
             size="mini"
-            type="text"
+            type="success"
             icon="el-icon-edit"
             @click="handleReOrder(scope.row)"
             v-hasPermi="['normal:order:edit']"
@@ -408,6 +408,16 @@ export default {
       }
     }
   },
+    watch: {
+    'queryParams.userId': {
+      handler(newUserId) {
+        // Clear the current app selection when user changes
+        this.queryParams.customerAppId = null;
+        // Reload app list based on the selected user
+        this.loadUserAppListOptions();
+      }
+    }
+  },
   created() {
     this.getList()
      // 组件创建时加载用户列表数据
@@ -486,7 +496,9 @@ export default {
       // 构建查询参数，根据是否有输入值决定传参
       const queryParams = {
         pageNum: 1,
-        pageSize: 100
+        pageSize: 100,
+        storeType: 1,
+        userId: this.queryParams.userId, // 关联用户ID，确保只获取该用户的应用列表
       };
       
       if (inputParam) {

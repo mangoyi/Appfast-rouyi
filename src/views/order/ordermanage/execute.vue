@@ -86,9 +86,10 @@
           v-hasPermi="['normal:order:add']"
         >新增</el-button>
       </el-col>
+      <!-- 批量暂停 -->
       <el-col :span="1.5">
         <el-button
-          type="success"
+          type="warning"
           plain
           icon="el-icon-edit"
           size="mini"
@@ -110,7 +111,7 @@
       </el-col> -->
       <el-col :span="1.5">
         <el-button
-          type="warning"
+          type="success"
           plain
           icon="el-icon-download"
           size="mini"
@@ -167,7 +168,7 @@
           <el-button
             v-if="scope.row.orderStatus != 1"
             size="mini"
-            type="text"
+            type="primary"
             icon="el-icon-view"
             @click="handleView(scope.row)"
             v-hasPermi="['normal:order:query']"
@@ -186,11 +187,11 @@
             @click="handleUpdate(scope.row)"
             v-hasPermi="['normal:order:edit']"
           >修改</el-button> -->
-          <el-button v-if="scope.row.orderStatus != 1"
+          <el-button v-if="scope.row.orderStatus == 4"
             size="mini"
-            type="text"
+            type="warning"
             icon="el-icon-edit"
-            @click="handleEdit(scope.row)"
+            @click="confirmOrderOp(scope.row)"
             v-hasPermi="['normal:order:edit']"
           >暂停</el-button>
           <!-- <el-button

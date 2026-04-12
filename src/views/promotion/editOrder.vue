@@ -28,6 +28,22 @@
             </el-radio-group>
           </el-form-item>
         </el-col>
+        <el-col :span="20" v-if="$auth.hasPermi('system:user:list')">
+          <el-form-item label="用户名" prop="userId" style="width: 500px;">
+              <el-select ref="dialogUserSelect" v-model="formData.userId" placeholder="请输入或选择用户"
+                  filterable
+                  remote
+                  :remote-method="handleUserSearch"
+                  :loading="userListLoading"
+                  clearable
+                  :style="{width: '100%'}"
+                  :popper-append-to-body="true"
+                  @visible-change="handleDialogUserSelectVisibleChange">
+                <el-option v-for="item in userListOptions" :key="item.value" :label="item.label"
+                    :value="item.value"></el-option>
+              </el-select>
+          </el-form-item>
+        </el-col>
         <el-col :span="24">
           <el-form-item label="应用" prop="customerAppId">
             <!-- <el-select v-model="formData.customerAppId" filterable placeholder="请选择应用" :style="{ width: '30%' }"
@@ -555,6 +571,8 @@ import { listApp, getSimpleAppList } from "@/api/appkeyword/app"
 // 4. 导入订单API
 import { getPromotionOrder, updatePromotionOrder, createPromotionOrder } from "@/api/promotion/order"
 import { getToken } from '@/utils/auth'
+
+import auth from '@/plugins/auth'
 // 5. 导入国家选项的API
 import { getCountryOptions, getTime } from "@/api/promotion/country"
 
@@ -584,6 +602,7 @@ export default {
       formData: {
         // API字段映射
         customerAppId: undefined,           // 应用ID
+        userId: undefined,                // 用户ID（管理员可选）
         beginDate: null,           // 订单开始日期
         endDate: null,             // 订单结束日期
         orderAreaKeywords: [],     // 地区和关键词安装列表
@@ -682,16 +701,6 @@ export default {
         "value": 2
       }],
       countryOptions: [
-        { label: "美国", value: "us" },
-        { label: "中国", value: "cn" },
-        { label: "日本", value: "jp" },
-        { label: "韩国", value: "kr" },
-        { label: "英国", value: "gb" },
-        { label: "德国", value: "de" },
-        { label: "法国", value: "fr" },
-        { label: "加拿大", value: "ca" },
-        { label: "澳大利亚", value: "au" },
-        { label: "印度", value: "in" }
       ],
       // 关键词保排名的目标排名选项
       targetRankOptions: [
@@ -883,11 +892,16 @@ export default {
     }
   },
   created() {
+    // 用户没有权限时，不执行获取用户列表数据
+    if (auth.hasPermi('system:user:list')) {
+      this.loadUserListOptions()
+    }
     // 获取路由参数中的ID
     const id = this.$route.params.id
     if (id) {
       this.loadOrderData(id)
     }
+
     // 组件创建时加载用户列表数据
     // this.loadUserListOptions()
     // 加载执行小时选项数据
@@ -1032,6 +1046,11 @@ export default {
         orderAreaKeywords.forEach((areaConfig, index) => {
           this.formData.orderAreaKeywords.push(areaConfig)
         })
+
+        // 用户下拉框绑定用户
+        if (auth.hasPermi('system:user:list')) {
+          this.formData.userId = orderData.userId
+        }
 
         // this.loadAppListOptions(orderData.storeType)
         this.loadAppListOptions()
@@ -1540,7 +1559,7 @@ export default {
     loadAppListOptions() {
       this.appListLoading = true;
 
-      const query = { page: 1, limit: 100, storeType: this.formData.storeType };
+      const query = { page: 1, limit: 100, storeType: this.formData.storeType,userId: this.formData.userId };
       getSimpleAppList(query).then(response => {
         // console.log('应用列表响应:', response);
         const apps = response.rows || response.data || [];

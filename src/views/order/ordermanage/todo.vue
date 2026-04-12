@@ -174,14 +174,14 @@
           >查看</el-button>
           <el-button v-if="scope.row.orderStatus == 3"
             size="mini"
-            type="text"
+            type="info"
             icon="el-icon-edit"
             @click="handleExportDetail(scope.row)"
             v-hasPermi="['normal:order:export']"
           >导出</el-button>
           <el-button
             size="mini"
-            type="text"
+            type="danger"
             icon="el-icon-edit"
             @click="confirmExecuteOp(scope.row)"
             v-hasPermi="['normal:order:edit']"

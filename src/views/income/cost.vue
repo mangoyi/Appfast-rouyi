@@ -39,8 +39,8 @@
 
     <el-table v-loading="loading" :data="costList" @selection-change="handleSelectionChange">
 
-      <el-table-column label="订单编号 " align="center" prop="orderNo" width="200" />
-      <el-table-column label="应用名称 " align="center" prop="appName" />
+      <el-table-column label="订单编号 " align="center" prop="orderNo" width="150" />
+      <el-table-column label="应用名称 " align="center" prop="appName" width="200" />
       <el-table-column label="订单类型" align="center" prop="orderType">
         <template slot-scope="scope">
           <dict-tag :options="dict.type.order_type" :value="scope.row.orderType" />
@@ -52,9 +52,9 @@
         </template>
       </el-table-column> -->
 
-      <el-table-column label="消费前金额" align="center" prop="oldBalance" />
-      <el-table-column label="订单金额" align="center" prop="orderPrice" />
-      <el-table-column label="消费后金额" align="center" prop="newBalance" />
+      <el-table-column label="消费前金额" align="center" prop="oldBalance" :formatter="formatAmount" />
+      <el-table-column label="订单金额" align="center" prop="orderPrice" :formatter="formatAmount" />
+      <el-table-column label="消费后金额" align="center" prop="newBalance" :formatter="formatAmount" />
       <!-- <el-table-column label="余额" align="center" prop="balance" /> -->
       <el-table-column label="支付时间" align="center" prop="payTime">
         <template slot-scope="scope">
@@ -268,6 +268,10 @@ export default {
       this.download('income/export', {
         ...this.queryParams
       }, `income_${new Date().getTime()}.xlsx`)
+    },
+    formatAmount(row, column, cellValue) {
+      if (cellValue == null) return '';
+      return Number(cellValue).toFixed(2);
     }
   }
 }

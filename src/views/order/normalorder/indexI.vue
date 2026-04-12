@@ -14,12 +14,16 @@
         </el-select>
       </el-form-item>
       <el-form-item label="应用" prop="customerAppId">
-        <el-input
-          v-model="queryParams.customerAppId"
-          placeholder="请输入订单关联的应用"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
+          <el-select v-model="queryParams.customerAppId" placeholder="请输入或选择应用"
+              filterable
+              remote
+              :remote-method="handleAppSearch"
+              :loading="userAppListLoading"
+              clearable
+              :style="{width: '100%'}">
+            <el-option v-for="item in userAppListOptions" :key="item.value" :label="item.label"
+                :value="item.value"></el-option>
+          </el-select>
       </el-form-item>
       <el-form-item label="开始日期" prop="beginDate">
         <el-date-picker clearable
@@ -154,21 +158,21 @@
           <el-button
             v-if="scope.row.orderStatus != 1"
             size="mini"
-            type="text"
+            type="primary"
             icon="el-icon-view"
             @click="handleView(scope.row)"
             v-hasPermi="['normal:order:query']"
           >查看</el-button>
           <el-button v-if="scope.row.orderStatus == 1"
             size="mini"
-            type="text"
+            type="warning"
             icon="el-icon-edit"
             @click="handleEdit(scope.row)"
             v-hasPermi="['normal:order:edit']"
           >编辑</el-button>
           <el-button v-if="scope.row.orderStatus != 1"
             size="mini"
-            type="text"
+            type="success"
             icon="el-icon-edit"
             @click="handleReOrder(scope.row)"
             v-hasPermi="['normal:order:edit']"
@@ -270,6 +274,8 @@ import appleIcon from '@/assets/logo/as.png'
 import { queryUserList } from "@/api/system/user"
 import auth from '@/plugins/auth'
 
+import { getSimpleAppList } from "@/api/appkeyword/app"
+
 export default {
   name: "Order",
   dicts: ['store_type','normal_order_type','order_status','order_type'],
@@ -280,6 +286,9 @@ export default {
       // 用户列表数据加载状态
       userListOptions: [],
       userListLoading: false,
+      // 用户应用列表数据加载状态
+      userAppListOptions: [],      
+      userAppListLoading: false,
       searchTimer: null,
       // 选中数组
       ids: [],
@@ -350,7 +359,16 @@ export default {
       }
     }
   },
-  created() {
+  watch: {
+    'queryParams.userId': {
+      handler(newUserId) {
+        // Clear the current app selection when user changes
+        this.queryParams.customerAppId = null;
+        // Reload app list based on the selected user
+        this.loadUserAppListOptions();
+      }
+    }
+  },  created() {
     this.getList()
      // 组件创建时加载用户列表数据
     if (auth.hasPermi('system:user:list')) {
@@ -401,6 +419,42 @@ export default {
         this.userListOptions = [];
       }).finally(() => {
         this.userListLoading = false;
+      });
+    },
+     // 加载用户应用列表选项
+    loadUserAppListOptions(inputParam) {
+      // console.log('加载用户应用列表选项...',inputParam);
+      this.userAppListLoading = true;
+
+      // 构建查询参数，根据是否有输入值决定传参
+      const queryParams = {
+        pageNum: 1,
+        pageSize: 100,
+        storeType: 3,
+        userId: this.queryParams.userId, // 关联用户ID，确保只获取该用户的应用列表
+      };
+      
+      if (inputParam) {
+        // 有输入值时，传递搜索参数
+        queryParams.appName = inputParam;
+      }
+
+      // 调用应用列表API
+      getSimpleAppList(queryParams).then(response => {
+        // console.log('应用列表参数:', queryParams);
+        // console.log('应用列表响应:', response); // 添加日志以便调试
+        const userApps = response.rows || response.data || [];
+        // 转换为select组件需要的格式
+        this.userAppListOptions = userApps.map(app => ({
+          label: app.appName,
+          value: app.customerAppId
+        }));
+      }).catch(error => {
+        console.error('获取用户应用列表失败:', error);
+        this.userAppListOptions = [];
+        this.userAppListLoading = false;
+      }).finally(() => {
+        this.userAppListLoading = false;
       });
     },
 

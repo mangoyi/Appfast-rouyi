@@ -38,9 +38,9 @@
         </el-col>
         <el-col :span="24">
           <!-- 关键词安装 -->
-          <el-form-item label="地区关键词" v-if="formData.orderType == 1">
+          <el-form-item label="地区关键词" v-if="formData.orderType == 1" style="width: 50%;">
             <div v-for="(areaConfig, areaIndex) in formData.orderAreaKeywords" :key="areaIndex" style="margin-bottom: 3px; border: 1px solid #dcdfe6; padding: 5px; border-radius: 4px;">
-              <el-row :gutter="5">
+              <el-row :gutter="2">
                 <el-col :span="2">
                   <el-form-item label="国家/地区">
                     <span>{{ getCountryLabel(areaConfig.area) }}</span>
@@ -282,16 +282,16 @@ export default {
         "value": 2
       }],
       countryOptions: [
-        { label: "美国", value: "US" },
-        { label: "中国", value: "cn" },
-        { label: "日本", value: "jp" },
-        { label: "韩国", value: "kr" },
-        { label: "英国", value: "gb" },
-        { label: "德国", value: "de" },
-        { label: "法国", value: "fr" },
-        { label: "加拿大", value: "ca" },
-        { label: "澳大利亚", value: "au" },
-        { label: "印度", value: "in" }
+        // { label: "美国", value: "US" },
+        // { label: "中国", value: "cn" },
+        // { label: "日本", value: "jp" },
+        // { label: "韩国", value: "kr" },
+        // { label: "英国", value: "gb" },
+        // { label: "德国", value: "de" },
+        // { label: "法国", value: "fr" },
+        // { label: "加拿大", value: "ca" },
+        // { label: "澳大利亚", value: "au" },
+        // { label: "印度", value: "in" }
       ],
       // 联系方式类型选项
       communicateTypeOptions: [

@@ -167,7 +167,7 @@
           <el-button
             v-if="scope.row.orderStatus != 1"
             size="mini"
-            type="text"
+            type="primary"
             icon="el-icon-view"
             @click="handleView(scope.row)"
             v-hasPermi="['normal:order:query']"
@@ -188,7 +188,7 @@
           >修改</el-button> -->
           <el-button v-if="scope.row.orderStatus != 1"
             size="mini"
-            type="text"
+            type="success"
             icon="el-icon-edit"
             @click="handleEdit(scope.row)"
             v-hasPermi="['normal:order:edit']"
