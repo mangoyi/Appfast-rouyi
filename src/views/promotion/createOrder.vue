@@ -17,12 +17,16 @@
               <el-radio-button v-for="(item, index) in storeTypeOptions" :key="index" :label="item.value"
                 :disabled="item.disabled">{{ item.label }}</el-radio-button>
             </el-radio-group>
-            <el-radio-group v-model="formData.storeType" size="medium" v-if="storeType === 1 || storeType === 3">
+            <el-radio-group v-model="formData.storeType" size="medium" v-if="storeType === 1">
               <el-radio-button v-for="(item, index) in storeTypeOptions1" :key="index" :label="item.value"
                 :disabled="item.disabled">{{ item.label }}</el-radio-button>
             </el-radio-group>
             <el-radio-group v-model="formData.storeType" size="medium" v-if="storeType === 2">
               <el-radio-button v-for="(item, index) in storeTypeOptions2" :key="index" :label="item.value"
+                :disabled="item.disabled">{{ item.label }}</el-radio-button>
+            </el-radio-group>
+              <el-radio-group v-model="formData.storeType" size="medium" v-if="storeType === 3">
+              <el-radio-button v-for="(item, index) in storeTypeOptions3" :key="index" :label="item.value"
                 :disabled="item.disabled">{{ item.label }}</el-radio-button>
             </el-radio-group>
           </el-form-item>
@@ -688,6 +692,9 @@ export default {
       }, {
         "label": "Google Play",
         "value": 2
+      }, {
+        "label": "iPad",
+        "value": 3
       }],
       storeTypeOptions1: [{
         "label": "AppStore",
@@ -696,6 +703,10 @@ export default {
       storeTypeOptions2: [{
         "label": "Google Play",
         "value": 2
+      }],
+      storeTypeOptions3: [{
+        "label": "iPad",
+        "value": 3
       }],
       countryOptions: [
         // { label: "美国", value: "us" },
@@ -937,7 +948,7 @@ export default {
     const sType = this.$route && this.$route.query ? parseInt(this.$route.query.storeType) : NaN
     if (!Number.isNaN(sType)) {
       this.storeType = sType
-      this.formData.storeType = sType === 3 ? 1 : sType
+      this.formData.storeType = sType
     }
 
     // 用户没有权限时，不执行获取用户列表数据

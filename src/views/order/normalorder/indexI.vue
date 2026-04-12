@@ -599,7 +599,7 @@ export default {
     },// 添加跳转到新建订单页面的方法
       goToCreateOrder() {
         //  alert('点击了卡片')
-        this.$router.push('/promotion/createOrder?storeType=1')
+        this.$router.push('/promotion/createOrder?storeType=3')
       },
   }
 }
