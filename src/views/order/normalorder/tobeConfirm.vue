@@ -113,7 +113,7 @@
           >查看</el-button>
           <el-button v-if="scope.row.orderStatus == 2"
             size="mini"
-            type="text"
+            type="success"
             icon="el-icon-edit"
             @click="confirmOrderOp(scope.row)"
             v-hasPermi="['normal:order:edit']"

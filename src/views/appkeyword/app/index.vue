@@ -179,16 +179,15 @@
             v-hasPermi="['customer:app:edit']"
           >修改</el-button> -->
           <el-button
-            type="info"
-            icon="el-icon-plus"
             size="mini"
-            @click="goToCreateOrder"
-            class="create-order-btn"
+            type="primary"
+            icon="el-icon-plus"
+            @click="goToCreateOrder(scope.row.storeType)"
             title="新建订单"
-          ></el-button>
+          >新建订单</el-button>
           <el-button
             size="mini"
-            type="text"
+            type="danger"
             icon="el-icon-delete"
             @click="handleDelete(scope.row)"
             v-hasPermi="['customer:app:remove']"
@@ -691,9 +690,13 @@ export default {
       }
     },
     // 添加跳转到新建订单页面的方法
-    goToCreateOrder() {
-      //  alert('点击了卡片')
-      this.$router.push('/promotion/createOrder')
+    goToCreateOrder(storeType) {
+      this.$router.push({
+        path: '/promotion/createOrder',
+        query: {
+          storeType: storeType
+        }
+      })
     },
      // 地区列表
     loadCountryOptions() {
