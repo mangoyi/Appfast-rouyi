@@ -1,23 +1,25 @@
 <template>
   <div class="page-container">
-    <el-form ref="elForm" :model="formData" size="medium" label-width="300px">
-      <el-form-item label-width="100px" label="订单类型">
-        <span>{{ orderTypeLabel }}</span>
-      </el-form-item>
-    </el-form>
-
-    <el-row :gutter="15">
-      <el-form ref="elForm" :model="formData" size="medium" label-width="100px">
-        <el-col :span="20">
+    <!-- Basic Info Section with background color -->
+    <el-form ref="elForm" :model="formData" size="medium" label-width="100px" class="basic-info-section">
+      <el-row :gutter="15">
+        <el-col :span="6">
+          <el-form-item label="订单类型">
+            <span>{{ orderTypeLabel }}</span>
+          </el-form-item>
+        </el-col>
+        <el-col :span="6">
           <el-form-item label="应用商店">
             <span>{{ storeTypeLabel }}</span>
           </el-form-item>
         </el-col>
-        <el-col :span="24">
+        <el-col :span="12">
           <el-form-item label="应用">
             <span>{{ formData.appName  }}</span>
           </el-form-item>
         </el-col>
+      </el-row>
+      <el-row :gutter="15">
         <el-col :span="24">
           <el-form-item label="订单时间">
             <template v-if="formData.orderType == 1">
@@ -28,9 +30,12 @@
             </template>
           </el-form-item>
         </el-col>
-        <el-col :span="24">
-          <el-divider></el-divider>
-        </el-col>
+      </el-row>
+    </el-form>
+    <!-- 分割线 -->
+    <el-divider></el-divider>
+    <el-row :gutter="15">
+      <el-form ref="elForm" :model="formData" size="medium" label-width="100px">
         <el-col :span="24" v-if="formData.orderType == 1">
           <el-form-item label="执行小时">
             <span>{{ executionHourLabel }}</span>
@@ -38,23 +43,23 @@
         </el-col>
         <el-col :span="24">
           <!-- 关键词安装 -->
-          <el-form-item label="地区关键词" v-if="formData.orderType == 1" style="width: 50%;">
-            <div v-for="(areaConfig, areaIndex) in formData.orderAreaKeywords" :key="areaIndex" style="margin-bottom: 3px; border: 1px solid #dcdfe6; padding: 5px; border-radius: 4px;">
+          <el-form-item label="地区关键词" v-if="formData.orderType == 1">
+            <div v-for="(areaConfig, areaIndex) in formData.orderAreaKeywords" :key="areaIndex" class="area-card">
               <el-row :gutter="2">
-                <el-col :span="2">
+                <el-col :span="24">
                   <el-form-item label="国家/地区">
                     <span>{{ getCountryLabel(areaConfig.area) }}</span>
                   </el-form-item>
                 </el-col>
               </el-row>
               
-              <el-table :data="areaConfig.keywordList" border style="width: 100%; margin-top: 1px;">
-                <el-table-column prop="keyword" label="关键词" width="200" heiht="30">
+              <el-table :data="areaConfig.keywordList" border class="keyword-table" :max-height="areaConfig.keywordList.length > 2 ? 200 : ''">
+                <el-table-column prop="keyword" label="关键词" width="150">
                   <template slot-scope="scope">
                     <span>{{ scope.row.keyword }}</span>
                   </template>
                 </el-table-column>
-                <el-table-column prop="count" label="每日数量" width="150" heiht="30">
+                <el-table-column prop="count" label="每日数量" width="100">
                   <template slot-scope="scope">
                     <span>{{ scope.row.count }}</span>
                   </template>
@@ -64,7 +69,7 @@
           </el-form-item>
            <!-- 下载量 -->
            <el-form-item label="地区下载量" v-if="formData.orderType == 2">
-             <div v-for="(areaConfig, areaIndex) in formData.orderAreaDownloads" :key="areaIndex" style="margin-bottom: 20px; border: 1px solid #dcdfe6; padding: 15px; border-radius: 4px;">
+             <div v-for="(areaConfig, areaIndex) in formData.orderAreaDownloads" :key="areaIndex" class="area-card">
                <el-row :gutter="10">
                  <el-col :span="3">
                    <el-form-item label="国家/地区">
@@ -81,7 +86,7 @@
            </el-form-item>
           <!-- 评分 --> 
           <el-form-item label="地区评分" v-if="formData.orderType == 3">
-            <div v-for="(areaConfig, areaIndex) in formData.orderAreaScores" :key="areaIndex" style="margin-bottom: 20px; border: 1px solid #dcdfe6; padding: 15px; border-radius: 4px;">
+            <div v-for="(areaConfig, areaIndex) in formData.orderAreaScores" :key="areaIndex" class="area-card">
               <el-row :gutter="24">
                 <el-col :span="6">
                   <el-form-item label="国家/地区">
@@ -105,7 +110,7 @@
           </el-form-item>
           <!-- 评论 -->
           <el-form-item label="地区评论" v-if="formData.orderType == 4">
-            <div v-for="(areaConfig, areaIndex) in formData.orderAreaScores" :key="areaIndex" style="margin-bottom: 20px; border: 1px solid #dcdfe6; padding: 15px; border-radius: 4px;">
+            <div v-for="(areaConfig, areaIndex) in formData.orderAreaScores" :key="areaIndex" class="area-card">
               <el-row :gutter="24">
                 <el-col :span="6">
                   <el-form-item label="国家/地区">
@@ -132,7 +137,7 @@
           </el-form-item>
            <!-- 关键词保排名 -->
            <el-form-item label="关键词保排名服务" v-if="formData.orderType == 5">             
-             <div v-for="(areaConfig, areaIndex) in formData.orderKeywordRanks" :key="areaIndex" style="margin-bottom: 20px; border: 1px solid #dcdfe6; padding: 15px; border-radius: 4px;">
+             <div v-for="(areaConfig, areaIndex) in formData.orderKeywordRanks" :key="areaIndex" class="area-card">
                <el-row :gutter="24">
                  <el-col :span="6">
                    <el-form-item label="国家/地区">
@@ -141,13 +146,13 @@
                  </el-col>
                </el-row>
                
-               <el-table :data="areaConfig.keepRankList" border style="width: 100%; margin-top: 10px;">
-                 <el-table-column prop="keyword" label="关键词" width="200">
+               <el-table :data="areaConfig.keepRankList" border class="keyword-table" :max-height="areaConfig.keepRankList.length > 4 ? 200 : ''">
+                 <el-table-column prop="keyword" label="关键词" width="150">
                    <template slot-scope="scope">
                      <span>{{ scope.row.keyword }}</span>
                    </template>
                  </el-table-column>
-                 <el-table-column prop="targetRank" label="目标排名" width="180">
+                 <el-table-column prop="targetRank" label="目标排名" width="100">
                    <template slot-scope="scope">
                      <span>{{ scope.row.targetRank }}</span>
                    </template>
@@ -157,7 +162,7 @@
            </el-form-item>
            <!-- 关键词覆盖服务 -->
            <el-form-item label="关键词覆盖服务" v-if="formData.orderType == 6">
-             <div v-for="(areaConfig, areaIndex) in formData.orderKeywordRanks" :key="areaIndex" style="margin-bottom: 20px; border: 1px solid #dcdfe6; padding: 15px; border-radius: 4px;">
+             <div v-for="(areaConfig, areaIndex) in formData.orderKeywordRanks" :key="areaIndex" class="area-card">
                <el-row :gutter="24">
                  <el-col :span="6">
                    <el-form-item label="国家/地区">
@@ -166,13 +171,13 @@
                  </el-col>
                </el-row>
                
-               <el-table :data="areaConfig.coverList" border style="width: 100%; margin-top: 10px;">
-                 <el-table-column prop="keyword" label="关键词" width="200">
+               <el-table :data="areaConfig.coverList" border class="keyword-table" :max-height="areaConfig.coverList.length > 4 ? 200 : ''">
+                 <el-table-column prop="keyword" label="关键词" width="150">
                    <template slot-scope="scope">
                      <span>{{ scope.row.keyword }}</span>
                    </template>
                  </el-table-column>
-                 <el-table-column prop="currentRank" label="当前排名" width="180">
+                 <el-table-column prop="currentRank" label="当前排名" width="100">
                    <template slot-scope="scope">
                      <span>{{ scope.row.currentRank || '-' }}</span>
                    </template>
@@ -566,8 +571,75 @@ export default {
 
 </script>
 <style scoped>
+.basic-info-section {
+  background-color: #f0f7ff;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  border: 1px solid #dfefff;
+  overflow: hidden;
+}
+
+.basic-info-section .el-form-item {
+  margin-bottom: 0;
+}
+
+.basic-info-section .el-row {
+  margin-bottom: 0;
+}
+
+.keyword-table {
+  margin-top: 10px;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.keyword-table ::v-deep .el-table__header th {
+  background-color: #f5f7fa;
+  font-weight: 600;
+  color: #606266;
+  padding: 6px 0 !important; /* 减小表头高度 */
+}
+
+.keyword-table ::v-deep .el-table__row td {
+  padding: 4px 0 !important; /* 减小单元格垂直padding */
+}
+
+.keyword-table ::v-deep .el-table__header tr {
+  background-color: #fafafa;
+}
+
+.keyword-table ::v-deep .el-table__body tr:hover > td {
+  background-color: #f5f7fa;
+}
+
+.info-section {
+  background-color: #f8f9fc;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+}
+
+.area-card {
+  background-color: #ffffff;
+  border: 1px solid #e6ebf5;
+  border-radius: 4px;
+  padding: 15px;
+  margin-bottom: 15px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.area-card .el-form-item {
+  margin-bottom: 12px;
+}
+
+.area-card .el-form-item:last-child {
+  margin-bottom: 0;
+}
+
 .page-container {
   margin: 20px;
+  min-height: calc(100vh - 40px);
 }
 
 .form-footer {
