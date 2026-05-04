@@ -11,7 +11,7 @@
           v-model="queryParams.orderType"
           placeholder="全部"
           clearable
-          style="width: 240px"
+          style="width: 180px"
         >
           <el-option
             v-for="dict in dict.type.order_type"
