@@ -17,13 +17,16 @@
               <el-radio-button v-for="(item, index) in storeTypeOptions" :key="index" :label="item.value"
                 :disabled="item.disabled">{{ item.label }}</el-radio-button>
             </el-radio-group> -->
-            <el-radio-group v-model="formData.storeType" size="medium"
-              v-if="formData.storeType === 1 || formData.storeType === 3">
+            <el-radio-group v-model="formData.storeType" size="medium" v-if="formData.storeType === 1">
               <el-radio-button v-for="(item, index) in storeTypeOptions1" :key="index" :label="item.value"
                 :disabled="item.disabled">{{ item.label }}</el-radio-button>
             </el-radio-group>
             <el-radio-group v-model="formData.storeType" size="medium" v-if="formData.storeType === 2">
               <el-radio-button v-for="(item, index) in storeTypeOptions2" :key="index" :label="item.value"
+                :disabled="item.disabled">{{ item.label }}</el-radio-button>
+            </el-radio-group>
+            <el-radio-group v-model="formData.storeType" size="medium" v-if="formData.storeType === 3">
+              <el-radio-button v-for="(item, index) in storeTypeOptions3" :key="index" :label="item.value"
                 :disabled="item.disabled">{{ item.label }}</el-radio-button>
             </el-radio-group>
           </el-form-item>
@@ -699,6 +702,10 @@ export default {
       storeTypeOptions2: [{
         "label": "Google Play",
         "value": 2
+      }],
+      storeTypeOptions3: [{
+        "label": "iPad",
+        "value": 3
       }],
       countryOptions: [
       ],

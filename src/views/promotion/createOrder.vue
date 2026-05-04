@@ -1325,8 +1325,10 @@ updateLocalTime() {
           this.$message.success('订单创建成功！')
           if (this.formData.storeType === 1) {
             this.$router.push('/order/apple?storeType=1')
-          } else {
+          } else if (this.formData.storeType === 2) {
             this.$router.push('/order/google?storeType=2')
+          } else {
+            this.$router.push('/order/ipad?storeType=3')
           }
 
 

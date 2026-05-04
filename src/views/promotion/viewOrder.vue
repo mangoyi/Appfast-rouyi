@@ -97,12 +97,12 @@
               <el-row :gutter="24">
                 <el-col :span="8">
                   <el-form-item label="5星评分">
-                    <span>{{ areaConfig.star5Amount || 0 }}</span> 分
+                    <span>{{ areaConfig.star5Amount || 0 }}</span> 个
                   </el-form-item>
                 </el-col>
                 <el-col :span="8">
                   <el-form-item label="4星评分">
-                    <span>{{ areaConfig.star4Amount || 0 }}</span> 分
+                    <span>{{ areaConfig.star4Amount || 0 }}</span> 个
                   </el-form-item>
                 </el-col>
               </el-row>
@@ -285,6 +285,9 @@ export default {
       }, {
         "label": "Google Play",
         "value": 2
+      }, {
+        "label": "iPad",
+        "value": 3
       }],
       countryOptions: [
         // { label: "美国", value: "US" },
