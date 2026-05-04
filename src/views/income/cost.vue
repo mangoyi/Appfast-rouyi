@@ -6,21 +6,21 @@
         v-hasPermi="['income:export']">导出</el-button>
     </div>
     <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
-      <!-- <el-form-item label="类型" prop="incomeType">
+      <el-form-item label="订单类型" prop="orderType">
         <el-select
-          v-model="queryParams.incomeType"
+          v-model="queryParams.orderType"
           placeholder="全部"
           clearable
           style="width: 240px"
         >
           <el-option
-            v-for="dict in dict.type.income_type"
+            v-for="dict in dict.type.order_type"
             :key="dict.value"
             :label="dict.label"
             :value="dict.value"
           />
         </el-select>
-      </el-form-item> -->
+      </el-form-item>
       <el-form-item label="开始日期" prop="beginDate">
         <el-date-picker clearable v-model="queryParams.beginDate" type="date" value-format="yyyy-MM-dd"
           placeholder="请选择开始日期">
