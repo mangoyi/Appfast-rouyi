@@ -58,11 +58,25 @@
           v-hasPermi="['normal:order:export']"
         >导出</el-button>
       </el-col>
+      
+    <!-- 添加批量确认按钮 -->
+      <el-col :span="1.5">
+        <el-button
+          type="success"
+          plain
+          icon="el-icon-video-play"
+          size="mini"
+          :disabled="multiple"
+          :loading="batchConfirmLoading"
+          @click="handleBatchConfirm"
+          v-hasPermi="['normal:order:edit']"
+        >批量确认</el-button>
+      </el-col>
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
-    <el-table v-loading="loading" :data="orderList" @selection-change="handleSelectionChange">
-      <!-- <el-table-column type="selection" width="55" align="center" /> -->
+    <el-table v-loading="loading" :data="orderList" @selection-change="handleSelectionChange" ref="dataTable">
+      <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="主键 id" align="center" prop="id"  v-if="false"/>
       <el-table-column label="用户名" align="center" prop="userName" v-if="$auth.hasPermi('system:user:list')"/>
       <el-table-column label="订单编号 " align="center" prop="orderNo" width="200"/>
@@ -115,6 +129,7 @@
             size="mini"
             type="success"
             icon="el-icon-edit"
+            :loading="confirmOrderLoading"
             @click="confirmOrderOp(scope.row)"
             v-hasPermi="['normal:order:edit']"
           >确认</el-button>
@@ -247,6 +262,10 @@ export default {
       title: "",
       // 是否显示弹出层
       open: false,
+      // 批量执行loading状态
+      batchExecuteLoading: false,
+      // 确认订单loading状态
+      confirmOrderLoading: false,
       // 查询参数
       queryParams: {
         pageNum: 1,
@@ -539,22 +558,58 @@ export default {
     goToCreateOrder() {
       this.$router.push('/promotion/createOrder')
     },
-      // 确认订单，将订单状态改为3已确认待执行
+    // 确认订单，将订单状态改为3已确认待执行
     confirmOrderOp(val) { 
-      this.$modal.confirm('是否确认订单,编号为"' + val.orderNo + '"？').then(function() {
-             // 调用接口更新订单状态
-      const data = {
-        // ids是数组
-        ids: [val.id],
-        toStatus: 3,
-        status:2
-      }
-      return updateOrderStatus(data);
+      // this.confirmOrderLoading = true;
+      this.loading = true
+      
+      this.$modal.confirm('是否确认订单,编号为"' + val.orderNo + '"？').then(() => {
+        // 调用接口更新订单状态
+        const data = {
+          // ids是数组
+          ids: [val.id],
+          toStatus: 3,
+          status:2
+        }
+        
+        return updateOrderStatus(data);
       }).then(() => {
         this.getList()
         this.$modal.msgSuccess("确认成功")
-      }).catch(() => {})
+      }).catch(() => {
+      }).finally(() => {
+        // this.confirmOrderLoading = false;
+        this.loading = false;
+      })
     },
+    // 批量确认订单
+    handleBatchConfirm() {
+      if (this.ids.length === 0) {
+        this.$modal.msgError("请至少选择一条订单记录");
+        return;
+      }
+
+      // this.batchConfirmLoading = true;
+      this.loading = true
+
+      this.$modal.confirm('是否批量确认选中的 "' + this.ids.length + '" 条订单？').then(() => {
+        const data = {
+          ids: this.ids,
+          toStatus: 3, // 设置为已确认待执行状态
+          status: 2    // 从待确认状态执行
+        };
+        
+        return updateOrderStatus(data);
+      }).then(() => {
+        this.getList();
+        this.$modal.msgSuccess("批量确认成功");
+        this.$refs.dataTable.clearSelection(); // 清除选中状态
+      }).catch(() => {
+      }).finally(() => {
+        // this.batchConfirmLoading = false;
+        this.loading = false;
+      });
+    }
   },
   // 组件销毁时清理资源
   beforeDestroy() {
