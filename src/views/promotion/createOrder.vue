@@ -1322,18 +1322,33 @@ updateLocalTime() {
 
         createPromotionOrder(data).then(response => {
           loading.close()
-          this.$message.success('订单创建成功！')
-          if (this.formData.storeType === 1) {
-            this.$router.push('/order/apple?storeType=1')
-          } else if (this.formData.storeType === 2) {
-            this.$router.push('/order/google?storeType=2')
+         
+          if (!response.data.paid) {
+            
+            // 显示模态框而不是简单的消息提示
+            this.$confirm('账户余额不足，请联系客服进行充值！', '余额不足', {
+              confirmButtonText: '确定',
+              showCancelButton: false,
+              type: 'warning'
+            }).then(() => {
+                if (this.formData.storeType === 1) {
+                  this.$router.push('/order/apple?storeType=1')
+                } else if (this.formData.storeType === 2) {
+                  this.$router.push('/order/google?storeType=2')
+                } else {
+                  this.$router.push('/order/ipad?storeType=3')
+                }
+            })
           } else {
-            this.$router.push('/order/ipad?storeType=3')
+            this.$message.success('订单提交成功！')
+            if (this.formData.storeType === 1) {
+              this.$router.push('/order/apple?storeType=1')
+            } else if (this.formData.storeType === 2) {
+              this.$router.push('/order/google?storeType=2')
+            } else {
+              this.$router.push('/order/ipad?storeType=3')
+            }
           }
-
-
-          // 可以在这里跳转到订单列表页面或执行其他操作
-          // this.$router.push('/promotion/orderList')
 
           // 重置表单
           this.resetForm()

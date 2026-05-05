@@ -86,18 +86,6 @@
           v-hasPermi="['normal:order:add']"
         >新增</el-button>
       </el-col>
-      <!-- 批量暂停 -->
-      <el-col :span="1.5">
-        <el-button
-          type="warning"
-          plain
-          icon="el-icon-edit"
-          size="mini"
-          :disabled="single"
-          @click="confirmExecuteOp(scope.row)"
-          v-hasPermi="['normal:order:edit']"
-        >暂停执行</el-button>
-      </el-col>
       <!-- <el-col :span="1.5">
         <el-button
           type="danger"
@@ -111,6 +99,17 @@
       </el-col> -->
       <el-col :span="1.5">
         <el-button
+          type="warning"
+          plain
+          icon="el-icon-video-pause"
+          size="mini"
+          :disabled="multiple"
+          @click="handleBatchPause"
+          v-hasPermi="['normal:order:edit']"
+        >批量暂停</el-button>
+      </el-col>
+      <el-col :span="1.5">
+        <el-button
           type="success"
           plain
           icon="el-icon-download"
@@ -122,7 +121,7 @@
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
-    <el-table v-loading="loading" :data="orderList" @selection-change="handleSelectionChange">
+    <el-table v-loading="loading" :data="orderList" @selection-change="handleSelectionChange" ref="dataTable">
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="主键 id" align="center" prop="id"  v-if="false"/>
       <el-table-column label="用户名" align="center" prop="userName" v-if="$auth.hasPermi('system:user:list')"/>
@@ -329,6 +328,8 @@ export default {
       title: "",
       // 是否显示弹出层
       open: false,
+      // 批量暂停loading状态
+      batchPauseLoading: false,
       // 查询参数
       queryParams: {
         pageNum: 1,
@@ -636,6 +637,32 @@ export default {
         this.getList()
         this.$modal.msgSuccess("暂停成功")
       }).catch(() => {})
+    },
+    // 批量暂停订单，将订单状态从4改为6
+    handleBatchPause() {
+      if (this.ids.length === 0) {
+        this.$modal.msgError("请至少选择一条订单记录");
+        return;
+      }
+
+      this.loading = true;
+
+      this.$modal.confirm('是否批量暂停选中的 "' + this.ids.length + '" 条订单？').then(() => {
+        const data = {
+          ids: this.ids,
+          toStatus: 6, // 设置为暂停状态
+          status: 4    // 从执行状态暂停
+        };
+
+        return updateOrderStatus(data);
+      }).then(() => {
+        this.getList();
+        this.$modal.msgSuccess("批量暂停成功");
+        this.$refs.dataTable && this.$refs.dataTable.clearSelection(); // 清除选中状态
+      }).catch(() => {
+      }).finally(() => {
+        this.loading = false;
+      });
     },
   },
   // 组件销毁时清理资源

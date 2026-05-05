@@ -578,6 +578,7 @@ import { getToken } from '@/utils/auth'
 import auth from '@/plugins/auth'
 // 5. 导入国家选项的API
 import { getCountryOptions, getTime } from "@/api/promotion/country"
+// import { all } from "core-js/fn/promise"
 
 export default {
   components: {},
@@ -1001,6 +1002,12 @@ export default {
           orderPrice: orderData.orderPrice,
         }
 
+        // 续单的时候，订单时间设置为当前日期
+       const { isReOrder } = this.$route.query;
+       if(isReOrder && orderData.orderType == 1) {
+          detailData.orderDate = this.getCurrentTimeSync();
+       }
+
         // 根据订单类型处理地区配置数据
         const areaSource = (() => {
           if (orderData.orderType === 1) return orderData.orderAreaKeywords || []
@@ -1068,6 +1075,7 @@ export default {
       })
     },
     fetchSystemTime() {
+      // 更新当前时间显示
       try {
         getTime().then(response => {
           this.currentTime = response.msg;
@@ -1076,6 +1084,21 @@ export default {
         console.error('Failed to fetch system time:', error);
         // Fallback to client time if API fails
         this.currentTime = new Date().toLocaleString();
+      }
+    },
+    // 创建一个同步获取时间的函数
+    getCurrentTimeSync() {
+      try {
+        // 如果已经有从服务器获取的时间，就使用它
+        if (this.currentTime) {
+          return this.currentTime;
+        } else {
+          // 否则返回当前客户端时间
+          return new Date().toISOString().split('T')[0]; // 返回格式为 YYYY-MM-DD
+        }
+      } catch (error) {
+        console.error('Error getting current time:', error);
+        return new Date().toISOString().split('T')[0];
       }
     },
     downloadTemplate() {
@@ -1294,7 +1317,8 @@ export default {
         orderType: this.formData.orderType,
         storeType: this.formData.storeType,
         executionHour: this.formData.executionHour,
-        orderPrice: this.totalAmount
+        orderPrice: this.totalAmount,
+        userId: this.formData.userId
       }
 
       // 根据订单类型添加对应的数据字段
@@ -1345,15 +1369,45 @@ export default {
 
         updateOrReOrder(data).then(response => {
           loading.close()
-          this.$message.success('订单提交成功！')
-          console.log('订单提交响应:', response)
+          if (!response.data.paid) {
+            
+            // 显示模态框而不是简单的消息提示
+            this.$confirm('账户余额不足，请联系客服进行充值！', '余额不足', {
+              confirmButtonText: '确定',
+              showCancelButton: false,
+              type: 'warning'
+            }).then(() => {
+              // 保存成功后跳转回列表页面
+              this.$router.go(-1)
+            })
+          } else {
+            this.$message.success('订单提交成功！')
+            // 保存成功后跳转回列表页面
+            this.$router.go(-1)
+          }
 
-          // 保存成功后跳转回列表页面
-          this.$router.go(-1)
         }).catch(error => {
           loading.close()
           console.error('订单提交失败:', error)
-          this.$message.error('订单提交失败，请重试')
+          // 检查是否是余额不足错误
+          if (error.response && error.response.data && typeof error.response.data === 'string' && 
+              (error.response.data.includes('余额不足') || error.response.data.includes('余额不够') || error.response.data.includes('资金不足'))) {
+            
+            // 显示模态框而不是简单的消息提示
+            this.$confirm(error.response.data || '账户余额不足，请联系客服进行充值！', '余额不足', {
+              confirmButtonText: '去充值',
+              cancelButtonText: '取消',
+              type: 'warning'
+            }).then(() => {
+              // 点击确定后的操作，例如跳转到充值页面
+              this.$router.push('/profile') // 或者其他充值页面路径
+            }).catch(() => {
+              // 用户点击取消，不执行跳转
+              console.log('用户取消充值操作');
+            });
+          } else {
+            this.$message.error(error.response?.data?.msg || error.response?.data || '订单提交失败，请重试')
+          }
         })
       }).catch(() => {
         // 用户取消操作

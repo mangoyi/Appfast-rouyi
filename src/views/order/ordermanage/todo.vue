@@ -97,7 +97,7 @@
           v-hasPermi="['normal:order:edit']"
         >修改</el-button>
       </el-col> -->
-      <!-- <el-col :span="1.5">
+      <el-col :span="1.5">
         <el-button
           type="danger"
           plain
@@ -107,7 +107,18 @@
           @click="handleDelete"
           v-hasPermi="['normal:order:remove']"
         >删除</el-button>
-      </el-col> -->
+      </el-col>
+      <el-col :span="1.5">
+        <el-button
+          type="success"
+          plain
+          icon="el-icon-video-play"
+          size="mini"
+          :disabled="multiple"
+          @click="handleBatchExecute"
+          v-hasPermi="['normal:order:edit']"
+        >批量执行</el-button>
+      </el-col>
       <el-col :span="1.5">
         <el-button
           type="warning"
@@ -121,7 +132,7 @@
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
-    <el-table v-loading="loading" :data="orderList" @selection-change="handleSelectionChange">
+    <el-table v-loading="loading" :data="orderList" @selection-change="handleSelectionChange" ref="dataTable">
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="主键 id" align="center" prop="id"  v-if="false"/>
       <el-table-column label="用户名" align="center" prop="userName" v-if="$auth.hasPermi('system:user:list')"/>
@@ -167,7 +178,7 @@
           <el-button
             v-if="scope.row.orderStatus != 1"
             size="mini"
-            type="text"
+            type="primary"
             icon="el-icon-view"
             @click="handleView(scope.row)"
             v-hasPermi="['normal:order:query']"
@@ -627,19 +638,76 @@ export default {
     },
     // 确认执行，将订单状态由为3变更为4
     confirmExecuteOp(val) { 
-      this.$modal.confirm('是否执行订单,编号为"' + val.orderNo + '"？').then(function() {
-             // 调用接口更新订单状态
-      const data = {
-        // ids是数组
-        ids: [val.id],
-        toStatus: 4,
-        status:3
-      }
-      return updateOrderStatus(data);
+      this.$modal.confirm('是否执行订单,编号为"' + val.orderNo + '"？').then(() => {
+        // 调用接口更新订单状态
+        const data = {
+          // ids是数组
+          ids: [val.id],
+          toStatus: 4,
+          status:3
+        }
+        
+        this.loading = true;
+        return updateOrderStatus(data);
       }).then(() => {
         this.getList()
         this.$modal.msgSuccess("执行成功")
-      }).catch(() => {})
+      }).catch(() => {
+        this.$modal.msgError("执行失败");
+      }).finally(() => {
+        this.loading = false;
+      });
+    },
+    // 批量执行订单，将订单状态从3改为4
+    handleBatchExecute() {
+      if (this.ids.length === 0) {
+        this.$modal.msgError("请至少选择一条订单记录");
+        return;
+      }
+      this.loading = true;
+      this.$modal.confirm('是否批量执行选中的 "' + this.ids.length + '" 条订单？').then(() => {
+        const data = {
+          ids: this.ids,
+          toStatus: 4, // 设置为已执行状态
+          status: 3    // 从待执行状态执行
+        };
+
+        return updateOrderStatus(data);
+      }).then(() => {
+        this.getList();
+        this.$modal.msgSuccess("批量执行成功");
+        this.$refs.dataTable.clearSelection(); // 清除选中状态
+      }).catch(() => {  
+        this.$modal.msgError("批量执行失败");
+      }).finally(() => {
+        this.loading = false;       
+      });
+    },
+    // 批量确认订单，将订单状态从2改为3
+    handleBatchConfirm() {
+      if (this.ids.length === 0) {
+        this.$modal.msgError("请至少选择一条订单记录");
+        return;
+      }
+
+      this.batchConfirmLoading = true;
+
+      this.$modal.confirm('是否批量确认选中的 "' + this.ids.length + '" 条订单？').then(() => {
+        const data = {
+          ids: this.ids,
+          toStatus: 3, // 设置为已确认待执行状态
+          status: 2    // 从待确认状态执行
+        };
+
+        return updateOrderStatus(data);
+      }).then(() => {
+        this.getList();
+        this.$modal.msgSuccess("批量确认成功");
+        this.$refs.dataTable && this.$refs.dataTable.clearSelection(); // 清除选中状态
+      }).catch(() => {
+      }).finally(() => {
+        this.batchConfirmLoading = false;
+      });
     },
   },
   // 组件销毁时清理资源
