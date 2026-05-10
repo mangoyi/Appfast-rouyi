@@ -118,6 +118,17 @@
           v-hasPermi="['normal:order:remove']"
         >删除</el-button>
       </el-col> -->
+      <el-col :span="1.5" v-if="$auth.hasRole('admin')">
+        <el-button
+          type="success"
+          plain
+          icon="el-icon-video-play"
+          size="mini"
+          :disabled="multiple"
+          @click="handleBatchResume"
+          v-hasPermi="['normal:order:edit']"
+        >批量恢复</el-button>
+      </el-col>
       <el-col :span="1.5">
         <el-button
           type="warning"
@@ -131,7 +142,7 @@
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
-    <el-table v-loading="loading" :data="orderList" @selection-change="handleSelectionChange">
+    <el-table v-loading="loading" :data="orderList" @selection-change="handleSelectionChange" ref="dataTable">
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="主键 id" align="center" prop="id"  v-if="false"/>
       <el-table-column label="用户名" align="center" prop="userName" v-if="$auth.hasPermi('system:user:list')"/>
@@ -172,7 +183,7 @@
           <dict-tag :options="dict.type.order_status" :value="scope.row.orderStatus"/>
         </template>
       </el-table-column >
-      <el-table-column label="操作" align="left" class-name="small-padding" width="200">
+      <el-table-column label="操作" align="left" class-name="small-padding" width="260">
         <template slot-scope="scope">
           <el-button
             v-if="scope.row.orderStatus != 1"
@@ -196,6 +207,14 @@
             @click="handleReOrder(scope.row)"
             v-hasPermi="['normal:order:edit']"
           >续单</el-button>
+          <el-button v-if="scope.row.orderStatus == 6 && $auth.hasRole('admin')"
+            size="mini"
+            type="success"
+            icon="el-icon-video-play"
+            @click="confirmResumeOp(scope.row)"
+            v-hasPermi="['normal:order:edit']"
+          >恢复执行</el-button>
+          
           <!-- <el-button
             size="mini"
             type="text"
@@ -315,6 +334,7 @@
 
 <script>
 import { listOrder, getOrder, delOrder, addOrder, updateOrder } from "@/api/order/normalorder"
+import { updateOrderStatus } from "@/api/order/normalorder"  // 导入更新订单状态的函数
 import googleSrc from '@/assets/logo/gp.png'
 import appleIcon from '@/assets/logo/as.png'
 
@@ -715,6 +735,75 @@ export default {
     },
     handleReOrder(row) {
       this.$router.push(`/promotion/editOrder/${row.id}?isReOrder=1`)
+    },
+    // 确认恢复订单执行
+    confirmResumeOp(row) {
+      this.$modal.confirm('是否确认恢复执行订单编号为"' + row.orderNo + '"的订单？').then(function() {
+        // 创建数据对象，将订单状态从6(暂停)改为4(执行)
+        const data = {
+          ids: [row.id], // 单个订单，所以是包含一个ID的数组
+          toStatus: 4,   // 目标状态：执行中
+          status: 6      // 当前状态：暂停
+        };
+        return updateOrderStatus(data);
+      }).then(() => {
+        this.getList();
+        this.$modal.msgSuccess("恢复执行成功");
+      }).catch(() => {});
+    },
+    // 批量恢复订单，将订单状态从6改为4
+    handleBatchResume() {
+      if (this.ids.length === 0) {
+        this.$modal.msgError("请至少选择一条订单记录");
+        return;
+      }
+
+      // 过滤出状态为6（暂停）的订单
+      const pauseOrders = this.orderList.filter(item => 
+        this.ids.includes(item.id) && item.orderStatus == 6
+      );
+      
+      if (pauseOrders.length === 0) {
+        this.$modal.msgError("选中的订单中没有暂停的订单，只有暂停的订单可以执行恢复操作");
+        return;
+      }
+
+      // 检查是否所有选中的订单都是暂停状态
+      if (pauseOrders.length !== this.ids.length) {
+        const nonPauseCount = this.ids.length - pauseOrders.length;
+        this.$confirm(`选中的订单中有 ${pauseOrders.length} 个暂停的订单可以恢复，但还有 ${nonPauseCount} 个非暂停状态的订单。是否继续恢复暂停的订单？`, '提示', {
+          confirmButtonText: '继续',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.continueBatchResume(pauseOrders);
+        }).catch(() => {});
+      } else {
+        this.continueBatchResume(pauseOrders);
+      }
+    },
+    
+    // 继续执行批量恢复
+    continueBatchResume(ordersToProcess) {
+      this.loading = true;
+
+      this.$modal.confirm(`是否批量恢复选中的 "${ordersToProcess.length}" 条暂停的订单？`).then(() => {
+        const ids = ordersToProcess.map(item => item.id);
+        const data = {
+          ids: ids,
+          toStatus: 4, // 设置为执行状态
+          status: 6    // 从暂停状态恢复
+        };
+
+        return updateOrderStatus(data);
+      }).then(() => {
+        this.getList();
+        this.$modal.msgSuccess("批量恢复成功");
+        this.$refs.dataTable && this.$refs.dataTable.clearSelection(); // 清除选中状态
+      }).catch(() => {
+      }).finally(() => {
+        this.loading = false;
+      });
     },
     /** 修改按钮操作 */
     handleUpdate(row) {

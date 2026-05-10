@@ -99,6 +99,17 @@
           v-hasPermi="['normal:order:remove']"
         >删除</el-button>
       </el-col> -->
+      <el-col :span="1.5" v-if="$auth.hasRole('admin')">
+        <el-button
+          type="success"
+          plain
+          icon="el-icon-video-play"
+          size="mini"
+          :disabled="multiple"
+          @click="handleBatchResume"
+          v-hasPermi="['normal:order:edit']"
+        >批量恢复</el-button>
+      </el-col>
       <el-col :span="1.5">
         <el-button
           type="warning"
@@ -177,6 +188,13 @@
             @click="handleReOrder(scope.row)"
             v-hasPermi="['normal:order:edit']"
           >续单</el-button>
+          <el-button v-if="scope.row.orderStatus == 6 && $auth.hasRole('admin')"
+            size="mini"
+            type="success"
+            icon="el-icon-video-play"
+            @click="handleResume(scope.row)"
+            v-hasPermi="['normal:order:edit']"
+          >恢复执行</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -266,7 +284,7 @@
 </template>
 
 <script>
-import { listOrder, getOrder, delOrder, addOrder, updateOrder } from "@/api/order/normalorder"
+import { listOrder, getOrder, delOrder, addOrder, updateOrder, updateOrderStatus } from "@/api/order/normalorder"
 import googleSrc from '@/assets/logo/gp.png'
 import appleIcon from '@/assets/logo/as.png'
 
@@ -619,6 +637,74 @@ export default {
       goToCreateOrder() {
         //  alert('点击了卡片')
         this.$router.push('/promotion/createOrder?storeType=2')
+      },
+      /** 恢复执行单个订单 */
+      handleResume(row) {
+        this.$modal.confirm('是否确认恢复执行订单编号为"' + row.orderNo + '"的订单？').then(function() {
+          // 这里假设订单状态4是暂停状态，恢复后改为3（执行中），具体数值请根据实际业务调整
+          const data = {
+            id: row.id,
+          toStatus: 4, // 设置为执行状态
+          status: 6    // 从暂停状态恢复
+          };
+          return updateOrderStatus(data);
+        }).then(() => {
+          this.getList();
+          this.$modal.msgSuccess("恢复执行成功");
+        }).catch(() => {});
+      },
+      /** 批量恢复执行 */
+      handleBatchResume() {
+        if (!this.ids || this.ids.length === 0) {
+          this.$modal.msgError("请选择要恢复的订单");
+          return;
+        }
+
+        // 过滤出状态为6（暂停）的订单
+        const pauseOrders = this.orderList.filter(item => 
+          this.ids.includes(item.id) && item.orderStatus == 6
+        );
+        
+        if (pauseOrders.length === 0) {
+          this.$modal.msgError("选中的订单中没有暂停的订单，只有暂停的订单可以执行恢复操作");
+          return;
+        }
+
+        // 检查是否所有选中的订单都是暂停状态
+        if (pauseOrders.length !== this.ids.length) {
+          const nonPauseCount = this.ids.length - pauseOrders.length;
+          this.$confirm(`选中的订单中有 ${pauseOrders.length} 个暂停的订单可以恢复，但还有 ${nonPauseCount} 个非暂停状态的订单。是否继续恢复暂停的订单？`, '提示', {
+            confirmButtonText: '继续',
+            cancelButtonText: '取消',
+            type: 'warning'
+          }).then(() => {
+            this.continueBatchResume(pauseOrders);
+          }).catch(() => {});
+        } else {
+          this.continueBatchResume(pauseOrders);
+        }
+      },
+      
+      // 继续执行批量恢复
+      continueBatchResume(ordersToProcess) {
+        this.loading = true;
+
+        this.$modal.confirm(`是否批量恢复选中的 "${ordersToProcess.length}" 条暂停的订单？`).then(() => {
+          const ids = ordersToProcess.map(item => item.id);
+          const data = {
+            ids: ids,
+          toStatus: 4, // 设置为执行状态
+          status: 6    // 从暂停状态恢复
+          };
+
+          return updateOrderStatus(data);
+        }).then(() => {
+          this.getList();
+          this.$modal.msgSuccess("批量恢复执行成功");
+        }).catch(() => {
+        }).finally(() => {
+          this.loading = false;
+        });
       },
   }
 }
