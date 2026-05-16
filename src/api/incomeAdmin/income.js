@@ -42,3 +42,11 @@ export function delIncome(id) {
     method: 'delete'
   })
 }
+
+// 获取用户余额
+export function getUserBalance(userId) {
+  return request({
+    url: '/income/balance/' + userId,
+    method: 'get'
+  })
+}

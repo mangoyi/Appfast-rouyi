@@ -1,42 +1,45 @@
 <template>
-  <div class="app-container home">
-    <!-- <el-row :gutter="20">
-      <el-col :sm="24" :lg="12" style="padding-left: 20px">
-        <h3>账户首页</h3>
-      </el-col>
-    </el-row> -->
-    <!-- <el-divider /> -->
-    <ChildComponent  v-if="$auth.hasRole('admin')"></ChildComponent>
+  <div class="dashboard-container app-container home">
+    <ChildComponent v-if="$auth.hasRole('admin')"></ChildComponent>
     <div v-if="!$auth.hasRole('admin')">
-    <el-row>
-      <el-col :xs="24" :sm="24" :md="6" :lg="6">
-        <el-card class="update-log" style="background-color: lightgoldenrodyellow; border-radius: 10px; ">
-          <div slot="header" class="clearfix">
-            <span style="font-size: 12px;">今日消费</span>
-          </div>
-          <div class="text-item-small">
-            <!-- Replace optional chaining with safer syntax -->
-            <span style="font-size: 24px; color: #ff6b6b; font-weight: bold;">${{ financialSummary && financialSummary.todayConsumption ? financialSummary.todayConsumption : '0.00' }}</span>
-          </div>
-        </el-card>
-      </el-col>
-      <el-col :xs="24" :sm="24" :md="6" :lg="6">
-        <el-card class="update-log" style="background-color: lightgoldenrodyellow; border-radius: 10px;">
-          <div slot="header" class="clearfix">
-            <span>昨日消费</span>
-          </div>
-          <div class="text-item-small">
-            <!-- Replace optional chaining with safer syntax -->
-            <span style="font-size: 24px; color: #4ecdc4; font-weight: bold;">${{ financialSummary && financialSummary.yesterdayConsumption ? financialSummary.yesterdayConsumption : '0.00' }}</span>
-          </div>
-        </el-card>
-      </el-col>
+      <!-- Page Header -->
+      <div class="page-header">
+        <h1 class="title">账户概览</h1>
+        <div class="header-actions">
+           <el-button type="primary" icon="el-icon-refresh" size="small" @click="fetchFinancialSummary">刷新数据</el-button>
+        </div>
+      </div>
 
-    </el-row>
-    <el-divider />
-    <el-row>
-      <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
-        <el-form-item label="应用" prop="appId">
+      <!-- Panel Group / Summary Cards -->
+      <el-row :gutter="20" class="card-container panel-group">
+        <el-col :xs="24" :sm="12" :md="6" :lg="6">
+          <div class="card-panel">
+            <div class="card-panel-icon-wrapper icon-money">
+              <i class="el-icon-s-finance card-panel-icon"></i>
+            </div>
+            <div class="card-panel-description">
+              <div class="card-panel-text">今日消费</div>
+              <span class="card-panel-num text-red">${{ financialSummary && financialSummary.todayConsumption ? financialSummary.todayConsumption : '0.00' }}</span>
+            </div>
+          </div>
+        </el-col>
+        <el-col :xs="24" :sm="12" :md="6" :lg="6">
+          <div class="card-panel">
+            <div class="card-panel-icon-wrapper icon-shopping">
+              <i class="el-icon-shopping-cart-full card-panel-icon"></i>
+            </div>
+            <div class="card-panel-description">
+              <div class="card-panel-text">昨日消费</div>
+              <span class="card-panel-num text-green">${{ financialSummary && financialSummary.yesterdayConsumption ? financialSummary.yesterdayConsumption : '0.00' }}</span>
+            </div>
+          </div>
+        </el-col>
+      </el-row>
+
+      <!-- Filters Section -->
+      <div class="card-container filter-container">
+        <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" label-width="68px">
+          <el-form-item label="应用" prop="appId">
             <el-select v-model="queryParams.appId" placeholder="请输入或选择应用"
               filterable
               remote
@@ -44,37 +47,32 @@
               :loading="userAppListLoading"
               clearable
               @change="fetchDailyConsumptionData"
-              :style="{width: '100%'}">
-            <el-option v-for="item in userAppListOptions" :key="item.value" :label="item.label"
+              style="width: 200px">
+              <el-option v-for="item in userAppListOptions" :key="item.value" :label="item.label"
                 :value="item.value"></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="日期">
-          <el-date-picker
-            v-model="queryParams.dateRange"
-            style="width: 240px"
-            value-format="yyyy-MM-dd"
-            type="daterange"
-            range-separator="-"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-            :picker-options="datePickerOptions"
-             @change="fetchDailyConsumptionData"
-          ></el-date-picker>
-        </el-form-item>
-      </el-form>
-    </el-row>
-    <el-row>
-    <!-- 添加折线图容器 -->
-      <el-col :xs="24" :sm="24" :md="24" :lg="24" style="margin-top: 10px;">
-        <el-card>
-          <div slot="header" class="clearfix" style="text-align: center;">
-            <span>每日消费趋势图</span>
-          </div>
-          <div id="consumptionChart" style="width: 100%; height: 400px;"></div>
-        </el-card>
-      </el-col>
-    </el-row>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="日期">
+            <el-date-picker
+              v-model="queryParams.dateRange"
+              style="width: 240px"
+              value-format="yyyy-MM-dd"
+              type="daterange"
+              range-separator="-"
+              start-placeholder="开始日期"
+              end-placeholder="结束日期"
+              :picker-options="datePickerOptions"
+              @change="fetchDailyConsumptionData"
+            ></el-date-picker>
+          </el-form-item>
+        </el-form>
+      </div>
+
+      <!-- Charts Section -->
+      <div class="card-container chart-container">
+        <h3 class="box-title">每日消费趋势图</h3>
+        <div id="consumptionChart" style="width: 100%; height: 400px;"></div>
+      </div>
     </div>
   </div>
 </template>
@@ -378,79 +376,149 @@ export default {
 </script>
 
 <style scoped lang="scss">
-.home {
-
-   .text-item {
+.dashboard-container {
+  padding: 20px;
+  
+  .page-header {
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
-    height: 80px;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #eee;
+    
+    .title {
+      margin: 0;
+      font-size: 24px;
+      font-weight: 500;
+      color: #303133;
+    }
+    
+    .header-actions {
+      .el-button {
+        margin-left: 10px;
+      }
+    }
   }
-
-   .text-item-small {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 40px;
-  }
-  blockquote {
-    padding: 10px 20px;
-    margin: 0 0 20px;
-    font-size: 17.5px;
-    border-left: 5px solid #eee;
-  }
-  hr {
-    margin-top: 20px;
+  
+  .card-container {
+    background: #fff;
+    padding: 20px;
+    border-radius: 4px;
+    box-shadow: 0 1px 4px rgba(0,21,41,.08);
     margin-bottom: 20px;
-    border: 0;
-    border-top: 1px solid #eee;
-  }
-  .col-item {
-    margin-bottom: 20px;
   }
 
-  ul {
-    padding: 0;
-    margin: 0;
-  }
+  .panel-group {
+    margin-top: 18px;
+    
+    .card-panel {
+      height: 108px;
+      cursor: pointer;
+      font-size: 12px;
+      position: relative;
+      overflow: hidden;
+      color: #666;
+      background: #fff;
+      box-shadow: 0 1px 4px rgba(0,21,41,.08);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
 
-  font-family: "open sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 13px;
-  color: #676a6c;
-  overflow-x: hidden;
+      &:hover {
+        .card-panel-icon-wrapper {
+          color: #fff;
+        }
+        .icon-money {
+          background: #40c9c6;
+        }
+        .icon-shopping {
+          background: #36a3f7;
+        }
+      }
 
-  ul {
-    list-style-type: none;
-  }
+      .icon-money {
+        color: #40c9c6;
+      }
+      
+      .icon-shopping {
+        color: #36a3f7;
+      }
 
-  h4 {
-    margin-top: 0px;
-  }
+      .card-panel-icon-wrapper {
+        float: left;
+        margin: 14px 0 0 14px;
+        padding: 16px;
+        transition: all 0.38s ease-out;
+        border-radius: 6px;
+      }
 
-  h2 {
-    margin-top: 10px;
-    font-size: 26px;
-    font-weight: 100;
-  }
+      .card-panel-icon {
+        float: left;
+        font-size: 48px;
+      }
 
-  p {
-    margin-top: 10px;
+      .card-panel-description {
+        float: right;
+        font-weight: bold;
+        margin: 26px;
+        margin-left: 0px;
 
-    b {
-      font-weight: 700;
+        .card-panel-text {
+          line-height: 18px;
+          color: rgba(0, 0, 0, 0.45);
+          font-size: 16px;
+          margin-bottom: 12px;
+        }
+
+        .card-panel-num {
+          font-size: 24px;
+          font-weight: bold;
+        }
+        
+        .text-red {
+          color: #ff6b6b;
+        }
+        
+        .text-green {
+          color: #4ecdc4;
+        }
+      }
     }
   }
 
-  .update-log {
-    ol {
-      display: block;
-      list-style-type: decimal;
-      margin-block-start: 1em;
-      margin-block-end: 1em;
-      margin-inline-start: 0;
-      margin-inline-end: 0;
-      padding-inline-start: 40px;
+  .filter-container {
+    padding-bottom: 0;
+  }
+
+  .chart-container {
+    position: relative;
+    
+    .box-title {
+      margin: 0 0 20px 0;
+      font-size: 18px;
+      font-weight: 500;
+      color: #303133;
+      text-align: center;
     }
+  }
+}
+
+@media (max-width: 768px) {
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    
+    .header-actions {
+      margin-top: 16px;
+    }
+  }
+  
+  .panel-group .card-panel {
+     .card-panel-description {
+        margin: 10px;
+     }
   }
 }
 </style>

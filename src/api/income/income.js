@@ -51,12 +51,10 @@ export function getUserFinancialSummary() {
   })
 }
 
-
-// 查询用户财务汇总信息
-export function getUserDailyConsumptionList(query) {
+// 获取用户余额
+export function getUserBalance(userId) {
   return request({
-    url: '/income/daily/list',
-    method: 'get',
-    params: query
+    url: '/income/balance/' + userId,
+    method: 'get'
   })
 }

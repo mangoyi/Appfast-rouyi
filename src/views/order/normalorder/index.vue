@@ -147,7 +147,7 @@
       <el-table-column label="主键 id" align="center" prop="id"  v-if="false"/>
       <el-table-column label="用户名" align="center" prop="userName" v-if="$auth.hasPermi('system:user:list')"/>
       <!-- <el-table-column label="应用id" align="center" prop="customerAppId" /> -->
-      <el-table-column label="订单编号 " align="center" prop="orderNo" width="200"/>
+      <el-table-column label="订单编号 " align="center" prop="orderNo" width="150"/>
       <el-table-column label="应用名称" align="center" prop="appName" />
       <el-table-column label="应用id" align="center" prop="appId" />
       <el-table-column label="订单类型" align="center" prop="orderType" > 
@@ -183,8 +183,9 @@
           <dict-tag :options="dict.type.order_status" :value="scope.row.orderStatus"/>
         </template>
       </el-table-column >
-      <el-table-column label="操作" align="left" class-name="small-padding" width="260">
+      <el-table-column label="操作" align="left" class-name="small-padding" width="180">
         <template slot-scope="scope">
+          <div class="button-group">
           <el-button
             v-if="scope.row.orderStatus != 1"
             size="mini"
@@ -213,29 +214,8 @@
             icon="el-icon-video-play"
             @click="confirmResumeOp(scope.row)"
             v-hasPermi="['normal:order:edit']"
-          >恢复执行</el-button>
-          
-          <!-- <el-button
-            size="mini"
-            type="text"
-            icon="el-icon-edit"
-            @click="handleUpdate(scope.row)"
-            v-hasPermi="['normal:order:edit']"
-          >修改</el-button> -->
-          <!-- <el-button v-if="scope.row.orderStatus != 1"
-            size="mini"
-            type="text"
-            icon="el-icon-edit"
-            @click="handleEdit(scope.row)"
-            v-hasPermi="['normal:order:edit']"
-          >复制</el-button> -->
-          <!-- <el-button
-            size="mini"
-            type="text"
-            icon="el-icon-delete"
-            @click="handleDelete(scope.row)"
-            v-hasPermi="['normal:order:remove']"
-          >删除</el-button> -->
+          >恢复</el-button>
+          </div>
         </template>
       </el-table-column>
     </el-table>
@@ -331,6 +311,17 @@
     </el-dialog>
   </div>
 </template>
+
+<style scoped>
+.button-group .el-button {
+  margin-left: 6px;
+  margin-bottom: 6px;
+}
+
+.button-group .el-button:first-child {
+  margin-left: 0;
+}
+</style>
 
 <script>
 import { listOrder, getOrder, delOrder, addOrder, updateOrder } from "@/api/order/normalorder"

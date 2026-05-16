@@ -70,7 +70,7 @@ export default {
     position: relative;
     height: 100%;
     width: 100%;
-
+    
     &.mobile.openSidebar {
       position: fixed;
       top: 0;
@@ -93,12 +93,14 @@ export default {
   }
 
   .fixed-header {
-    position: fixed;
+    position: sticky;
     top: 0;
     right: 0;
     z-index: 9;
     width: calc(100% - #{$base-sidebar-width});
     transition: width 0.28s;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   }
 
   .hideSidebar .fixed-header {
@@ -111,5 +113,25 @@ export default {
 
   .mobile .fixed-header {
     width: 100%;
+  }
+  
+  // Improve scroll behavior
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 10px;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
   }
 </style>

@@ -152,7 +152,7 @@
           <!--&gt;修改</el-button>-->
           <el-button
             size="mini"
-            type="text"
+            type="danger"
             icon="el-icon-delete"
             @click="handleDelete(scope.row)"
             v-hasPermi="['income:remove']"
@@ -172,7 +172,7 @@
     <!-- 添加或修改收入支出记录对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="用户名" prop="userId">
+        <el-form-item label="用户名" prop="userId" style="width: 320px">
           <el-select v-model="form.userId" placeholder="请输入或选择用户"
                 filterable
                 remote
@@ -184,11 +184,11 @@
                   :value="item.value"></el-option>
             </el-select>
         </el-form-item>
-        <el-form-item label="金额" prop="amount">
-          <el-input v-model="form.amount" placeholder="请输入金额" />
+             <el-form-item label="当前余额" prop="balance">
+          <span>{{ form.balance }}</span>
         </el-form-item>
-        <el-form-item label="余额" prop="balance">
-          <el-input v-model="form.balance" placeholder="请输入余额" />
+        <el-form-item label="金额" prop="amount">
+          <el-input v-model="form.amount" placeholder="请输入金额" style="width: 240px" />
         </el-form-item>
         <el-form-item label="类型" prop="incomeType">
                <el-select
@@ -206,11 +206,11 @@
         </el-select>
         </el-form-item>
         <el-form-item label="备注" prop="remark">
-          <el-input v-model="form.remark" placeholder="请输入备注" />
+          <el-input v-model="form.remark" placeholder="请输入备注" style="width: 240px" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="submitForm">确 定</el-button>
+        <el-button type="primary" :loading="submitLoading" @click="submitForm">确 定</el-button>
         <el-button @click="cancel">取 消</el-button>
       </div>
     </el-dialog>
@@ -218,7 +218,7 @@
 </template>
 
 <script>
-import { listIncome, getIncome, delIncome, addIncome, updateIncome } from "@/api/income/income"
+import { listIncome, getIncome, delIncome, addIncome, updateIncome,getUserBalance } from "@/api/income/income"
 // 1. 导入获取用户列表的API
 import { queryUserList } from "@/api/system/user"
 
@@ -270,9 +270,7 @@ export default {
         amount: [
           { required: true, message: "金额不能为空", trigger: "blur" }
         ],
-        balance: [
-          { required: true, message: "余额不能为空", trigger: "blur" }
-        ],
+      
         incomeType: [
           { required: true, message: "类型 1充值 2支付 3退款不能为空", trigger: "change" }
         ],
@@ -282,7 +280,9 @@ export default {
         updateTime: [
           { required: true, message: "更新时间不能为空", trigger: "blur" }
         ]
-      }
+      },
+      // 提交按钮loading状态
+      submitLoading: false
     }
   },
   computed: {
@@ -306,6 +306,13 @@ export default {
   created() {
     this.getList()
     this.loadUserListOptions()
+  },
+  watch: {
+    'form.userId': function(newVal, oldVal) {
+      if(newVal !== oldVal) {
+        this.onUserChange(newVal);
+      }
+    }
   },
   methods: {
     /** 查询收入支出记录列表 */
@@ -340,6 +347,7 @@ export default {
         endDate: null,  
         incomeType: null,
         remark: null,
+        balance: null
       }
       this.resetForm("form")
     },
@@ -381,6 +389,7 @@ export default {
     },
     /** 提交按钮 */
     submitForm() {
+      this.submitLoading = true;
       this.$refs["form"].validate(valid => {
         if (valid) {
           if (this.form.id != null) {
@@ -388,14 +397,25 @@ export default {
               this.$modal.msgSuccess("修改成功")
               this.open = false
               this.getList()
+            }).catch(() => {
+              // 如果发生错误也需要重置loading状态
+            }).finally(() => {
+              this.submitLoading = false;
             })
           } else {
             addIncome(this.form).then(response => {
               this.$modal.msgSuccess("新增成功")
               this.open = false
               this.getList()
+            }).catch(() => {
+              // 如果发生错误也需要重置loading状态
+            }).finally(() => {
+              this.submitLoading = false;
             })
           }
+        } else {
+          // 验证不通过也需要重置loading状态
+          this.submitLoading = false;
         }
       })
     },
@@ -414,7 +434,8 @@ export default {
       this.download('income/export', {
         ...this.queryParams
       }, `income_${new Date().getTime()}.xlsx`)
-    },// 处理用户搜索
+    },
+    // 处理用户搜索
     handleUserSearch(query) {
       // console.log('用户搜索...',query);
       // 清除之前的定时器
@@ -459,6 +480,21 @@ export default {
         this.userListLoading = false;
       });
     },
+    
+    // 当用户选择发生变化时获取用户余额
+    onUserChange(userId) {
+      if (userId) {
+        getUserBalance(userId).then(response => {
+          // 将获取到的余额更新到表单中
+          this.form.balance = response.data;
+        }).catch(error => {
+          console.error('获取用户余额失败:', error);
+          this.form.balance = 0; // 如果获取失败，默认设置为0
+        });
+      } else {
+        this.form.balance = null;
+      }
+    }
   }
 }
 </script>

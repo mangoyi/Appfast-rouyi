@@ -128,7 +128,7 @@
       <el-table-column label="主键 id" align="center" prop="id"  v-if="false"/>
       <el-table-column label="用户名" align="center" prop="userName" v-if="$auth.hasPermi('system:user:list')"/>
       <!-- <el-table-column label="应用id" align="center" prop="customerAppId" /> -->
-      <el-table-column label="订单编号 " align="center" prop="orderNo" width="200"/>
+      <el-table-column label="订单编号 " align="center" prop="orderNo" width="150"/>
       <el-table-column label="应用名称" align="center" prop="appName" />
       <el-table-column label="应用id" align="center" prop="appId" />
       <el-table-column label="订单类型" align="center" prop="orderType" > 
@@ -142,18 +142,18 @@
         </template>
       </el-table-column > -->
 
-      <el-table-column label="下单时间" align="center" prop="beginDate" width="180">
+      <el-table-column label="下单时间" align="center" prop="beginDate" width="150">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.orderTime, '{y}-{m}-{d} {h}:{i}:{s} ') }}</span>
         </template>
       </el-table-column>
       <!-- <el-table-column label="国家地区" align="center" prop="area" /> -->
-      <el-table-column label="开始日期" align="center" prop="beginDate" width="180">
+      <el-table-column label="开始日期" align="center" prop="beginDate" width="100">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.beginDate, '{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="结束日期" align="center" prop="endDate" width="180">
+      <el-table-column label="结束日期" align="center" prop="endDate" width="100">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.endDate, '{y}-{m}-{d}') }}</span>
         </template>
@@ -164,8 +164,9 @@
           <dict-tag :options="dict.type.order_status" :value="scope.row.orderStatus"/>
         </template>
       </el-table-column >
-      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
+      <el-table-column label="操作" align="center" class-name="small-padding" width="180">
          <template slot-scope="scope">
+          <div class="button-group">
           <el-button
             v-if="scope.row.orderStatus != 1"
             size="mini"
@@ -190,11 +191,12 @@
           >续单</el-button>
           <el-button v-if="scope.row.orderStatus == 6 && $auth.hasRole('admin')"
             size="mini"
-            type="success"
+            type="warning"
             icon="el-icon-video-play"
             @click="handleResume(scope.row)"
             v-hasPermi="['normal:order:edit']"
           >恢复</el-button>
+          </div>
         </template>
       </el-table-column>
     </el-table>
@@ -282,6 +284,17 @@
     </el-dialog>
   </div>
 </template>
+
+<style scoped>
+.button-group .el-button {
+  margin-left: 6px;
+  margin-bottom: 6px;
+}
+
+.button-group .el-button:first-child {
+  margin-left: 0;
+}
+</style>
 
 <script>
 import { listOrder, getOrder, delOrder, addOrder, updateOrder, updateOrderStatus } from "@/api/order/normalorder"
