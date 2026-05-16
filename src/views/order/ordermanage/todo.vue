@@ -173,7 +173,7 @@
           <dict-tag :options="dict.type.order_status" :value="scope.row.orderStatus"/>
         </template>
       </el-table-column > -->
-      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
+      <el-table-column label="操作" align="center" class-name="small-padding" width="180"> 
         <template slot-scope="scope">
           <el-button
             v-if="scope.row.orderStatus != 1"
