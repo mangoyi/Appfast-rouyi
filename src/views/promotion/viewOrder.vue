@@ -71,7 +71,7 @@
            <el-form-item label="地区下载量" v-if="formData.orderType == 2">
              <div v-for="(areaConfig, areaIndex) in formData.orderAreaDownloads" :key="areaIndex" class="area-card">
                <el-row :gutter="10">
-                 <el-col :span="3">
+                 <el-col :span="6">
                    <el-form-item label="国家/地区">
                      <span>{{ getCountryLabel(areaConfig.area) }}</span>
                    </el-form-item>
