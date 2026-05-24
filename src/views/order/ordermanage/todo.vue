@@ -451,7 +451,7 @@ export default {
         const users = response.rows || response.data || [];
         // 转换为select组件需要的格式
         this.userListOptions = users.map(user => ({
-          label: user.nickName || user.userName || user.userId,
+          label: user.email,
           value: user.userId
         }));
       }).catch(error => {
@@ -623,9 +623,18 @@ export default {
     },
     /** 导出按钮操作 */
     handleExport() {
-      this.download('normal/order/export', {
-        ...this.queryParams
-      }, `order_${new Date().getTime()}.xlsx`)
+      if (this.ids.length > 0) {
+        // 如果有选中项，导出选中的数据
+        this.download('normal/order/export', {
+          ...this.queryParams,
+          ids: this.ids.join(',')
+        }, `order_selected_${new Date().getTime()}.xlsx`)
+      } else {
+        // 如果没有选中项，导出全部数据
+        this.download('normal/order/export', {
+          ...this.queryParams
+        }, `order_${new Date().getTime()}.xlsx`)
+      }
     },
     /** 导出订单详情按钮操作 */
     handleExportDetail(row) {
