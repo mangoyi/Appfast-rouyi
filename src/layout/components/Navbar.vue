@@ -15,6 +15,9 @@
           <span style="font-size: 24px; color: orange; font-weight: bold;">${{ financialSummary &&
             financialSummary.accountBalance ? financialSummary.accountBalance : '0.00' }}
           </span>
+          <el-button type="text" size="mini" class="refresh-btn" @click.stop="fetchFinancialSummary" title="刷新余额">
+            <i class="el-icon-refresh"></i> 最新
+          </el-button>
           <el-button type="primary" size="medium" class="recharge-btn" @click="showRechargeDialog">
             充值
           </el-button>
@@ -70,7 +73,8 @@ export default {
       financialSummary: null,
       rechargeDialogVisible: false,
       mePic: mePic,
-      userIcon: userIcon
+      userIcon: userIcon,
+      balanceRefreshInterval: null
     }
   },
   components: {

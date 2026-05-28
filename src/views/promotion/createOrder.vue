@@ -644,12 +644,73 @@ export default {
           message: '订单类型不能为空',
           trigger: 'change'
         }],
-        orderAreaKeywords: [{
-          required: true,
-          type: 'array',
-          message: '请至少添加一个地区关键字配置',
-          trigger: 'change'
-        }],
+        orderAreaKeywords: [
+          {
+            required: true,
+            type: 'array',
+            message: '请完善地区信息后提交',
+            trigger: 'change'
+          },
+          {
+            validator: (rule, value, callback) => {
+              if (!value || value.length === 0) {
+                callback(new Error('请完善地区信息后提交'));
+              } else {
+                // Check if at least one region has been selected
+                const hasValidRegion = value.some(region => region.area);
+                if (!hasValidRegion) {
+                  callback(new Error('请完善地区信息后提交'));
+                } else {
+                  // For order type 1 (keyword installation), validate that at least one keyword and count exists
+                  if (this.formData.orderType === 1) {
+                    const hasValidKeywordAndCount = value.some(region => {
+                      if (region.keywordList && Array.isArray(region.keywordList)) {
+                        return region.keywordList.some(keywordItem => {
+                          return keywordItem.keyword && keywordItem.keyword.trim() !== '' && keywordItem.count && parseInt(keywordItem.count) > 0;
+                        });
+                      }
+                      return false;
+                    });
+                    
+                    if (!hasValidKeywordAndCount) {
+                      callback(new Error('关键词安装类型需填写关键词和每日数量'));
+                      return;
+                    }
+                  }
+                  
+                  // For order type 2 (download quantity), validate that at least one download count exists
+                  if (this.formData.orderType === 2) {
+                    const hasValidDownloadCount = value.some(region => {
+                      return region.downloadCount && parseInt(region.downloadCount) > 0;
+                    });
+                    
+                    if (!hasValidDownloadCount) {
+                      callback(new Error('下载量类型需填写安装量'));
+                      return;
+                    }
+                  }
+                  
+                  // For order type 3 (rating) and 4 (review), validate that at least one rating amount exists
+                  if (this.formData.orderType === 3 || this.formData.orderType === 4) {
+                    const hasValidRating = value.some(region => {
+                      return (region.star5Amount && parseInt(region.star5Amount) >= 0) || 
+                             (region.star4Amount && parseInt(region.star4Amount) >= 0);
+                    });
+                    
+                    if (!hasValidRating) {
+                      const msg = this.formData.orderType === 3 ? '评分类型需填写评分数量' : '评论类型需填写评论数量';
+                      callback(new Error(msg));
+                      return;
+                    }
+                  }
+                  
+                  callback();
+                }
+              }
+            },
+            trigger: 'change'
+          }
+        ],
         orderKeywordRanks: [{
           required: true,
           type: 'array',
